@@ -54,20 +54,7 @@
 									? resultsDictionary[(selectedCategoryId, selectedDisciplineId)][i]
 									: resultsOverallDictionary[selectedDisciplineId][i];
 
-								var rowColor = result.IsTieForMedal switch
-								{
-									true => "background-color: red;", // červená při nerozhodnutém medailovém pořadí
-									false => i switch
-									{
-										0 => "background-color: gold;",
-										1 => "background-color: silver;",
-										2 => "background-color: #CD7F32;",
-										_ => ""
-									}
-								};
-
-
-								<div class="result-card m-2 p-2 border rounded" style="@rowColor">
+                                                                <div class="result-card m-2 p-2 border rounded" style="@result.BackgroundColor">
 									<div class="rank">Rank: @(i + 1)</div>
 									<div class="thrower-name"><strong>@throwerName</strong></div>
 									<div class="points">Points: @points
@@ -95,19 +82,7 @@
 									? resultsDictionary[(selectedCategoryId, selectedDisciplineId)][i]
 									: resultsOverallDictionary[selectedDisciplineId][i];
 
-								var rowColor = result.IsTieForMedal switch
-								{
-									true => "background-color: red;", // červená při nerozhodnutém medailovém pořadí
-									false => i switch
-									{
-										0 => "background-color: gold;",
-										1 => "background-color: silver;",
-										2 => "background-color: #CD7F32;",
-										_ => ""
-									}
-								};
-
-								<div class="result-card m-2 p-2 border rounded" style="@rowColor">
+                                                                <div class="result-card m-2 p-2 border rounded" style="@result.BackgroundColor">
 									<div class="rank">Rank: @(i + 1)</div>
 									<div class="thrower-name"><strong>@throwerName</strong></div>
 									<div class="points">Points: @points

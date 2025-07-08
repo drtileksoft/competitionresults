@@ -94,13 +94,9 @@
 							<tbody>
 								@for (int i = 0; i < MaxRowCount(); i++)
 								{
-									var rowColor = i switch
-									{
-										0 => "background-color: gold;",
-										1 => "background-color: silver;",
-										2 => "background-color: #CD7F32;",
-										_ => ""
-									};
+            var rowColor = selectedGroupedDisciplines.Skip(currentPage * PageSize).Take(PageSize)
+                .Select(key => resultsByGroupedSelection[key].ElementAtOrDefault(i))
+                .FirstOrDefault(r => r != null)?.BackgroundColor ?? "";
 									<tr>
 										<td style="width: 30px; padding: 3px !important; @rowColor">@((i + 1))</td>
 

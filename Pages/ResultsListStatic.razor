@@ -40,14 +40,11 @@
 									<tbody>
 										@for (int i = 0; i < MaxResultsCount(category.Id); i++)
 										{
-											var rank = i + 1;
-											var rowColor = i switch
-											{
-												0 => "background-color: gold;",
-												1 => "background-color: silver;",
-												2 => "background-color: #CD7F32;",
-												_ => ""
-											};
+            var rank = i + 1;
+            var firstResult = disciplines.Where(d => d.IsDividedToCategories)
+                .Select(d => resultsDictionary[(category.Id, d.Id)].ElementAtOrDefault(i))
+                .FirstOrDefault(r => r != null);
+            var rowColor = firstResult?.BackgroundColor ?? "";
 											<tr>
 												<td class="m-0" style="width: 30px;padding: 3px !important;@rowColor">@rank</td>
 												@foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
@@ -102,14 +99,9 @@
 							<tbody>
 								@for (int i = 0; i < MaxResultsCount(); i++)
 								{
-									var rank = i + 1;
-									var rowColor = i switch
-									{
-										0 => "background-color: gold;",
-										1 => "background-color: silver;",
-										2 => "background-color: #CD7F32;",
-										_ => ""
-									};
+            var rank = i + 1;
+            var rowResult = resultsOverallDictionary[0].ElementAtOrDefault(i);
+            var rowColor = rowResult?.BackgroundColor ?? "";
 									<tr>
 										<td class="m-0" style="width: 30px;padding: 3px !important;@rowColor">@rank</td>
 
@@ -169,13 +161,8 @@
 								@for (int i = 0; i < MaxResultsCount(); i++)
 								{
 									var rank = i + 1;
-									var rowColor = i switch
-									{
-										0 => "background-color: gold;",
-										1 => "background-color: silver;",
-										2 => "background-color: #CD7F32;",
-										_ => ""
-									};
+            var rowResult = resultsOverallDictionary[0].ElementAtOrDefault(i);
+            var rowColor = rowResult?.BackgroundColor ?? "";
 									<tr>
 										<td class="m-0" style="width: 30px;padding: 3px !important;@rowColor">@rank</td>
 

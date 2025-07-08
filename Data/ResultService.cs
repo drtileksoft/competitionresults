@@ -143,6 +143,27 @@ namespace CompetitionResults.Data
             }
         }
 
+        private void AssignBackgroundColors(List<ResultDto> results)
+        {
+            foreach (var r in results)
+            {
+                if (r.IsTieForMedal)
+                {
+                    r.BackgroundColor = "background-color: red;";
+                }
+                else
+                {
+                    r.BackgroundColor = r.Position switch
+                    {
+                        1 => "background-color: gold;",
+                        2 => "background-color: silver;",
+                        3 => "background-color: #CD7F32;",
+                        _ => string.Empty
+                    };
+                }
+            }
+        }
+
 
 
         public async Task<List<ResultDto>> GetMixedRankedResultsAsync(int disciplineId, int competitionId)
@@ -175,6 +196,7 @@ namespace CompetitionResults.Data
             AssignPointsAwards(results, results.Count);
             AssignPositions(results, discipline.IsDividedToCategories, isReverseOrdered);
             MarkTiesForMedals(results, discipline.IsDividedToCategories);
+            AssignBackgroundColors(results);
 
             return results;
         }
@@ -209,60 +231,49 @@ namespace CompetitionResults.Data
 		}
 
 
-		public async Task<List<ResultDto>> GetResultsTotalAsync(int competitionId)
-		{
-			// Fetch all disciplines for the given competition
-			var disciplines = await _context.Disciplines
-				.Where(c => c.CompetitionId == competitionId)
-				.ToListAsync();
+        public async Task<List<ResultDto>> GetResultsTotalAsync(int competitionId)
+        {
+            // 1️⃣ Fetch all disciplines for the given competition
+            var disciplines = await _context.Disciplines
+                .Where(c => c.CompetitionId == competitionId)
+                .ToListAsync();
 
-			// Dictionary to hold total points for each thrower
-			var totalPoints = new Dictionary<string, double>();
-
-            var throwerIds = new Dictionary<string, int>();
+            // 2️⃣ Aggregate award points for each thrower
+            var totals = new Dictionary<int, ResultDto>();
 
             foreach (var discipline in disciplines)
-			{
-				var results = await GetResultsByDisciplineAsync(discipline.Id, competitionId);
+            {
+                var results = await GetResultsByDisciplineAsync(discipline.Id, competitionId);
 
-				// Assign points based on rank
-				for (int i = 0; i < results.Count; i++)
-				{
-					var throwerId = results[i].ThrowerName;
-
-					if (results[i].PointsAward.HasValue)
-					{
-						if (totalPoints.ContainsKey(throwerId))
-						{
-							totalPoints[throwerId] += results[i].PointsAward.Value;
-                        }
-						else
-						{
-							totalPoints.Add(throwerId, results[i].PointsAward.Value);
-
-                            throwerIds.Add(throwerId, results[i].ThrowerId); // Store the throwerId for this throwerName
-                        }
-					}
-				}
-			}
-
-			// Convert the dictionary to a list of ResultDto
-			var resultList = new List<ResultDto>();
-			foreach (var entry in totalPoints)
-			{
-				resultList.Add(new ResultDto
+                foreach (var r in results.Where(r => r.PointsAward.HasValue))
                 {
-                    ThrowerId = throwerIds[entry.Key],
-                    ThrowerName = entry.Key,
-					Points = entry.Value
-				});
-			}
+                    if (!totals.TryGetValue(r.ThrowerId, out var entry))
+                    {
+                        entry = new ResultDto
+                        {
+                            ThrowerId = r.ThrowerId,
+                            ThrowerName = r.ThrowerName,
+                            Points = 0
+                        };
+                        totals[r.ThrowerId] = entry;
+                    }
 
-			// Sort the result list by points in descending order to get the highest scoring thrower first
-			resultList = resultList.OrderByDescending(r => r.Points).ToList();
+                    entry.Points += r.PointsAward.Value;
+                }
+            }
 
-			return resultList;
-		}
+            // 3️⃣ Order by total points and assign ranks
+            var resultList = totals.Values.OrderByDescending(r => r.Points).ToList();
+
+            for (int i = 0; i < resultList.Count; i++)
+            {
+                resultList[i].Position = i + 1;
+            }
+
+            AssignBackgroundColors(resultList);
+
+            return resultList;
+        }
 
 		public async Task DeleteResultsAsync(int competitionId)
 		{
@@ -535,6 +546,7 @@ namespace CompetitionResults.Data
         public bool IsTieForMedal { get; set; } // použito v UI k zobrazení červeného pozadí
         public int CategoryId { get; set; }
         public int DisciplineId { get; set; } // přidáno pro snadné filtrování
-	}
+        public string BackgroundColor { get; set; }
+        }
 
 }
