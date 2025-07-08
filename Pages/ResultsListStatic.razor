@@ -51,13 +51,10 @@
 												{
 													var result = resultsDictionary[(category.Id, discipline.Id)].ElementAtOrDefault(i);
 													var resultValue = result?.Points;
-													var awardValue = result?.PointsAward;
-													var bulls = result?.BullseyeCount;
-													var isTie = result?.IsTieForMedal ?? false;
-
-													var backgroundColor = resultValue.HasValue
-														? (isTie ? "background-color: red;" : "")
-														: "background-color: rgba(255, 0, 0, 0.1);";
+            var awardValue = result?.PointsAward;
+            var bulls = result?.BullseyeCount;
+            var backgroundColor = result?.BackgroundColor ??
+                "background-color: rgba(255, 0, 0, 0.1);";
 
 													<td class="results-td" style="@backgroundColor">
 														<div class="cell">
@@ -114,13 +111,12 @@
 
 										@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories).OrderBy(d => d.HasPositionsInsteadPoints).ThenBy(d => d.Id).Take(6))
 										{
-											var resultValue = GetResultValueForDisciplineOverall(discipline.Id, i);
-											var awardValue = GetAwardValueForDisciplineOverall(discipline.Id, i);
-											var isTie = GetIsTieForDisciplineOverall(discipline.Id, i);
-											var bulls = GetBullsForDisciplineOverall(discipline.Id, i);
-											var backgroundColor = resultValue.HasValue
-														? (isTie ? "background-color: red;" : "")
-														: "background-color: rgba(255, 0, 0, 0.1);";
+            var resultValue = GetResultValueForDisciplineOverall(discipline.Id, i);
+            var awardValue = GetAwardValueForDisciplineOverall(discipline.Id, i);
+            var bulls = GetBullsForDisciplineOverall(discipline.Id, i);
+            var resultEntry = resultsOverallDictionary[discipline.Id].ElementAtOrDefault(i);
+            var backgroundColor = resultEntry?.BackgroundColor ??
+                "background-color: rgba(255, 0, 0, 0.1);";
 
 											<td class="results-td" style="@backgroundColor">
 												<div class="cell">
@@ -168,13 +164,12 @@
 
 										@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories).OrderBy(d => d.HasPositionsInsteadPoints).ThenBy(d => d.Id).Skip(6))
 										{
-											var resultValue = GetResultValueForDisciplineOverall(discipline.Id, i);
-											var awardValue = GetAwardValueForDisciplineOverall(discipline.Id, i);
-											var isTie = GetIsTieForDisciplineOverall(discipline.Id, i);
-											var bulls = GetBullsForDisciplineOverall(discipline.Id, i);
-											var backgroundColor = resultValue.HasValue
-														? (isTie ? "background-color: red;" : "")
-														: "background-color: rgba(255, 0, 0, 0.1);";
+            var resultValue = GetResultValueForDisciplineOverall(discipline.Id, i);
+            var awardValue = GetAwardValueForDisciplineOverall(discipline.Id, i);
+            var bulls = GetBullsForDisciplineOverall(discipline.Id, i);
+            var resultEntry = resultsOverallDictionary[discipline.Id].ElementAtOrDefault(i);
+            var backgroundColor = resultEntry?.BackgroundColor ??
+                "background-color: rgba(255, 0, 0, 0.1);";
 
 											<td class="results-td" style="@backgroundColor">
 												<div class="cell">
