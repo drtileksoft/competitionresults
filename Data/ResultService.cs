@@ -168,6 +168,32 @@ namespace CompetitionResults.Data
                     BullseyeCount = r.BullseyeCount
                 }).ToListAsync();
 
+            // 🆕 Ensure all throwers have an entry even if they don't have results yet
+            var allThrowers = await _context.Throwers
+                .Where(t => t.CompetitionId == competitionId)
+                .Select(t => new { t.Id, t.Name, t.Surname, t.Nickname, t.CategoryId })
+                .ToListAsync();
+
+            foreach (var t in allThrowers)
+            {
+                if (results.Any(r => r.ThrowerId == t.Id))
+                    continue;
+
+                var name = !string.IsNullOrEmpty(t.Nickname)
+                    ? $"{t.Nickname} ({t.Name} {t.Surname})"
+                    : $"{t.Name} {t.Surname}";
+
+                results.Add(new ResultDto
+                {
+                    ThrowerId = t.Id,
+                    DisciplineId = disciplineId,
+                    ThrowerName = name,
+                    CategoryId = t.CategoryId,
+                    Points = null,
+                    BullseyeCount = null
+                });
+            }
+
             // 🔁 Řazení zde – jen jednou, použije se i na awards i na medaile
             results = isReverseOrdered
                 ? results.OrderBy(r => r.Points ?? double.MaxValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList()
