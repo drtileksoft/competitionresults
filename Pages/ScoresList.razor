@@ -9,6 +9,12 @@
 @implements IDisposable
 
 <h3>Scores List</h3>
+<div class="mb-3">
+    <input class="form-control d-inline-block me-2" style="width: 120px;" placeholder="Startovní číslo"
+           @bind="filterId" @bind:event="oninput" />
+    <input class="form-control d-inline-block" style="width: 200px;" placeholder="Jméno"
+           @bind="filterName" @bind:event="oninput" />
+</div>
 <AuthorizeView Roles="Admin, Manager, User">
     <Authorized>
 
@@ -25,6 +31,7 @@ else
     <table class="table medium-font">
         <thead>
             <tr>
+                <th>Startovní číslo</th>
                 <th>Name</th>
                         <th>Edit</th>
                         <th>Bullseyes</th>
@@ -35,9 +42,10 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var thrower in throwers.OrderBy(t => t.Surname).ThenBy(t => t.Name))
+            @foreach (var thrower in FilteredThrowers.OrderBy(t => t.Surname).ThenBy(t => t.Name))
             {
                 <tr>
+                    <td>@thrower.Id</td>
                     <td><strong>@thrower.Surname @thrower.Name </strong>
                                 @if (!string.IsNullOrEmpty(thrower.Nickname))
                                 {
@@ -75,6 +83,15 @@ else
     List<Thrower> throwers;
     List<Discipline> disciplines;
     private Dictionary<int, Dictionary<int, double?>> allScores;
+    private string filterId = string.Empty;
+    private string filterName = string.Empty;
+
+    IEnumerable<Thrower> FilteredThrowers => throwers.Where(t =>
+        (string.IsNullOrEmpty(filterId) || t.Id.ToString().Contains(filterId)) &&
+        (string.IsNullOrEmpty(filterName) ||
+         t.Name.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||
+         t.Surname.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||
+         (!string.IsNullOrEmpty(t.Nickname) && t.Nickname.Contains(filterName, StringComparison.OrdinalIgnoreCase))));
 
     protected override async Task OnInitializedAsync()
     {
