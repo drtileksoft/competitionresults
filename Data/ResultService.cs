@@ -173,9 +173,12 @@ namespace CompetitionResults.Data
                 ? results.OrderBy(r => r.Points ?? double.MaxValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList()
                 : results.OrderByDescending(r => r.Points ?? double.MinValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList();
 
-            AssignPointsAwards(results, results.Count);
-            AssignPositions(results, discipline.IsDividedToCategories, isReverseOrdered);
-            MarkTiesForMedals(results, discipline.IsDividedToCategories);
+            if (results.Any())
+            {
+                AssignPointsAwards(results, results.Count);
+                AssignPositions(results, discipline.IsDividedToCategories, isReverseOrdered);
+                MarkTiesForMedals(results, discipline.IsDividedToCategories);
+            }
 
             return results;
         }
