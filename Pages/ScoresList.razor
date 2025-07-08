@@ -1,0 +1,134 @@
+﻿@page "/scores"
+@using CompetitionResults
+@using CompetitionResults.Data
+@using static CompetitionResults.Shared.ScoreEditModal
+@inject DisciplineService DisciplineService
+@inject ThrowerService ThrowerService
+@inject ResultService ResultService
+@inject CompetitionStateService CompetitionState
+@implements IDisposable
+
+<h3>Scores List</h3>
+<AuthorizeView Roles="Admin, Manager, User">
+    <Authorized>
+
+<ScoreEditModal @ref="scoreEditModal" OnClose="HandleModalClose" OnSave="SaveScores" />
+<BullseyeEditModal @ref="bullseyeEditModal" OnClose="HandleModalClose" />
+
+
+@if (throwers == null || disciplines == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table medium-font">
+        <thead>
+            <tr>
+                <th>Name</th>
+                        <th>Edit</th>
+                        <th>Bullseyes</th>
+                @foreach (var discipline in disciplines)
+                {
+                    <th>@discipline.Name</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var thrower in throwers.OrderBy(t => t.Surname).ThenBy(t => t.Name))
+            {
+                <tr>
+                    <td><strong>@thrower.Surname @thrower.Name </strong>
+                                @if (!string.IsNullOrEmpty(thrower.Nickname))
+                                {
+                                <br/><strong>(@thrower.Nickname)</strong>
+                                }
+                    </td>
+                            <td>
+                                <button @onclick="() => EditScores(thrower)">Edit</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-danger btn-sm ms-1" @onclick="() => EditBullseyes(thrower)">Bullseyes</button>
+                            </td>
+                    @foreach (var discipline in disciplines)
+                    {
+                        var points = GetPoints(thrower.Id, discipline.Id);
+                        <td style="background-color: @(!points.HasValue ? "red" : "none");">
+                            @points
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not loggged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private BullseyeEditModal bullseyeEditModal;
+    private ScoreEditModal scoreEditModal;
+    List<Thrower> throwers;
+    List<Discipline> disciplines;
+    private Dictionary<int, Dictionary<int, double?>> allScores;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CompetitionState.OnCompetitionChanged += LoadScores;
+        LoadScores();
+    }
+
+    public void Dispose()
+    {
+        CompetitionState.OnCompetitionChanged -= LoadScores;
+    }
+
+    private async void LoadScores()
+	{
+        throwers = await ThrowerService.GetAllThrowersAsync(CompetitionState.SelectedCompetitionId);
+        disciplines = await DisciplineService.GetAllDisciplinesAsync(CompetitionState.SelectedCompetitionId);
+
+        allScores = new Dictionary<int, Dictionary<int, double?>>();
+        foreach (var thrower in throwers)
+        {
+            allScores[thrower.Id] = await ResultService.GetScoresByThrowerIdAsync(thrower.Id, CompetitionState.SelectedCompetitionId);
+        }
+
+		StateHasChanged();
+	}
+
+    private double? GetPoints(int throwerId, int disciplineId)
+    {
+        if (allScores.TryGetValue(throwerId, out var scores) && scores.TryGetValue(disciplineId, out var points))
+        {
+            return points;
+        }
+        return null;
+    }
+
+    void EditScores(Thrower thrower)
+    {
+        scoreEditModal.Open(thrower.Id);
+    }
+
+    void EditBullseyes(Thrower thrower)
+    {
+        bullseyeEditModal.Open(thrower.Id);
+    }
+
+    private async Task SaveScores(ThrowerScores throwerScores)
+    {
+        await ResultService.UpdateScoresAsync(CompetitionState.SelectedCompetitionId, throwerScores.ThrowerId, throwerScores.Scores);
+
+        LoadScores();
+    }
+
+    private async Task HandleModalClose()
+    {
+        LoadScores();
+    }
+}

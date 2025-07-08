@@ -1,0 +1,93 @@
+﻿@page "/"
+@using System.Security.Claims
+@using CompetitionResults.Data
+@inject CompetitionService CompetitionService
+@inject CompetitionStateService CompetitionState
+@inject ResultService ResultsServiceInstance
+@inject IJSRuntime JSRuntime;
+
+<PageTitle>Competition Scores</PageTitle>
+
+<h1>Competition Scores</h1>
+
+<p>App to make competition scoring easy and fast.</p>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <button @onclick="CreateBackup">Backup data</button>
+        @* <button @onclick="ClearDatabase">Clear database</button> *@
+        <button @onclick="ClearScores">Clear scores</button>
+        <button @onclick="FillRandomScores">Fill random scores</button>
+        <InputFile id="fileInput" accept=".json" multiple="false" OnChange="HandleFileSelected" style="display:none" />
+        <button @onclick="TriggerFileInput">Import data</button>
+    </Authorized>
+    <NotAuthorized>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private async void CreateBackup()
+    {
+        var jsonData = await CompetitionService.BackupAllAsync();
+
+        if (!string.IsNullOrEmpty(jsonData))
+        {
+            // Construct a filename based on the current date/time or another scheme
+            var now = DateTime.Now;
+            var filename = $"backup_{now:yyyyMMddHHmmss}.json";
+
+            // Invoke the JavaScript function to initiate the download
+            await JSRuntime.InvokeVoidAsync("downloadJson", jsonData, filename);
+        }
+    }
+
+    private async void ClearScores()
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to clear all results?");
+        if (confirmed)
+        {
+            await ResultsServiceInstance.DeleteResultsAsync(CompetitionState.SelectedCompetitionId);
+        }
+    }
+
+    private async void FillRandomScores()
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Generate random scores for all disciplines and throwers?");
+        if (confirmed)
+        {
+            await ResultsServiceInstance.FillRandomScoresAsync(CompetitionState.SelectedCompetitionId);
+        }
+    }
+
+    private async void ClearDatabase()
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to clear database?");
+        if (confirmed)
+        {
+            await CompetitionService.ClearDBAsync();
+        }
+    }
+
+    private async Task TriggerFileInput()
+    {
+        await JSRuntime.InvokeVoidAsync("triggerFileInput");
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using var stream = file.OpenReadStream(2048000);
+            using var reader = new System.IO.StreamReader(stream);
+            var jsonData = await reader.ReadToEndAsync();
+
+            await CompetitionService.RestoreAllAsync(jsonData);
+        }
+    }
+}

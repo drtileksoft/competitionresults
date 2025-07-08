@@ -1,0 +1,338 @@
+﻿@page "/resultsselector"
+@using CompetitionResults.Data
+@using Microsoft.AspNetCore.SignalR.Client
+@inject ResultService ResultsService
+@inject DisciplineService DisciplineService
+@inject CategoryService CategoryService
+@inject CompetitionStateService CompetitionState
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+		@if (disciplines == null || categories == null)
+		{
+			<p><em>Loading...</em></p>
+		}
+		else
+		{
+			<div class="container small-font">
+				<h6 class="mb-2">Select Disciplines to Display</h6>
+
+				<div class="d-flex flex-wrap mb-2">
+					@foreach (var category in categories)
+					{
+						@foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
+						{
+							var key = (category.Id, discipline.Id);
+							var inputId = $"disc-{category.Id}-{discipline.Id}";
+
+							<label for="@inputId" class="mb-1 me-2">
+								<input type="checkbox"
+									   id="@inputId"
+									   checked="@disciplineSelections[key]"
+									   @onchange="e => OnDisciplineCheckboxChanged(key, e.Value)"
+									   class="mb-1" />
+								<span class="small">@($"{category.Name} - {discipline.Name}")</span>
+							</label>
+						}
+					}
+
+					@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories))
+					{
+						var inputId = $"overall-{discipline.Id}";
+
+						<label for="@inputId" class="mb-1 me-2">
+							<input type="checkbox"
+								   id="@inputId"
+								   checked="@overallDisciplineSelections[discipline.Id]"
+								   @onchange="e => OnOverallDisciplineCheckboxChanged(discipline.Id, e.Value)"
+								   class="mb-1" />
+							<span class="small">@discipline.Name</span>
+						</label>
+					}
+					<label for="pageSizeInput" class="pt-2">Columns per page:</label>
+					<input id="pageSizeInput" type="number" min="1" max="20" style="width: 60px; margin-left: 10px;" @bind="PageSize" @bind:event="oninput" />
+					<label for="intervalInput" class="pt-2 ms-3 me-2">Interval (s):</label>
+					<input id="intervalInput" type="number" min="1" max="60" style="width: 60px;" @bind="RotationIntervalSeconds" @bind:event="oninput" />
+				</div>
+
+				@if ((selectedGroupedDisciplines.Any() || selectedOverallDisciplines.Any()))
+				{
+					var allColumns = selectedGroupedDisciplines.Cast<object>().Concat(selectedOverallDisciplines.Cast<object>()).ToList();
+					var totalPages = (int)Math.Ceiling(allColumns.Count / (double)PageSize);
+
+					<div class="mb-2">
+						@if (totalPages > 1)
+						{
+							<span>Page @((currentPage + 1)) / @totalPages</span>
+						}
+					</div>
+
+					<div class="table-responsive">
+						<table class="table table-hover table-bordered m-0 p-0">
+							<thead class="thead-light">
+								<tr>
+									<th style="width: 30px;">Rank</th>
+
+									@foreach (var key in selectedGroupedDisciplines.Skip(currentPage * PageSize).Take(PageSize))
+									{
+										var discipline = disciplines.First(d => d.Id == key.disciplineId);
+										var category = categories.First(c => c.Id == key.categoryId);
+										<th>@($"{category.Name} - {discipline.Name}")</th>
+									}
+
+									@if (selectedGroupedDisciplines.Count < PageSize)
+									{
+										var remaining = PageSize - selectedGroupedDisciplines.Skip(currentPage * PageSize).Take(PageSize).Count();
+										@foreach (var disciplineId in selectedOverallDisciplines.Skip(currentPage * PageSize - selectedGroupedDisciplines.Count).Take(remaining))
+										{
+											var discipline = disciplines.First(d => d.Id == disciplineId);
+											<th>@discipline.Name</th>
+										}
+									}
+								</tr>
+							</thead>
+							<tbody>
+								@for (int i = 0; i < MaxRowCount(); i++)
+								{
+									var rowColor = i switch
+									{
+										0 => "background-color: gold;",
+										1 => "background-color: silver;",
+										2 => "background-color: #CD7F32;",
+										_ => ""
+									};
+									<tr>
+										<td style="width: 30px; padding: 3px !important; @rowColor">@((i + 1))</td>
+
+										@foreach (var key in selectedGroupedDisciplines.Skip(currentPage * PageSize).Take(PageSize))
+										{
+											var results = resultsByGroupedSelection[key];
+											var result = results.ElementAtOrDefault(i);
+											var name = result?.ThrowerName ?? "—";
+											var points = result?.Points;
+											var award = result?.PointsAward;
+											var bulls = result?.BullseyeCount;
+											var isTie = result?.IsTieForMedal ?? false;
+											var background = points.HasValue ? (isTie ? "background-color: red;" : "") : "background-color: rgba(255,0,0,0.1);";
+
+											<td class="results-td" style="@background">
+												<div class="cell">
+													<span class="name">@name</span>
+													<span class="value">@points?.ToString("0.##")@(bulls.HasValue ? $"-{bulls}" : "") (@award?.ToString("0.#"))</span>
+												</div>
+											</td>
+										}
+
+										@if (selectedGroupedDisciplines.Count < PageSize)
+										{
+											var remaining = PageSize - selectedGroupedDisciplines.Skip(currentPage * PageSize).Take(PageSize).Count();
+											@foreach (var disciplineId in selectedOverallDisciplines.Skip(currentPage * PageSize - selectedGroupedDisciplines.Count).Take(remaining))
+											{
+												var results = resultsByOverallSelection[disciplineId];
+												var result = results.ElementAtOrDefault(i);
+												var name = result?.ThrowerName ?? "—";
+												var points = result?.Points;
+												var award = result?.PointsAward;
+												var bulls = result?.BullseyeCount;
+												var isTie = result?.IsTieForMedal ?? false;
+												var background = points.HasValue ? (isTie ? "background-color: red;" : "") : "background-color: rgba(255,0,0,0.1);";
+
+												<td class="results-td" style="@background">
+													<div class="cell">
+														<span class="name">@name</span>
+														<span class="value">@points?.ToString("0.##")@(bulls.HasValue ? $"-{bulls}" : "") (@award?.ToString("0.#"))</span>
+													</div>
+												</td>
+											}
+										}
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+		}
+
+@code {
+	private List<Category> categories;
+	private List<Discipline> disciplines;
+
+	private Dictionary<(int categoryId, int disciplineId), bool> disciplineSelections = new();
+	private Dictionary<int, bool> overallDisciplineSelections = new();
+
+	private List<(int categoryId, int disciplineId)> selectedGroupedDisciplines = new();
+	private List<int> selectedOverallDisciplines = new();
+
+	private Dictionary<(int categoryId, int disciplineId), List<ResultDto>> resultsByGroupedSelection = new();
+	private Dictionary<int, List<ResultDto>> resultsByOverallSelection = new();
+
+	private int currentPage = 0;
+	private int _pageSize = 6;
+	private Timer? rotationTimer;
+	private int _rotationIntervalSeconds = 60;
+
+	private HubConnection _hubConnection;
+
+	private bool _signalRStarted = false;
+
+	private int PageSize
+	{
+		get => _pageSize;
+		set
+		{
+			_pageSize = Math.Max(1, value);
+			currentPage = 0;
+		}
+	}
+		
+	private int RotationIntervalSeconds
+	{
+		get => _rotationIntervalSeconds;
+		set
+		{
+			_rotationIntervalSeconds = Math.Max(1, value);
+			StartTimer(); // restart on interval change
+		}
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			LoadCompetitionDataAsync();
+
+			if (!_signalRStarted)
+			{
+				_signalRStarted = true;
+
+				try
+				{
+					_hubConnection = new HubConnectionBuilder()
+						.WithUrl(Navigation.ToAbsoluteUri("/notificationHub"))
+						.WithAutomaticReconnect()
+						.Build();
+
+					_hubConnection.On("CompetitionChanged", () =>
+					{
+						InvokeAsync(LoadCompetitionDataAsync);
+					});
+
+					await _hubConnection.StartAsync();
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine("SignalR connection failed: " + ex.Message);
+				}
+			}
+		}
+	}
+
+	private async void LoadCompetitionDataAsync()
+    {
+        categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
+        disciplines = await DisciplineService.GetAllDisciplinesAsync(CompetitionState.SelectedCompetitionId);
+
+        foreach (var category in categories)
+        {
+            foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
+            {
+                var key = (category.Id, discipline.Id);
+                disciplineSelections[key] = false;
+            }
+        }
+
+        foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories))
+        {
+            overallDisciplineSelections[discipline.Id] = true;
+        }
+
+        StartTimer();
+        await RefreshResultsAsync();
+    }
+
+
+	private void StartTimer()
+	{
+		rotationTimer?.Dispose();
+
+		TimeSpan interval = TimeSpan.FromSeconds(RotationIntervalSeconds);
+
+		rotationTimer = new Timer(_ =>
+		{
+			InvokeAsync(() =>
+			{
+				AdvancePage();
+				StateHasChanged();
+			});
+		}, null, interval, interval);
+	}
+
+
+	private void AdvancePage()
+	{
+		int total = selectedGroupedDisciplines.Count + selectedOverallDisciplines.Count;
+		int pageCount = (int)Math.Ceiling(total / (double)PageSize);
+		currentPage = (currentPage + 1) % Math.Max(pageCount, 1);
+	}
+
+	private async Task OnDisciplineCheckboxChanged((int categoryId, int disciplineId) key, object? value)
+	{
+		disciplineSelections[key] = (bool)(value ?? false);
+		currentPage = 0;
+		StartTimer();
+		await RefreshResultsAsync();
+	}
+
+	private async Task OnOverallDisciplineCheckboxChanged(int disciplineId, object? value)
+	{
+		overallDisciplineSelections[disciplineId] = (bool)(value ?? false);
+		currentPage = 0;
+		StartTimer();
+		await RefreshResultsAsync();
+	}
+
+	private async Task RefreshResultsAsync()
+	{
+		resultsByGroupedSelection.Clear();
+		resultsByOverallSelection.Clear();
+
+		selectedGroupedDisciplines = disciplineSelections
+			.Where(x => x.Value)
+			.Select(x => x.Key)
+			.ToList();
+
+		selectedOverallDisciplines = overallDisciplineSelections
+			.Where(x => x.Value)
+			.Select(x => x.Key)
+			.ToList();
+
+		foreach (var key in selectedGroupedDisciplines)
+		{
+			resultsByGroupedSelection[key] = await ResultsService.GetResultsByCategoryAndDisciplineAsync(
+				key.categoryId, key.disciplineId, CompetitionState.SelectedCompetitionId);
+		}
+
+		foreach (var disciplineId in selectedOverallDisciplines)
+		{
+			resultsByOverallSelection[disciplineId] = await ResultsService.GetResultsByDisciplineAsync(
+				disciplineId, CompetitionState.SelectedCompetitionId);
+		}
+
+		StateHasChanged();
+	}
+
+	private int MaxRowCount()
+	{
+		var max1 = resultsByGroupedSelection.Values.DefaultIfEmpty().Max(l => l?.Count ?? 0);
+		var max2 = resultsByOverallSelection.Values.DefaultIfEmpty().Max(l => l?.Count ?? 0);
+		return Math.Max(max1, max2);
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (rotationTimer is not null)
+			await rotationTimer.DisposeAsync();
+	}
+
+}

@@ -1,0 +1,98 @@
+﻿@using CompetitionResults.Data
+@inject DisciplineService DisciplineService
+
+<div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <EditForm Model="@_discipline" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Discipline</h5>
+                    <button type="button" class="btn-close" @onclick="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="name">Name:</label>
+                            <InputText id="name" @bind-Value="@_discipline.Name" />
+                        </div>
+                        <div>
+                            <label for="isDividedToCategories">Is Divided To Categories:</label>
+                            <InputCheckbox id="isDividedToCategories" @bind-Value="_discipline.IsDividedToCategories" />
+                        </div>
+                        <div>
+                            <label for="hasPositionsInsteadPoints">Has Positions Instead of Points:</label>
+                            <InputCheckbox id="hasPositionsInsteadPoints" @bind-Value="_discipline.HasPositionsInsteadPoints" />
+                        </div>
+                        <div>
+                            <label for="hasDecimalPoints">Has Decimal Points:</label>
+                            <InputCheckbox id="hasDecimalPoints" @bind-Value="_discipline.HasDecimalPoints" />
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    public bool IsOpen { get; private set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    private Discipline _discipline;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _discipline = new Discipline();
+    }
+
+    [Parameter]
+    public Discipline Discipline
+    {
+        get => _discipline;
+        set
+        {
+            if (_discipline != value)
+            {
+                _discipline = value;
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback OnFormSubmit { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        IsOpen = false;
+        if (_discipline.Id == 0)
+        {
+            await DisciplineService.AddDisciplineAsync(_discipline);
+        }
+        else
+        {
+            await DisciplineService.UpdateDisciplineAsync(_discipline);
+        }
+
+        await OnFormSubmit.InvokeAsync(null);
+    }
+
+    public async void Open()
+    {
+        IsOpen = true;
+        StateHasChanged();
+    }
+
+    private void Close()
+    {
+        IsOpen = false;
+        StateHasChanged();
+        OnClose.InvokeAsync();
+    }
+}

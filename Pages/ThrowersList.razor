@@ -1,0 +1,346 @@
+﻿@page "/throwers"
+@using CompetitionResults.Data
+@inject ThrowerService ThrowerService
+@inject CompetitionStateService CompetitionState
+@inject CategoryService CategoryService
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+
+<h3>Throwers List</h3>
+<AuthorizeView Roles="Admin, Manager">
+	<Authorized>
+
+		<button @onclick="AddNew">Add New Thrower</button>
+		@* <button @onclick="SendEmailsToUnpaid">Send Emails to Unpaid Throwers</button> *@
+		<button @onclick="SendEmailsWithMeal">Send Emails to Hungry Throwers</button>
+
+		<ThrowerEditModal @ref="throwerEditModal" OnClose="HandleModalClose" Thrower="selectedThrower" OnFormSubmit="HandleFormSubmit" />
+
+		@if (throwers == null)
+		{
+			<p><em>Loading...</em></p>
+		}
+		else
+		{
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Surname</th>
+						<th>Nickname</th>
+						<th>Nationality</th>
+						<th>Flag</th>
+						<th>Club Name</th>
+						<th>Email</th>
+						<th>Camping on site</th>
+						<th>Want T-Shirt (size)</th>
+						<th>Is paid (amount)</th>
+						<th>To Be Paid</th>
+						<th>Note</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var thrower in throwers)
+					{
+						var lowerCaseCode = thrower.Nationality.ToLowerInvariant();
+						var flagUrl = $"https://flagcdn.com/32x24/{lowerCaseCode}.png";
+						decimal targetPayment = CalculateTargetPayment(thrower);
+						decimal difference = thrower.Payment.HasValue ? targetPayment - Convert.ToDecimal(thrower.Payment.Value) : 0;
+						<tr>
+							<td>@thrower.Name</td>
+							<td>@thrower.Surname</td>
+							<td>@thrower.Nickname</td>
+							<td>@thrower.Nationality</td>
+							<td>
+								<img src="@flagUrl"
+								alt="@thrower.Nationality"
+								title="@thrower.Nationality"
+								style="height:20px; width:30px;" />
+							</td>
+							<td>@thrower.ClubName</td>
+							<td>@thrower.Email</td>
+							<td>@(thrower.IsCampingOnSite ? "Yes" : "No")</td>
+							<td>@(thrower.WantTShirt ? "Yes" : "No") (@thrower.TShirtSize)</td>
+							<td style="background-color: @(!thrower.PaymentDone ? "red" : "white");">@(thrower.PaymentDone ? "Yes" : "No") (@thrower.Payment) </td>
+							<td>
+								@{
+									var displayedDifference = difference < 0 ? 0 : difference;
+									var shouldHighlight = Math.Abs(difference) > GetTolerance(thrower.Payment) && displayedDifference > 0;
+								}
+
+								<span style="@(shouldHighlight ? "color:red;" : "")">@($"{displayedDifference}")</span>
+
+							</td>
+
+							<td>
+								@if (!string.IsNullOrEmpty(@thrower.Note))
+								{
+									<img src="https://img.icons8.com/ios/50/000000/note.png" style="height:20px; width:20px;" title="@thrower.Note" />
+								}							
+							</td>
+
+							<td>
+								<button @onclick="() => SendEmail(thrower)">Send reg. e-mail</button>
+								@if (!thrower.PaymentDone)
+								{
+									<button @onclick="() => SendUnpaidEmail(thrower)">Send unpaid e-mail</button>
+								}
+								<button @onclick="() => EditThrower(thrower)">Edit</button>
+								<button @onclick="() => DeleteThrower(thrower.Id)">Delete</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+
+			<div style="margin-top: 20px;">
+				<p>
+					<h4>Total throwers: @throwersCount</h4>
+					<h4>Total payments: @paymentsCount</h4>
+				</p>
+				<p>
+					<h4>Total countries: @countryCount</h4>
+					@foreach (var country in countryFlags)
+					{
+						var flagUrl = $"https://flagcdn.com/32x24/{country}.png";
+						<img src="@flagUrl" alt="@country" title="@country" style="height:20px; width:30px; margin-left: 5px;" />
+					}
+				</p>
+
+				<h4>Categories:</h4>
+				<ul>
+					@foreach (var category in categoriesDict)
+					{
+						<li>@category.Key: @category.Value</li>
+					}
+				</ul>
+
+				<p>
+					<h4>Total campers: @campersCount</h4>
+				</p>
+
+				<h4>T-shirts:</h4>
+				<ul>
+					@foreach (var tshirt in tshirtDict.OrderBy(t => t.Key))
+					{
+						<li>@tshirt.Key: @tshirt.Value</li>
+					}
+				</ul>
+
+				<p>
+					<h4>Throwers by country:</h4>
+					<ul>
+						@foreach (var country in countryParticipants.OrderByDescending(p => p.Value))
+						{
+							var flagUrl = $"https://flagcdn.com/32x24/{country}.png";
+							<li>@country.Key: @country.Value</li>
+						}
+					</ul>
+				</p>
+
+				<p>
+					<h4>Total missing payments above tolerance: <span style="color:red; font-weight:bold;">@($"{totalDifference:0.00}")</span></h4>
+				</p>
+			</div>
+		}
+
+	</Authorized>
+	<NotAuthorized>
+		<p>You're not loggged in.</p>
+	</NotAuthorized>
+</AuthorizeView>
+
+@code {
+	private ThrowerEditModal throwerEditModal;
+	private List<Thrower> throwers;
+	private Thrower selectedThrower = new Thrower();
+
+	private Dictionary<string, int> categoriesDict;
+	private int countryCount;
+	private int throwersCount => throwers.Count;
+	private int paymentsCount => throwers.Count(t => t.PaymentDone);
+	private Dictionary<string, int> countryParticipants;
+	private List<string> countryFlags;
+	private int campersCount;
+	private Dictionary<string, int> tshirtDict;
+	private decimal totalDifference;
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		CompetitionState.OnCompetitionChanged += LoadData;
+		LoadData();
+	}
+
+	private async void LoadData()
+	{
+		throwers = await ThrowerService.GetAllThrowersAsync(CompetitionState.SelectedCompetitionId);
+
+		campersCount = throwers.Count(t => t.IsCampingOnSite);
+
+		var categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
+		categoriesDict = new Dictionary<string, int>();
+		foreach (var category in categories)
+		{
+			categoriesDict.Add(category.Name, throwers.Count(t => t.CategoryId == category.Id));
+		}
+
+		tshirtDict = throwers
+			.GroupBy(t => new { t.TShirtSize, t.Category })
+			.Where(g => g.Key.TShirtSize != null)
+			.ToDictionary(g => g.Key.Category.Name + " - " + g.Key.TShirtSize, g => g.Count());
+
+
+		countryCount = throwers.GroupBy(t => t.Nationality).Count();
+
+		countryFlags = throwers.GroupBy(t => t.Nationality)
+			.Select(g => g.Key.ToLowerInvariant())
+			.Distinct()
+			.ToList();
+
+		countryParticipants = throwers.GroupBy(t => t.Nationality)
+			.ToDictionary(g => g.Key, g => g.Count());
+
+		totalDifference = throwers
+			.Select(t => 
+			{
+				decimal target = CalculateTargetPayment(t);
+				decimal paid = t.Payment.HasValue ? Convert.ToDecimal(t.Payment.Value) : 0;
+				decimal diff = target - paid;
+				return Math.Abs(diff) > GetTolerance(t.Payment) ? Math.Max(0, diff) : 0;
+			})
+			.Sum();
+
+		StateHasChanged();
+	}
+
+	public void Dispose()
+	{
+		CompetitionState.OnCompetitionChanged -= LoadData;
+	}
+
+	private async void AddNew()
+	{
+		selectedThrower = new Thrower { Nationality = "CZ", CompetitionId = CompetitionState.SelectedCompetitionId }; // Reset the form for a new thrower
+		selectedThrower.CategoryId = (await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId)).FirstOrDefault()?.Id ?? 0;
+		throwerEditModal.Open();
+		StateHasChanged();
+	}
+
+	private void EditThrower(Thrower thrower)
+	{
+		selectedThrower = thrower; // Set the form to edit the selected thrower
+		throwerEditModal.Open();
+	}
+
+	private async Task SendEmail(Thrower thrower)
+	{
+		var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send registration email to this thrower?");
+		if (confirmed)
+		{
+			await ThrowerService.ResendEmailAsync(thrower);
+		}
+	}
+
+	private async Task SendUnpaidEmail(Thrower thrower)
+	{
+		var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send registration email to this thrower?");
+		if (confirmed)
+		{
+			ThrowerService.SendUnpaidEmail(thrower);
+		}
+	}
+
+	private async Task SendEmailsToUnpaid()
+	{
+		var unpaidThrowers = throwers.Where(t => !t.PaymentDone).ToList();
+		if (unpaidThrowers.Any())
+		{
+			var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send emails to {unpaidThrowers.Count} unpaid throwers?");
+			if (confirmed)
+			{
+				foreach (var thrower in unpaidThrowers)
+				{
+					ThrowerService.SendUnpaidEmail(thrower);
+				}
+				await JSRuntime.InvokeVoidAsync("alert", "Emails sent to unpaid throwers.");
+			}
+		}
+		else
+		{
+			await JSRuntime.InvokeVoidAsync("alert", "No unpaid throwers to send emails to.");
+		}
+	}
+
+	private async Task SendEmailsWithMeal()
+	{
+		var unpaidThrowers = throwers.ToList();
+		if (unpaidThrowers.Any())
+		{
+			var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send emails to {unpaidThrowers.Count} hungry throwers?");
+			if (confirmed)
+			{
+				foreach (var thrower in unpaidThrowers)
+				{
+					ThrowerService.SendMealOrderEmail(thrower);
+				}
+				await JSRuntime.InvokeVoidAsync("alert", "Emails sent to hungry throwers.");
+			}
+		}
+		else
+		{
+			await JSRuntime.InvokeVoidAsync("alert", "No unpaid throwers to send emails to.");
+		}
+	}
+
+	private async Task DeleteThrower(int id)
+	{
+		var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this thrower?");
+		if (confirmed)
+		{
+			await ThrowerService.DeleteThrowerAsync(id);
+			LoadData();
+		}
+	}
+
+	private decimal CalculateTargetPayment(Thrower thrower)
+	{
+		if (thrower.PaymentDone)
+		{
+			if (thrower.Payment < 200) // Assume EUR
+			{
+				return thrower.WantTShirt ? 100 : 90;
+			}
+			else // Assume CZK
+			{
+				return thrower.WantTShirt ? 2450 : 2200;
+			}
+		}
+		return 0;
+	}
+
+	private decimal GetTolerance(double? payment)
+	{
+		if (payment.HasValue)
+		{
+			return payment.Value < 200 ? 2 : 50; // 2 EUR or 50 CZK tolerance
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+
+	private async Task HandleFormSubmit()
+	{
+		LoadData();
+	}
+
+	private async Task HandleModalClose()
+	{
+		LoadData();
+	}
+}
+

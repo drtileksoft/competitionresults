@@ -1,0 +1,120 @@
+@page "/resultsthrower"
+@using CompetitionResults.Data
+@inject ResultService ResultsService
+@inject ThrowerService ThrowerService
+@inject DisciplineService DisciplineService
+@inject CategoryService CategoryService
+@inject CompetitionStateService CompetitionState
+
+<h3>Results by Thrower</h3>
+
+@if (throwers == null || disciplines == null || categories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="d-flex flex-wrap mb-4">
+        @foreach (var thrower in throwers)
+        {
+            <button class="btn btn-outline-primary m-1" @onclick="@(() => SelectThrower(thrower.Id))">
+                @thrower.Name @thrower.Surname @if (!string.IsNullOrEmpty(thrower.Nickname)) { <span class="text-muted">(@thrower.Nickname)</span> }
+            </button>
+        }
+    </div>
+
+    @if (selectedThrowerResults != null)
+    {
+        var thrower = throwers.First(t => t.Id == selectedThrowerId);
+        <h4>Results for @thrower.Name</h4>
+
+        <div class="d-flex flex-wrap">
+            @foreach (var group in selectedThrowerResults
+                .GroupBy(r => r.DisciplineId)
+                .Where(g => g.Any(r => r.Points.HasValue))
+                .OrderBy(g => g.Min(r => r.Position)))
+            {
+                var disciplineId = group.Key;
+
+                if (!allDisciplineResults.TryGetValue(disciplineId, out var fullGroup))
+                    continue;
+
+                var discipline = disciplines.FirstOrDefault(d => d.Id == disciplineId);
+                var disciplineName = discipline?.Name ?? $"Discipline {disciplineId}";
+                var isDivided = discipline?.IsDividedToCategories ?? false;
+
+                foreach (var result in group.OrderBy(r => r.Position))
+                {
+                    var category = categories.FirstOrDefault(c => c.Id == result.CategoryId);
+
+                    string rowColor = "";
+                    if (result.IsTieForMedal)
+                    {
+                        rowColor = "background-color: red;";
+                    }
+                    else if (result.Position == 1)
+                    {
+                        rowColor = "background-color: gold;";
+                    }
+                    else if (result.Position == 2)
+                    {
+                        rowColor = "background-color: silver;";
+                    }
+                    else if (result.Position == 3)
+                    {
+                        rowColor = "background-color: #CD7F32;";
+                    }
+
+                    <div class="result-card m-2 p-2 border rounded" style="@rowColor">
+                        <div><strong>Discipline:</strong> @disciplineName</div>
+                        @if (isDivided && category != null)
+                        {
+                            <div><strong>Category:</strong> @category.Name</div>
+                        }
+                        @if (result.Position > 0)
+                        {
+                            <div><strong>Position:</strong> @result.Position</div>
+                        }
+                        <div><strong>Points:</strong> @result.Points @if (result.BullseyeCount.HasValue) { <span>(@result.BullseyeCount)</span> }</div>
+                    </div>
+                }
+            }
+        </div>
+    }
+}
+
+@code {
+    private List<Thrower> throwers;
+    private List<Discipline> disciplines;
+    private List<Category> categories;
+    private int selectedThrowerId;
+    private List<ResultDto> selectedThrowerResults;
+    private Dictionary<int, List<ResultDto>> allDisciplineResults = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var compId = CompetitionState.SelectedCompetitionId;
+        throwers = await ThrowerService.GetAllThrowersAsync(compId);
+        disciplines = await DisciplineService.GetAllDisciplinesAsync(compId);
+        categories = await CategoryService.GetAllCategoriesAsync(compId);
+    }
+
+    private async Task SelectThrower(int throwerId)
+    {
+        selectedThrowerId = throwerId;
+        selectedThrowerResults = new();
+        allDisciplineResults = new();
+
+        var compId = CompetitionState.SelectedCompetitionId;
+
+        foreach (var disc in disciplines)
+        {
+            var discResults = await ResultsService.GetMixedRankedResultsAsync(disc.Id, compId);
+            allDisciplineResults[disc.Id] = discResults;
+
+            selectedThrowerResults.AddRange(discResults.Where(r => r.ThrowerId == throwerId));
+        }
+
+        StateHasChanged();
+    }
+}

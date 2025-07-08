@@ -1,0 +1,54 @@
+﻿@page "/medals-by-nation"
+@using CompetitionResults.Data
+@inject ResultService ResultsService
+@inject ThrowerService ThrowerService
+@inject DisciplineService DisciplineService
+@inject CategoryService CategoryService
+@inject CompetitionStateService CompetitionState
+
+<h3>Medals by Nation</h3>
+
+@if (medals == null)
+{
+    <p>Loading...</p>
+}
+else if (!medals.Any())
+{
+    <p>No medals found.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nation</th>
+                <th>🥇 Gold</th>
+                <th>🥈 Silver</th>
+                <th>🥉 Bronze</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var nation in medals)
+            {
+                <tr>
+                    <td>@nation.Nationality</td>
+                    <td>@nation.Gold</td>
+                    <td>@nation.Silver</td>
+                    <td>@nation.Bronze</td>
+                    <td>@nation.Total</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<NationMedalsDto> medals;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var compId = CompetitionState.SelectedCompetitionId;
+        medals = await ResultsService.GetMedalsByNationAsync(compId);
+    }
+}

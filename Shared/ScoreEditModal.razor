@@ -1,0 +1,111 @@
+﻿@using CompetitionResults.Data
+@inject DisciplineService DisciplineService
+@inject ThrowerService ThrowerService
+@inject ResultService ResultService
+@inject CompetitionStateService CompetitionState
+
+<div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Scores for <strong>@thrower.Name @thrower.Surname</strong></h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    @if (EditableScores != null)
+                    {
+                        @foreach (var score in EditableScores)
+                        {
+                            <div class="mb-3">
+                                <label>@score.DisciplineName</label>
+                                <input type="number"
+                                       class="form-control"
+                                       style="background-color: @(!score.Score.HasValue ? "red" : "white");"
+                                       @bind="score.Score"
+                                       step= "@(score.HasDecimalPoints ? "0.01" : "1")" />
+                            </div>
+                        }
+
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveChanges">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public class EditableScore
+    {
+        public int DisciplineId { get; set; }
+        public string DisciplineName { get; set; }
+        public double? Score { get; set; }
+        public bool HasDecimalPoints { get; set; }
+    }
+
+    public class ThrowerScores
+    {
+        public int ThrowerId { get; set; }
+        public Dictionary<int, double?> Scores { get; set; }
+    }
+
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<ThrowerScores> OnSave { get; set; }
+    public bool IsOpen { get; private set; }
+    public List<EditableScore> EditableScores { get; set; }
+    public Thrower thrower { get; set; }
+    List<Discipline> disciplines;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CompetitionState.OnCompetitionChanged += StateHasChanged;
+        thrower = new Thrower();
+        EditableScores = new List<EditableScore>();
+        disciplines = new List<Discipline>();
+    }
+
+    public async void Open(int throwerId)
+    {
+        thrower = await ThrowerService.GetThrowerByIdAsync(throwerId);
+        disciplines = await DisciplineService.GetAllDisciplinesAsync(CompetitionState.SelectedCompetitionId);
+
+        var scores = await ResultService.GetScoresByThrowerIdAsync(thrower.Id, CompetitionState.SelectedCompetitionId);
+
+        EditableScores.Clear();
+        foreach (var discipline in disciplines)
+		{
+            EditableScores.Add(new EditableScore { DisciplineId = discipline.Id, 
+                DisciplineName = discipline.Name, 
+                HasDecimalPoints = discipline.HasDecimalPoints,
+                Score = scores.ContainsKey(discipline.Id) ? scores[discipline.Id] : null });
+		}
+
+        IsOpen = true;
+        StateHasChanged();
+    }
+
+    private void Close()
+    {
+        IsOpen = false;
+        StateHasChanged();
+        OnClose.InvokeAsync();
+    }
+
+    private void SaveChanges()
+    {
+        var updatedScores = EditableScores.ToDictionary(es => es.DisciplineId, es => es.Score);
+
+        var throwerScores = new ThrowerScores
+            {
+                ThrowerId = thrower.Id,
+                Scores = EditableScores.ToDictionary(es => es.DisciplineId, es => es.Score)
+            };
+
+        OnSave.InvokeAsync(throwerScores);
+        Close();
+    }
+}

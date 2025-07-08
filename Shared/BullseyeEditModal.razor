@@ -1,0 +1,95 @@
+﻿@using CompetitionResults.Data
+@inject DisciplineService DisciplineService
+@inject ThrowerService ThrowerService
+@inject ResultService ResultService
+@inject CompetitionStateService CompetitionState
+
+<div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Bullseyes for <strong>@thrower.Name @thrower.Surname</strong></h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    @if (EditableBullseyes != null)
+                    {
+                        @foreach (var entry in EditableBullseyes)
+                        {
+                            <div class="mb-3">
+                                <label>@entry.DisciplineName</label>
+                                <input type="number"
+                                       class="form-control"
+                                       style="background-color: @(entry.BullseyeCount.HasValue ? "white" : "#ffe6e6");"
+                                       @bind="entry.BullseyeCount"
+                                       step="1" />
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveChanges">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public class EditableBullseye
+    {
+        public int DisciplineId { get; set; }
+        public string DisciplineName { get; set; }
+        public int? BullseyeCount { get; set; }
+    }
+
+    [Parameter] public EventCallback OnClose { get; set; }
+    public bool IsOpen { get; private set; }
+    public List<EditableBullseye> EditableBullseyes { get; set; } = new();
+    public Thrower thrower { get; set; } = new();
+    List<Discipline> disciplines = new();
+
+    public async void Open(int throwerId)
+    {
+        thrower = await ThrowerService.GetThrowerByIdAsync(throwerId);
+        disciplines = await DisciplineService.GetAllDisciplinesAsync(CompetitionState.SelectedCompetitionId);
+        var rawResults = await ResultService.GetBullseyeEntriesAsync(CompetitionState.SelectedCompetitionId, throwerId);
+
+        EditableBullseyes = rawResults
+            .Select(r => new EditableBullseye
+            {
+                DisciplineId = r.DisciplineId,
+                DisciplineName = r.DisciplineName,
+                BullseyeCount = r.BullseyeCount
+            })
+            .ToList();
+
+        IsOpen = true;
+        StateHasChanged();
+    }
+
+    private void Close()
+    {
+        IsOpen = false;
+        StateHasChanged();
+        OnClose.InvokeAsync();
+    }
+
+    private async void SaveChanges()
+    {
+        await ResultService.SaveBullseyeEntriesAsync(
+            CompetitionState.SelectedCompetitionId,
+            thrower.Id,
+            EditableBullseyes.Select(e => new BullseyeEditEntry
+            {
+                DisciplineId = e.DisciplineId,
+                DisciplineName = e.DisciplineName,
+                BullseyeCount = e.BullseyeCount
+            }).ToList()
+        );
+
+        Close();
+    }
+}

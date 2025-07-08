@@ -1,0 +1,106 @@
+﻿@page "/managers"
+@using CompetitionResults.Data
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@inject CompetitionService CompetitionServiceInstance
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject RoleManager<IdentityRole> RoleManager
+
+<h3>Assign Managers to Competitions</h3>
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Managers</h4>
+                <ul>
+                    @foreach (var user in users)
+                    {
+                        <li>
+                            <button class="btn btn-link" @onclick="() => SelectUser(user)">@user.UserName</button>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-6">
+                @if (selectedUser != null)
+                {
+                    <h4>Assign to Competitions</h4>
+                    <ul>
+                        @foreach (var comp in competitions)
+                        {
+                            <li>
+                                <button class="btn btn-primary" @onclick="() => AssignToCompetition(selectedUser.Id, comp.Id)">
+                                    Assign to @comp.Name
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </Authorized>
+@*     <NotAuthorized>
+        <p>You're not logged in.</p>
+    </NotAuthorized> *@
+</AuthorizeView>
+
+<AuthorizeView Roles="Manager">
+    <Authorized>
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Managers</h4>
+                <ul>
+                    @foreach (var user in users)
+                    {
+                        <li>
+                            <button class="btn btn-link" @onclick="() => SelectUser(user)">@user.UserName</button>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-6">
+                @if (selectedUser != null)
+                {
+                    <h4>Assign to Competitions</h4>
+                    <ul>
+                        @* @foreach (var comp in competitions.Where(c => c.CompetitionManagers.Any(m => m.ManagerId == UserManager.GetUserId(User)))) *@
+                        @foreach (var comp in competitions)
+                        {
+                            <li>
+                                <button class="btn btn-primary" @onclick="() => AssignToCompetition(selectedUser.Id, comp.Id)">
+                                    Assign to @comp.Name
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </Authorized>
+@*     <NotAuthorized>
+        <p>You're not logged in.</p>
+    </NotAuthorized> *@
+</AuthorizeView>
+
+@code {
+    private List<ApplicationUser> users;
+    private List<Competition> competitions;
+    private ApplicationUser selectedUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = UserManager.Users.ToList();
+        competitions = await CompetitionServiceInstance.GetAllCompetitionsAsync();
+    }
+
+    private void SelectUser(ApplicationUser user)
+    {
+        selectedUser = user;
+    }
+
+    private async Task AssignToCompetition(string userId, int competitionId)
+    {
+        await CompetitionServiceInstance.AssignManagerToCompetitionAsync(userId, competitionId);
+    }
+}

@@ -1,0 +1,236 @@
+﻿@page "/registration/{competitionId:int?}"
+@using CompetitionResults.Data
+@inject ThrowerService ThrowerService
+@inject CompetitionStateService CompetitionState
+@inject CategoryService CategoryService
+@inject CompetitionService CompetitionService
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+
+@if (!IsFull(CompetitionState.SelectedCompetitionId))
+{
+    <button @onclick="AddNew">Register</button>
+}
+else
+{
+    <label >Registration is full!</label>
+}
+
+<ThrowerRegistrationModal @ref="throwerRegistrationModal" OnClose="HandleModalClose" Thrower="selectedThrower" OnFormSubmit="HandleFormSubmit" />
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMessage
+    </div>
+}
+
+@if (throwers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <select @onchange="OnSelectionChange" style="width: 400px; margin-top: 15px;">
+        @foreach (var competition in competitions)
+        {
+            <option value="@competition.Id" selected="@IsSelected(competition.Id)">@competition.Name</option>
+        }
+    </select>
+
+    <h3>@competitionDesc</h3>
+
+    <h3>Registered throwers</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Nationality</th>
+                <th>Flag</th>
+                <th>Club Name</th>
+                <th>Payment done</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ var i = 1; }
+            @foreach (var thrower in throwers)
+            {                
+                var lowerCaseCode = thrower.Nationality.ToLowerInvariant();
+                var flagUrl = $"https://flagcdn.com/32x24/{lowerCaseCode}.png";
+                <tr>
+                    <td>@(i++)</td>
+                    <td>@thrower.Name</td>
+                    <td>@thrower.Surname</td>
+                    <td>@thrower.Nationality</td>
+                    <td>
+                        <img src="@flagUrl"
+                             alt="@thrower.Nationality"
+                             title="@thrower.Nationality"
+                             style="height:20px; width:30px;" />
+                    </td>
+                    <td>@thrower.ClubName</td>
+                    <td style="background-color: @(!thrower.PaymentDone ? "red" : "white");">@(!thrower.PaymentDone ? "No" : "Yes")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div style="margin-top: 20px;">
+        <p>
+            <h4>Total countries: @countryCount</h4>
+            @foreach (var country in countryFlags)
+            {
+                var flagUrl = $"https://flagcdn.com/32x24/{country}.png";
+                <img src="@flagUrl" alt="@country" title="@country" style="height:20px; width:30px; margin-left: 5px;" />
+            }
+        </p>
+
+        <h4>Categories:</h4>
+        <ul>
+            @foreach (var category in categoriesDict)
+            {
+                <li>@category.Key: @category.Value</li>
+            }
+        </ul>
+
+        <p>
+            <h4>Total campers: @campersCount</h4>
+        </p>
+
+        <h4>T-shirts:</h4>
+        <ul>
+            @foreach (var tshirt in tshirtDict)
+            {
+                <li>@tshirt.Key: @tshirt.Value</li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int? CompetitionId { get; set; }
+
+    private string errorMessage;
+    private List<Competition> competitions;
+    private ThrowerRegistrationModal throwerRegistrationModal;
+    private List<Thrower> throwers;
+    private Thrower selectedThrower = new Thrower();
+
+    private Dictionary<string, int> categoriesDict;
+    private int countryCount;
+    private List<string> countryFlags;
+    private int campersCount;
+    private Dictionary<string, int> tshirtDict;
+
+    private string competitionDesc;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CompetitionState.OnCompetitionChanged += LoadData;
+
+        competitions = await CompetitionService.GetAllCompetitionsAsync();
+
+        if (CompetitionId.HasValue && competitions.Any(c => c.Id == CompetitionId.Value))
+        {
+            CompetitionState.SelectedCompetitionId = CompetitionId.Value;
+        }
+        else if (competitions != null && competitions.Count > 0 && CompetitionState.SelectedCompetitionId == 0)
+        {
+            // Automatically select the first competition if no valid CompetitionId is provided
+            CompetitionState.SelectedCompetitionId = competitions[0].Id;
+        }
+
+        LoadData();
+    }
+
+    private async void LoadData()
+    {
+        competitions = await CompetitionService.GetAllCompetitionsAsync();
+        if (competitions != null && competitions.Count > 0 && CompetitionState.SelectedCompetitionId == 0)
+        {
+            // Automatically select the first competition
+            CompetitionState.SelectedCompetitionId = competitions[0].Id;
+        }
+
+        var categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
+
+        competitionDesc = competitions.FirstOrDefault(c => c.Id == CompetitionState.SelectedCompetitionId)?.Description;
+
+        throwers = await ThrowerService.GetAllThrowersAsync(CompetitionState.SelectedCompetitionId);
+
+        categoriesDict = new Dictionary<string, int>();
+        foreach (var category in categories)
+        {
+            categoriesDict.Add(category.Name, throwers.Count(t => t.CategoryId == category.Id));                
+        }
+
+        countryCount = throwers.GroupBy(t => t.Nationality).Count();
+
+        countryFlags = throwers.GroupBy(t => t.Nationality)
+			.Select(g => g.Key.ToLowerInvariant())
+			.Distinct()
+			.ToList();
+
+        campersCount = throwers.Count(t => t.IsCampingOnSite);
+
+        tshirtDict = throwers.GroupBy(t => t.TShirtSize).Where(g => g.Key != null)
+        .ToDictionary(g => g.Key, g => g.Count());
+
+        StateHasChanged();
+    }
+
+    private bool IsSelected(int competitionId)
+    {
+        return competitionId == CompetitionState.SelectedCompetitionId;
+    }
+
+    private bool IsFull(int competitionId)
+    {
+        var comp = CompetitionService.GetCompetitionByIdAsync(competitionId).Result;
+
+        return !comp.MaxCompetitorCount.HasValue || comp.MaxCompetitorCount <= throwers.Count;
+    }
+
+    public void Dispose()
+    {
+        CompetitionState.OnCompetitionChanged -= LoadData;
+    }
+
+    private async void AddNew()
+    {
+        selectedThrower = new Thrower { Nationality = "CZ", CompetitionId = CompetitionState.SelectedCompetitionId }; // Reset the form for a new thrower
+        selectedThrower.CategoryId = (await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId)).FirstOrDefault()?.Id ?? 0;
+        throwerRegistrationModal.Open();
+        StateHasChanged();
+    }
+
+    private async Task HandleFormSubmit()
+    {
+        LoadData();
+    }
+
+    private async Task HandleModalClose()
+    {
+        LoadData();
+    }
+
+    private async void OnSelectionChange(ChangeEventArgs e)
+    {
+        int competitionId = int.Parse(e.Value.ToString());
+        var mcompetitions = await CompetitionService.GetAllCompetitionsAsync();
+
+        if (mcompetitions.Any(c => c.Id == competitionId))
+        {
+            CompetitionState.SelectedCompetitionId = competitionId;
+            errorMessage = string.Empty; // Clear previous error messages if any
+        }
+        else
+        {
+            errorMessage = "Error: Invalid competition selection.";
+        }
+    }
+}
+

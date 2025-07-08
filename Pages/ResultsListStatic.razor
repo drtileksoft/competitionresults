@@ -1,0 +1,422 @@
+﻿@page "/resultsstatic"
+@using CompetitionResults.Data
+@using Microsoft.AspNetCore.SignalR.Client
+@inject ResultService ResultsService
+@inject DisciplineService DisciplineService
+@inject CategoryService CategoryService
+@inject CompetitionStateService CompetitionState
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+
+		@if (disciplines == null || categories == null)
+		{
+			<p><em>Loading...</em></p>
+		}
+		else
+		{
+			<div class="container m-0 p-0 small-font row">
+				<div class="col-12">
+					@foreach (var category in categories)
+					{
+						if (MaxResultsCount(category.Id) >= 1)
+						{
+							<button @onclick='() => ExportAsPDF("resultContent" + category.Id)' class="m-2">Export to PDF</button>
+
+							<div id="resultContent@(category.Id)">
+								<h7 class="mb-1 p-0">@category.Name</h7>
+
+								<table class="table table-hover table-bordered m-0 p-0 mb-1">
+									<thead class="thead-light">
+										<tr>
+											<th style="width: 30px;">Rank</th>
+											@foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
+											{
+												<th>@discipline.Name</th>
+											}
+										</tr>
+									</thead>
+									<tbody>
+										@for (int i = 0; i < MaxResultsCount(category.Id); i++)
+										{
+											var rank = i + 1;
+											var rowColor = i switch
+											{
+												0 => "background-color: gold;",
+												1 => "background-color: silver;",
+												2 => "background-color: #CD7F32;",
+												_ => ""
+											};
+											<tr>
+												<td class="m-0" style="width: 30px;padding: 3px !important;@rowColor">@rank</td>
+												@foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
+												{
+													var result = resultsDictionary[(category.Id, discipline.Id)].ElementAtOrDefault(i);
+													var resultValue = result?.Points;
+													var awardValue = result?.PointsAward;
+													var bulls = result?.BullseyeCount;
+													var isTie = result?.IsTieForMedal ?? false;
+
+													var backgroundColor = resultValue.HasValue
+														? (isTie ? "background-color: red;" : "")
+														: "background-color: rgba(255, 0, 0, 0.1);";
+
+													<td class="results-td" style="@backgroundColor">
+														<div class="cell">
+															<span class="name">@GetResultNameForDiscipline(category.Id, discipline.Id, i)</span>
+															<span class="value">@resultValue@(bulls.HasValue ? $"-{bulls}" : "") (@awardValue)</span>
+														</div>
+													</td>
+												}
+
+
+											</tr>
+										}
+									</tbody>
+								</table>
+							</div>
+						}
+					}
+				</div>
+			</div>
+
+			<div class="container m-0 p-0 small-font row">
+				<div class="col-12">
+					<button @onclick='() => ExportAsPDF("resultContent")' class="m-2">Export to PDF</button>
+
+					<div id="resultContent">
+						<h7 class="mb-1 p-0">Overall</h7>
+
+						<table class="table table-hover table-bordered m-0 p-0 mb-1">
+							<thead class="thead-light">
+								<tr>
+									<th style="width: 30px;">Rank</th>
+									<th>Total Winner</th>
+									@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories).OrderBy(d => d.HasPositionsInsteadPoints).ThenBy(d => d.Id).Take(6))
+									{
+										<th>@discipline.Name</th>
+									}
+								</tr>
+							</thead>
+							<tbody>
+								@for (int i = 0; i < MaxResultsCount(); i++)
+								{
+									var rank = i + 1;
+									var rowColor = i switch
+									{
+										0 => "background-color: gold;",
+										1 => "background-color: silver;",
+										2 => "background-color: #CD7F32;",
+										_ => ""
+									};
+									<tr>
+										<td class="m-0" style="width: 30px;padding: 3px !important;@rowColor">@rank</td>
+
+										<td class="results-td">
+											<div class="cell">
+												<span class="name">@GetResultNameForDisciplineOverall(0, i)</span>
+												<span class="value">@GetResultValueForDisciplineOverall(0, i)</span>
+											</div>
+										</td>
+
+										@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories).OrderBy(d => d.HasPositionsInsteadPoints).ThenBy(d => d.Id).Take(6))
+										{
+											var resultValue = GetResultValueForDisciplineOverall(discipline.Id, i);
+											var awardValue = GetAwardValueForDisciplineOverall(discipline.Id, i);
+											var isTie = GetIsTieForDisciplineOverall(discipline.Id, i);
+											var bulls = GetBullsForDisciplineOverall(discipline.Id, i);
+											var backgroundColor = resultValue.HasValue
+														? (isTie ? "background-color: red;" : "")
+														: "background-color: rgba(255, 0, 0, 0.1);";
+
+											<td class="results-td" style="@backgroundColor">
+												<div class="cell">
+													<span class="name">@GetResultNameForDisciplineOverall(discipline.Id, i)</span>
+													<span class="value">@resultValue@(bulls.HasValue ? $"-{bulls}" : "") (@awardValue)</span>
+												</div>
+											</td>
+										}
+
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			@if (disciplines.Where(d => !d.IsDividedToCategories).Count() > 6) 
+			{
+			<div class="container m-0 p-0 small-font row">
+				<div class="col-12">
+					<button @onclick='() => ExportAsPDF("resultContentTwo")' class="m-2">Export to PDF</button>
+
+					<div id="resultContentTwo">
+						<h7 class="mb-1 p-0">Overall 2</h7>
+
+						<table class="table table-hover table-bordered m-0 p-0 mb-1">
+							<thead class="thead-light">
+								<tr>
+									<th style="width: 30px;">Rank</th>
+									@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories).OrderBy(d => d.HasPositionsInsteadPoints).ThenBy(d => d.Id).Skip(6))
+									{
+										<th>@discipline.Name</th>
+									}
+								</tr>
+							</thead>
+							<tbody>
+								@for (int i = 0; i < MaxResultsCount(); i++)
+								{
+									var rank = i + 1;
+									var rowColor = i switch
+									{
+										0 => "background-color: gold;",
+										1 => "background-color: silver;",
+										2 => "background-color: #CD7F32;",
+										_ => ""
+									};
+									<tr>
+										<td class="m-0" style="width: 30px;padding: 3px !important;@rowColor">@rank</td>
+
+										@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories).OrderBy(d => d.HasPositionsInsteadPoints).ThenBy(d => d.Id).Skip(6))
+										{
+											var resultValue = GetResultValueForDisciplineOverall(discipline.Id, i);
+											var awardValue = GetAwardValueForDisciplineOverall(discipline.Id, i);
+											var isTie = GetIsTieForDisciplineOverall(discipline.Id, i);
+											var bulls = GetBullsForDisciplineOverall(discipline.Id, i);
+											var backgroundColor = resultValue.HasValue
+														? (isTie ? "background-color: red;" : "")
+														: "background-color: rgba(255, 0, 0, 0.1);";
+
+											<td class="results-td" style="@backgroundColor">
+												<div class="cell">
+													<span class="name">@GetResultNameForDisciplineOverall(discipline.Id, i)</span>
+													<span class="value">@resultValue@(bulls.HasValue ? $"-{bulls}" : "") (@awardValue)</span>
+												</div>
+											</td>
+										}
+
+
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			}
+		}
+
+
+@code {
+	private List<Category> categories;
+	private List<Discipline> disciplines;
+	private Dictionary<(int, int), List<ResultDto>> resultsDictionary = new Dictionary<(int, int), List<ResultDto>>();
+	private Dictionary<int, List<ResultDto>> resultsOverallDictionary = new Dictionary<int, List<ResultDto>>();
+
+	private HubConnection _hubConnection;
+
+	private bool _signalRStarted = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			LoadScores();
+
+			if (!_signalRStarted)
+			{
+				_signalRStarted = true;
+
+				try
+				{
+					_hubConnection = new HubConnectionBuilder()
+						.WithUrl(Navigation.ToAbsoluteUri("/notificationHub"))
+						.WithAutomaticReconnect()
+						.Build();
+
+					_hubConnection.On("CompetitionChanged", () =>
+					{
+						InvokeAsync(LoadScores);
+					});
+
+					await _hubConnection.StartAsync();
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine("SignalR connection failed: " + ex.Message);
+				}
+			}
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		CompetitionState.OnCompetitionChanged -= LoadScores;
+
+		if (_hubConnection is not null)
+		{
+			await _hubConnection.DisposeAsync();
+		}
+	}
+
+
+	private async Task ExportAsPDF(string htmlId)
+	{
+		await JSRuntime.InvokeVoidAsync("generatePDF", htmlId);
+	}
+
+	private async void LoadScores()
+	{
+		categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
+		disciplines = await DisciplineService.GetAllDisciplinesAsync(CompetitionState.SelectedCompetitionId);
+
+		foreach (var category in categories)
+		{
+			foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
+			{
+				resultsDictionary[(category.Id, discipline.Id)] = await ResultsService.GetResultsByCategoryAndDisciplineAsync(category.Id, discipline.Id, CompetitionState.SelectedCompetitionId);
+			}
+		}
+
+		foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories))
+		{
+			resultsOverallDictionary[discipline.Id] = await ResultsService.GetResultsByDisciplineAsync(discipline.Id, CompetitionState.SelectedCompetitionId);
+		}
+
+		resultsOverallDictionary[0] = await ResultsService.GetResultsTotalAsync(CompetitionState.SelectedCompetitionId);
+
+		StateHasChanged();
+	}
+
+	private string GetResultNameForDiscipline(int categoryId, int disciplineId, int position)
+	{
+		if (resultsDictionary.TryGetValue((categoryId, disciplineId), out var results))
+		{
+			if (position < results.Count)
+			{
+				return results[position].ThrowerName;
+			}
+		}
+		return "N/A";
+	}
+
+	private double? GetResultValueForDiscipline(int categoryId, int disciplineId, int position)
+	{
+		if (resultsDictionary.TryGetValue((categoryId, disciplineId), out var results) && position < results.Count)
+		{
+			if (results[position].Points.HasValue)
+			{
+				return results[position].Points;
+			}
+		}
+		return null;
+	}
+
+	private int? GetBullsForDiscipline(int categoryId, int disciplineId, int position)
+	{
+		if (resultsDictionary.TryGetValue((categoryId, disciplineId), out var results) && position < results.Count)
+		{
+			if (results[position].Points.HasValue)
+			{
+				return results[position].BullseyeCount;
+			}
+		}
+		return null;
+	}
+
+	private double? GetAwardValueForDiscipline(int categoryId, int disciplineId, int position)
+	{
+		if (resultsDictionary.TryGetValue((categoryId, disciplineId), out var results) && position < results.Count)
+		{
+			return results[position].PointsAward;
+		}
+		return null;
+	}
+
+	private int MaxResultsCount(int categoryId)
+	{
+		int maxCount = 0;
+		foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
+		{
+			var resultsCount = resultsDictionary[(categoryId, discipline.Id)].Count;
+			if (resultsCount > maxCount)
+			{
+				maxCount = resultsCount;
+			}
+		}
+		return maxCount;
+	}
+
+	private string GetResultNameForDisciplineOverall(int disciplineId, int position)
+	{
+		if (resultsOverallDictionary.TryGetValue(disciplineId, out var results))
+		{
+			if (position < results.Count)
+			{
+				return results[position].ThrowerName;
+			}
+		}
+		return "N/A";
+	}
+
+	private double? GetResultValueForDisciplineOverall(int disciplineId, int position)
+	{
+		if (resultsOverallDictionary.TryGetValue(disciplineId, out var results) && position < results.Count)
+		{
+			if (results[position].Points.HasValue)
+			{
+				return results[position].Points;
+			}
+		}
+		return null;
+	}
+
+	private int? GetBullsForDisciplineOverall(int disciplineId, int position)
+	{
+		if (resultsOverallDictionary.TryGetValue(disciplineId, out var results) && position < results.Count)
+		{
+			if (results[position].Points.HasValue)
+			{
+				return results[position].BullseyeCount;
+			}
+		}
+		return null;
+	}
+
+	private bool GetIsTieForDisciplineOverall(int disciplineId, int position)
+	{
+		if (resultsOverallDictionary.TryGetValue(disciplineId, out var results) && position < results.Count)
+		{
+			if (results[position].Points.HasValue)
+			{
+				return results[position].IsTieForMedal;
+			}
+		}
+		return false;
+	}
+
+	private double? GetAwardValueForDisciplineOverall(int disciplineId, int position)
+	{
+		if (resultsOverallDictionary.TryGetValue(disciplineId, out var results) && position < results.Count)
+		{
+			return results[position].PointsAward;
+		}
+		return null;
+	}
+
+	private int MaxResultsCount()
+	{
+		int maxCount = 0;
+		foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories))
+		{
+			var resultsCount = resultsOverallDictionary[discipline.Id].Count;
+			if (resultsCount > maxCount)
+			{
+				maxCount = resultsCount;
+			}
+		}
+		return maxCount;
+	}
+}

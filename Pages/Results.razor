@@ -1,0 +1,312 @@
+﻿@page "/resultsone"
+@using CompetitionResults.Data
+@using Microsoft.AspNetCore.SignalR.Client
+@inject ResultService ResultsService
+@inject DisciplineService DisciplineService
+@inject CategoryService CategoryService
+@inject CompetitionStateService CompetitionState
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+		@if (disciplines == null || categories == null)
+		{
+			<p><em>Loading...</em></p>
+		}
+		else
+		{
+			<div class="container m-0 p-0 small-font row">
+				<div class="col-12">
+					@foreach (var category in categories)
+					{
+						if (MaxResultsCount(category.Id) >= 1)
+						{
+							@foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
+							{
+								<button @onclick='() => ShowResults(category.Id, discipline.Id)' class="m-2">@category.Name @discipline.Name</button>
+							}
+						}
+					}
+					@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories).OrderBy(d => d.HasPositionsInsteadPoints).ThenBy(d => d.Id))
+					{
+						<button @onclick='() => ShowResults(0, discipline.Id)' class="m-2">@discipline.Name</button>
+					}
+
+					<button @onclick='() => ShowResults(0, 0)' class="m-2">Total winner</button>
+				</div>
+			</div>
+
+			<div class="container m-0 p-0 small-font row">
+				<div class="col-12" id="resultsOfGame">
+					@if (selectedDisciplineId != 0 || selectedCategoryId != 0)
+					{
+						<h3 class="mb-1 p-0">
+							@categories.FirstOrDefault(c => c.Id == selectedCategoryId)?.Name @(disciplines.Where(d => d.Id == selectedDisciplineId).FirstOrDefault().Name)
+						</h3>
+						<div class="d-flex flex-wrap">
+							@for (int i = 0; i < (selectedCategoryId != 0 ? MaxResultsCount(selectedCategoryId) : MaxResultsCount()); i++)
+							{
+								var throwerName = selectedCategoryId != 0 ? GetResultNameForDiscipline(selectedCategoryId, selectedDisciplineId, i) : GetResultNameForDisciplineOverall(selectedDisciplineId, i);
+								var points = selectedCategoryId != 0 ? GetResultValueForDiscipline(selectedCategoryId, selectedDisciplineId, i) : GetResultValueForDisciplineOverall(selectedDisciplineId, i);
+								var awardPoints = selectedCategoryId != 0 ? GetAwardValueForDiscipline(selectedCategoryId, selectedDisciplineId, i) : GetAwardValueForDisciplineOverall(selectedDisciplineId, i);
+
+								var result = selectedCategoryId != 0
+									? resultsDictionary[(selectedCategoryId, selectedDisciplineId)][i]
+									: resultsOverallDictionary[selectedDisciplineId][i];
+
+								var rowColor = result.IsTieForMedal switch
+								{
+									true => "background-color: red;", // červená při nerozhodnutém medailovém pořadí
+									false => i switch
+									{
+										0 => "background-color: gold;",
+										1 => "background-color: silver;",
+										2 => "background-color: #CD7F32;",
+										_ => ""
+									}
+								};
+
+
+								<div class="result-card m-2 p-2 border rounded" style="@rowColor">
+									<div class="rank">Rank: @(i + 1)</div>
+									<div class="thrower-name"><strong>@throwerName</strong></div>
+									<div class="points">Points: @points
+										 @if (result.BullseyeCount.HasValue)
+											{
+												<span> (@result.BullseyeCount)</span>
+											}
+									</div>
+									<div class="award-points">Award Points: @awardPoints</div>
+								</div>
+							}
+						</div>
+					}
+					else if (MaxResultsCount() > 0)
+					{
+						<h3 class="mb-1 p-0">Total winner</h3>
+						<div class="d-flex flex-wrap">
+							@for (int i = 0; i < MaxResultsCount(); i++)
+							{
+								var throwerName = GetResultNameForDisciplineOverall(selectedDisciplineId, i);
+								var points = GetResultValueForDisciplineOverall(selectedDisciplineId, i);
+								var awardPoints = GetAwardValueForDisciplineOverall(selectedDisciplineId, i);
+
+								var result = selectedCategoryId != 0
+									? resultsDictionary[(selectedCategoryId, selectedDisciplineId)][i]
+									: resultsOverallDictionary[selectedDisciplineId][i];
+
+								var rowColor = result.IsTieForMedal switch
+								{
+									true => "background-color: red;", // červená při nerozhodnutém medailovém pořadí
+									false => i switch
+									{
+										0 => "background-color: gold;",
+										1 => "background-color: silver;",
+										2 => "background-color: #CD7F32;",
+										_ => ""
+									}
+								};
+
+								<div class="result-card m-2 p-2 border rounded" style="@rowColor">
+									<div class="rank">Rank: @(i + 1)</div>
+									<div class="thrower-name"><strong>@throwerName</strong></div>
+									<div class="points">Points: @points
+										 @if (result.BullseyeCount.HasValue)
+											{
+												<span> (@result.BullseyeCount)</span>
+											}
+									</div>
+									<div class="award-points">Award Points: @awardPoints</div>
+								</div>
+							}
+						</div>
+					}
+				</div>
+			</div>
+		}
+
+@code {
+	private List<Category> categories;
+	private List<Discipline> disciplines;
+	private Dictionary<(int, int), List<ResultDto>> resultsDictionary = new Dictionary<(int, int), List<ResultDto>>();
+	private Dictionary<int, List<ResultDto>> resultsOverallDictionary = new Dictionary<int, List<ResultDto>>();
+
+	private HubConnection _hubConnection;
+
+	private bool _signalRStarted = false;
+
+	private int selectedDisciplineId = 0;
+	private int selectedCategoryId = 0;
+
+	private async Task ShowResults(int categoryId, int disciplineId)
+	{
+		selectedDisciplineId = disciplineId;
+		selectedCategoryId = categoryId;
+
+		StateHasChanged();
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			LoadScores();
+
+			if (!_signalRStarted)
+			{
+				_signalRStarted = true;
+
+				try
+				{
+					_hubConnection = new HubConnectionBuilder()
+						.WithUrl(Navigation.ToAbsoluteUri("/notificationHub"))
+						.WithAutomaticReconnect()
+						.Build();
+
+					_hubConnection.On("CompetitionChanged", () =>
+					{
+						InvokeAsync(LoadScores);
+					});
+
+					await _hubConnection.StartAsync();
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine("SignalR connection failed: " + ex.Message);
+				}
+			}
+		}
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		CompetitionState.OnCompetitionChanged -= LoadScores;
+
+		if (_hubConnection is not null)
+		{
+			await _hubConnection.DisposeAsync();
+		}
+	}
+
+	private async void LoadScores()
+	{
+		categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
+		disciplines = await DisciplineService.GetAllDisciplinesAsync(CompetitionState.SelectedCompetitionId);
+
+		foreach (var category in categories)
+		{
+			foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
+			{
+				resultsDictionary[(category.Id, discipline.Id)] = await ResultsService.GetResultsByCategoryAndDisciplineAsync(category.Id, discipline.Id, CompetitionState.SelectedCompetitionId);
+			}
+		}
+
+		foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories))
+		{
+			resultsOverallDictionary[discipline.Id] = await ResultsService.GetResultsByDisciplineAsync(discipline.Id, CompetitionState.SelectedCompetitionId);
+		}
+
+		resultsOverallDictionary[0] = await ResultsService.GetResultsTotalAsync(CompetitionState.SelectedCompetitionId);
+
+		StateHasChanged();
+	}
+
+	private string GetResultNameForDiscipline(int categoryId, int disciplineId, int position)
+	{
+		if (resultsDictionary.TryGetValue((categoryId, disciplineId), out var results))
+		{
+			if (position < results.Count)
+			{
+				return results[position].ThrowerName;
+			}
+		}
+		return "N/A";
+	}
+
+	private double? GetResultValueForDiscipline(int categoryId, int disciplineId, int position)
+	{
+		if (resultsDictionary.TryGetValue((categoryId, disciplineId), out var results) && position < results.Count)
+		{
+			if (results[position].Points.HasValue)
+			{
+				return results[position].Points;
+			}
+		}
+		return null;
+	}
+
+	private double? GetAwardValueForDiscipline(int categoryId, int disciplineId, int position)
+	{
+		if (resultsDictionary.TryGetValue((categoryId, disciplineId), out var results) && position < results.Count)
+		{
+			return results[position].PointsAward;
+		}
+		return null;
+	}
+
+	private int MaxResultsCount(int categoryId)
+	{
+		if (categoryId == 0)
+		{
+			return 0;
+		}
+
+		int maxCount = 0;
+		foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
+		{
+			var resultsCount = resultsDictionary[(categoryId, discipline.Id)].Count;
+			if (resultsCount > maxCount)
+			{
+				maxCount = resultsCount;
+			}
+		}
+		return maxCount;
+	}
+
+	private string GetResultNameForDisciplineOverall(int disciplineId, int position)
+	{
+		if (resultsOverallDictionary.TryGetValue(disciplineId, out var results))
+		{
+			if (position < results.Count)
+			{
+				return results[position].ThrowerName;
+			}
+		}
+		return "N/A";
+	}
+
+	private double? GetResultValueForDisciplineOverall(int disciplineId, int position)
+	{
+		if (resultsOverallDictionary.TryGetValue(disciplineId, out var results) && position < results.Count)
+		{
+			if (results[position].Points.HasValue)
+			{
+				return results[position].Points;
+			}
+		}
+		return null;
+	}
+
+	private double? GetAwardValueForDisciplineOverall(int disciplineId, int position)
+	{
+		if (resultsOverallDictionary.TryGetValue(disciplineId, out var results) && position < results.Count)
+		{
+			return results[position].PointsAward;
+		}
+		return null;
+	}
+
+	private int MaxResultsCount()
+	{
+		int maxCount = 0;
+		foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories))
+		{
+			var resultsCount = resultsOverallDictionary[discipline.Id].Count;
+			if (resultsCount > maxCount)
+			{
+				maxCount = resultsCount;
+			}
+		}
+		return maxCount;
+	}
+}

@@ -1,0 +1,104 @@
+﻿@page "/categories"
+@using CompetitionResults.Data
+@inject CategoryService CategoryService
+@inject CompetitionStateService CompetitionState
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+
+<h3>Categories List</h3>
+
+<AuthorizeView Roles="Admin, Manager">
+	<Authorized>
+<button @onclick="AddNew">Add New Category</button>
+
+<CategoryEditModal @ref="categoryEditModal" OnClose="HandleModalClose" Category="currentCategory" OnFormSubmit="HandleFormSubmit" />
+
+@if (categories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in categories)
+            {
+                <tr>
+                    <td>@category.Name</td>
+                    <td>
+                        <button @onclick="() => EditCategory(category)">Edit</button>
+                        <button @onclick="() => DeleteCategory(category.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not loggged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private CategoryEditModal categoryEditModal;
+    private List<Category> categories;
+    private Category currentCategory = new Category();
+
+    protected override async Task OnInitializedAsync()
+    {
+        CompetitionState.OnCompetitionChanged += LoadData;
+        LoadData();
+    }
+
+    private async void LoadData()
+    {
+        categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        CompetitionState.OnCompetitionChanged -= LoadData;
+    }
+
+    private void AddNew()
+    {
+        currentCategory = new Category { CompetitionId = CompetitionState.SelectedCompetitionId };
+        categoryEditModal.Open();
+        StateHasChanged();
+    }
+
+    private void EditCategory(Category category)
+    {
+        currentCategory = category;
+        categoryEditModal.Open();
+        StateHasChanged();
+    }
+
+    private async Task DeleteCategory(int categoryId)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this category?");
+        if (confirmed)
+        {
+            await CategoryService.DeleteCategoryAsync(categoryId);
+            LoadData();
+        }        
+    }
+
+    private async Task HandleFormSubmit()
+    {
+        LoadData();
+    }
+
+    private async Task HandleModalClose()
+    {
+        LoadData();
+    }
+}

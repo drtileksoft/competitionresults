@@ -1,0 +1,259 @@
+﻿@using CompetitionResults
+@using CompetitionResults.Data
+@inject ThrowerService ThrowerService
+@inject CompetitionService CompetitionService
+@inject CategoryService CategoryService
+@inject CompetitionStateService CompetitionState
+
+<div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<EditForm Model="@_thrower" OnValidSubmit="HandleValidSubmit">
+				<DataAnnotationsValidator />
+				<ValidationSummary />
+				<div class="modal-header">
+					<h5 class="modal-title">Edit Thrower</h5>
+					<button type="button" class="btn-close" @onclick="Close"></button>
+				</div>
+				<div class="modal-body">
+
+					<div class="form-grid">
+						<div>
+							<label for="name">Name:</label>
+							<InputText id="name" @bind-Value="@_thrower.Name" />
+						</div>
+
+						<div>
+							<label for="surname">Surname:</label>
+							<InputText id="surname" @bind-Value="@_thrower.Surname" />
+						</div>
+
+						<div>
+							<label for="nickname">Nickname:</label>
+							<InputText id="nickname" @bind-Value="@_thrower.Nickname" />
+						</div>
+
+						<div>
+							<label for="nationality">Nationality:</label>
+							<select id="nationality" @bind="_thrower.Nationality">
+								@foreach (var country in countries)
+								{
+									<option value="@country.Key">@country.Value</option>
+								}
+							</select>
+						</div>
+
+						<div>
+							<label for="clubName">Club Name:</label>
+							<InputText id="clubName" @bind-Value="@_thrower.ClubName" />
+						</div>
+
+						<div>
+							<label for="email">Email:</label>
+							<InputText id="email" @bind-Value="@_thrower.Email" type="email" />
+						</div>
+
+						<div>
+							<label for="note">Note:</label>
+							<InputTextArea id="note" @bind-Value="@_thrower.Note" />
+						</div>
+
+						<div>
+							<label for="categoryId">Category:</label>
+							<select id="categoryId" @bind="_thrower.CategoryId">
+								@foreach (var category in categories)
+								{
+									<option value="@category.Id">@category.Name</option>
+								}
+							</select>
+						</div>
+
+						@if (_competition.CampingOnSiteAvailable)
+						{
+							<div>
+								<label for="isCampingOnSite">Camping on site:</label>
+								<InputCheckbox id="isCampingOnSite" @bind-Value="_thrower.IsCampingOnSite" />
+							</div>
+						}
+
+						@if (_competition.TShirtAvailable)
+						{
+							<div>
+								<label for="wantTShirt">Interested in T-Shirt of competition for additional 10€:</label>
+								<InputCheckbox id="wantTShirt" @bind-Value="_thrower.WantTShirt" />
+							</div>
+
+							@if (!string.IsNullOrEmpty(_competition.TShirtLink))
+							{
+								<div>
+									<a href="@_competition.TShirtLink" target="_blank">
+										<img src="@_competition.TShirtLink" alt="T-Shirt design" style="width:30px;" />
+										<span>T-Shirt design</span>
+									</a>
+								</div>
+							}
+
+							@if (_thrower.WantTShirt)
+							{
+								<div>
+									<label for="tShirtSize">Select T-Shirt Size:</label>
+									<InputSelect id="tShirtSize" @bind-Value="_thrower.TShirtSize">
+										<option value="XS">XS</option>
+										<option value="S">S</option>
+										<option value="M">M</option>
+										<option value="L">L</option>
+										<option value="XL">XL</option>
+										<option value="XXL">XXL</option>
+										<option value="3XL">3XL</option>
+										<option value="4XL">4XL</option>
+										<option value="5XL">5XL</option>
+									</InputSelect>
+								</div>
+							}
+						}
+
+						<div>
+							<label for="isPaid">Is Paid:</label>
+							<InputCheckbox id="isPaid" @bind-Value="_thrower.PaymentDone" />
+						</div>
+
+						<div>
+							<label for="payment">Payment:</label>
+							<input type="number" id="payment" @bind="_thrower.Payment" />
+						</div>
+
+						<div>
+							<label for="donotsend">Do not send registration email:</label>
+							<InputCheckbox id="donotsend" @bind-Value="_thrower.DoNotSendRegistrationEmail" />
+						</div>
+
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+					<button type="submit" class="btn btn-primary">Save changes</button>
+				</div>
+			</EditForm>
+		</div>
+	</div>
+</div>
+
+@code {
+	public bool IsOpen { get; private set; }
+	[Parameter] public EventCallback OnClose { get; set; }
+	private Thrower _thrower;
+	private Competition _competition;
+	private List<Category> categories;
+	private Dictionary<string, string> countries = new Dictionary<string, string>
+	{
+		{"AF", "Afghanistan"}, {"AL", "Albania"}, {"DZ", "Algeria"}, {"AD", "Andorra"},
+		{"AO", "Angola"}, {"AG", "Antigua and Barbuda"}, {"AR", "Argentina"}, {"AM", "Armenia"},
+		{"AU", "Australia"}, {"AT", "Austria"}, {"AZ", "Azerbaijan"}, {"BS", "Bahamas"},
+		{"BH", "Bahrain"}, {"BD", "Bangladesh"}, {"BB", "Barbados"}, {"BY", "Belarus"},
+		{"BE", "Belgium"}, {"BZ", "Belize"}, {"BJ", "Benin"}, {"BT", "Bhutan"},
+		{"BO", "Bolivia"}, {"BA", "Bosnia and Herzegovina"}, {"BW", "Botswana"}, {"BR", "Brazil"},
+		{"BN", "Brunei"}, {"BG", "Bulgaria"}, {"BF", "Burkina Faso"}, {"BI", "Burundi"},
+		{"CV", "Cabo Verde"}, {"KH", "Cambodia"}, {"CM", "Cameroon"}, {"CA", "Canada"},
+		{"CF", "Central African Republic"}, {"TD", "Chad"}, {"CL", "Chile"}, {"CN", "China"},
+		{"CO", "Colombia"}, {"KM", "Comoros"}, {"CG", "Congo"}, {"CD", "Congo (DRC)"},
+		{"CR", "Costa Rica"}, {"CI", "Côte d'Ivoire"}, {"HR", "Croatia"}, {"CU", "Cuba"},
+		{"CY", "Cyprus"}, {"CZ", "Czech Republic"}, {"DK", "Denmark"}, {"DJ", "Djibouti"},
+		{"DM", "Dominica"}, {"DO", "Dominican Republic"}, {"EC", "Ecuador"}, {"EG", "Egypt"},
+		{"SV", "El Salvador"}, {"GQ", "Equatorial Guinea"}, {"ER", "Eritrea"}, {"EE", "Estonia"},
+		{"SZ", "Eswatini"}, {"ET", "Ethiopia"}, {"FJ", "Fiji"}, {"FI", "Finland"},
+		{"FR", "France"}, {"GA", "Gabon"}, {"GM", "Gambia"}, {"GE", "Georgia"},
+		{"DE", "Germany"}, {"GH", "Ghana"}, {"GR", "Greece"}, {"GD", "Grenada"},
+		{"GT", "Guatemala"}, {"GN", "Guinea"}, {"GW", "Guinea-Bissau"}, {"GY", "Guyana"},
+		{"HT", "Haiti"}, {"HN", "Honduras"}, {"HU", "Hungary"}, {"IS", "Iceland"},
+		{"IN", "India"}, {"ID", "Indonesia"}, {"IR", "Iran"}, {"IQ", "Iraq"},
+		{"IE", "Ireland"}, {"IL", "Israel"}, {"IT", "Italy"}, {"JM", "Jamaica"},
+		{"JP", "Japan"}, {"JO", "Jordan"}, {"KZ", "Kazakhstan"}, {"KE", "Kenya"},
+		{"KI", "Kiribati"}, {"KP", "Korea (North)"}, {"KR", "Korea (South)"}, {"KW", "Kuwait"},
+		{"KG", "Kyrgyzstan"}, {"LA", "Laos"}, {"LV", "Latvia"}, {"LB", "Lebanon"},
+		{"LS", "Lesotho"}, {"LR", "Liberia"}, {"LY", "Libya"}, {"LI", "Liechtenstein"},
+		{"LT", "Lithuania"}, {"LU", "Luxembourg"}, {"MG", "Madagascar"}, {"MW", "Malawi"},
+		{"MY", "Malaysia"}, {"MV", "Maldives"}, {"ML", "Mali"}, {"MT", "Malta"},
+		{"MH", "Marshall Islands"}, {"MR", "Mauritania"}, {"MU", "Mauritius"}, {"MX", "Mexico"},
+		{"FM", "Micronesia"}, {"MD", "Moldova"}, {"MC", "Monaco"}, {"MN", "Mongolia"},
+		{"ME", "Montenegro"}, {"MA", "Morocco"}, {"MZ", "Mozambique"}, {"MM", "Myanmar"},
+		{"NA", "Namibia"}, {"NR", "Nauru"}, {"NP", "Nepal"}, {"NL", "Netherlands"},
+		{"NZ", "New Zealand"}, {"NI", "Nicaragua"}, {"NE", "Niger"}, {"NG", "Nigeria"},
+		{"NO", "Norway"}, {"OM", "Oman"}, {"PK", "Pakistan"}, {"PW", "Palau"},
+		{"PA", "Panama"}, {"PG", "Papua New Guinea"}, {"PY", "Paraguay"}, {"PE", "Peru"},
+		{"PH", "Philippines"}, {"PL", "Poland"}, {"PT", "Portugal"}, {"QA", "Qatar"},
+		{"RO", "Romania"}, {"RU", "Russia"}, {"RW", "Rwanda"}, {"KN", "Saint Kitts and Nevis"},
+		{"LC", "Saint Lucia"}, {"VC", "Saint Vincent and the Grenadines"}, {"WS", "Samoa"},
+		{"SM", "San Marino"}, {"ST", "Sao Tome and Principe"}, {"SA", "Saudi Arabia"},
+		{"SN", "Senegal"}, {"RS", "Serbia"}, {"SC", "Seychelles"}, {"SL", "Sierra Leone"},
+		{"SG", "Singapore"}, {"SK", "Slovakia"}, {"SI", "Slovenia"}, {"SB", "Solomon Islands"},
+		{"SO", "Somalia"}, {"ZA", "South Africa"}, {"SS", "South Sudan"}, {"ES", "Spain"},
+		{"LK", "Sri Lanka"}, {"SD", "Sudan"}, {"SR", "Suriname"}, {"SE", "Sweden"},
+		{"CH", "Switzerland"}, {"SY", "Syria"}, {"TW", "Taiwan"}, {"TJ", "Tajikistan"},
+		{"TZ", "Tanzania"}, {"TH", "Thailand"}, {"TL", "Timor-Leste"}, {"TG", "Togo"},
+		{"TO", "Tonga"}, {"TT", "Trinidad and Tobago"}, {"TN", "Tunisia"}, {"TR", "Turkey"},
+		{"TM", "Turkmenistan"}, {"TV", "Tuvalu"}, {"UG", "Uganda"}, {"UA", "Ukraine"},
+		{"AE", "United Arab Emirates"}, {"GB", "United Kingdom"}, {"GB-WLS", "United Kingdom - Wales"}, {"GB-SCT", "United Kingdom - Scotland"}, {"US", "United States"},
+		{"UY", "Uruguay"}, {"UZ", "Uzbekistan"}, {"VU", "Vanuatu"}, {"VA", "Vatican City"},
+		{"VE", "Venezuela"}, {"VN", "Vietnam"}, {"YE", "Yemen"}, {"ZM", "Zambia"},
+		{"ZW", "Zimbabwe"}
+	};
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		_thrower = new Thrower { Nationality = "CZ" };
+		_competition = await CompetitionService.GetCompetitionByIdAsync(CompetitionState.SelectedCompetitionId);
+
+		categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
+		if (categories.Any())
+		{
+			_thrower.CategoryId = categories.First().Id; // Set first category as default
+		}
+	}
+
+	[Parameter]
+	public Thrower Thrower
+	{
+		get => _thrower;
+		set
+		{
+			if (_thrower != value)
+			{
+				_thrower = value;
+			}
+		}
+	}
+
+	[Parameter]
+	public EventCallback OnFormSubmit { get; set; }
+
+	private async Task HandleValidSubmit()
+	{
+		IsOpen = false;
+		if (_thrower.Id == 0)
+		{
+			await ThrowerService.AddThrowerAsync(_thrower);
+		}
+		else
+		{
+			await ThrowerService.UpdateThrowerAsync(_thrower);
+		}
+
+		await OnFormSubmit.InvokeAsync(null);
+	}
+
+	public async void Open()
+	{
+		categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
+
+		IsOpen = true;
+		StateHasChanged();
+	}
+
+	private void Close()
+	{
+		IsOpen = false;
+		StateHasChanged();
+		OnClose.InvokeAsync();
+	}
+}

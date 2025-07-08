@@ -1,0 +1,121 @@
+﻿@using CompetitionResults.Data
+@inject CompetitionService CompetitionService
+
+<div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<EditForm Model="@_competition" OnValidSubmit="HandleValidSubmit">
+				<DataAnnotationsValidator />
+				<ValidationSummary />
+				<div class="modal-header">
+					<h5 class="modal-title">Edit Competition</h5>
+					<button type="button" class="btn-close" @onclick="Close"></button>
+				</div>
+				<div class="modal-body">
+
+					<div class="form-grid">
+						<div>
+							<label for="name">Name:</label>
+							<InputText id="name" @bind-Value="@_competition.Name" />
+						</div>
+
+						<div>
+							<label for="desc">Description:</label>
+							<InputText id="name" @bind-Value="@_competition.Description" />
+						</div>
+
+						<div>
+							<label for="campingavailable">Camping on site available:</label>
+							<InputCheckbox id="campingavailable" @bind-Value="@_competition.CampingOnSiteAvailable" />
+						</div>
+
+						<div>
+							<label for="tshirtavailable">T-Shirt available:</label>
+							<InputCheckbox id="tshirtavailable" @bind-Value="@_competition.TShirtAvailable" />
+						</div>
+
+						<div>
+							<label for="tshirtlink">T-Shirt image url (link to picture):</label>
+							<InputText id="tshirtlink" @bind-Value="@_competition.TShirtLink" />
+						</div>
+
+						<div>
+							<label for="emailtemplate">Email template footer:</label>
+							<InputTextArea id="emailtemplate" @bind-Value="@_competition.EmailTemplateFooter" />
+						</div>
+
+						<div>
+							<label for="emailtemplate2">Email template footer CZ:</label>
+							<InputTextArea id="emailtemplate2" @bind-Value="@_competition.EmailTemplateFooterCZ" />
+						</div>
+
+						<div>
+							<label for="maxThrowers">Maximum number of competitors:</label>
+							<InputNumber id="maxThrowers" @bind-Value="@_competition.MaxCompetitorCount" />
+						</div>
+
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+					<button type="submit" class="btn btn-primary">Save changes</button>
+				</div>
+			</EditForm>
+		</div>
+	</div>
+</div>
+
+@code {
+	public bool IsOpen { get; private set; }
+	[Parameter] public EventCallback OnClose { get; set; }
+	private Competition _competition;
+
+	protected override async Task OnInitializedAsync()
+	{
+		_competition = new Competition();
+	}
+
+	[Parameter]
+	public Competition Category
+	{
+		get => _competition;
+		set
+		{
+			if (_competition != value)
+			{
+				_competition = value;
+			}
+		}
+	}
+
+	[Parameter]
+	public EventCallback OnFormSubmit { get; set; }
+
+    private async Task HandleValidSubmit()
+	{
+		IsOpen = false;
+		if (_competition.Id == 0)
+        {
+			await CompetitionService.AddCompetitionAsync(_competition);
+        }
+        else
+        {
+			await CompetitionService.UpdateCompetitionAsync(_competition);
+        }
+
+		await OnFormSubmit.InvokeAsync(true);
+    }
+
+	public async void Open()
+	{
+		IsOpen = true;
+		StateHasChanged();
+	}
+
+	private void Close()
+	{
+		IsOpen = false;
+		StateHasChanged();
+		OnClose.InvokeAsync();
+	}
+}
