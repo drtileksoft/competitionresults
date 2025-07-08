@@ -9,10 +9,10 @@
 @implements IDisposable
 
 <h3>Scores List</h3>
-<div class="mb-3">
-    <input class="form-control d-inline-block me-2" style="width: 120px;" placeholder="Startovní číslo"
+<div>
+    <input class="form-control d-inline-block me-2" style="width: 120px;" placeholder="#"
            @bind="filterId" @bind:event="oninput" />
-    <input class="form-control d-inline-block" style="width: 200px;" placeholder="Jméno"
+    <input class="form-control d-inline-block" style="width: 200px;" placeholder="Name"
            @bind="filterName" @bind:event="oninput" />
 </div>
 <AuthorizeView Roles="Admin, Manager, User">
@@ -31,7 +31,7 @@ else
     <table class="table medium-font">
         <thead>
             <tr>
-                <th>Startovní číslo</th>
+                <th>#</th>
                 <th>Name</th>
                         <th>Edit</th>
                         <th>Bullseyes</th>
