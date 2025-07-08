@@ -1,0 +1,6 @@
+# Build artifacts
+bin/
+obj/
+*.tar.gz
+*.db-wal
+*.db-shm
