@@ -47,25 +47,7 @@ else
                 {
                     var category = categories.FirstOrDefault(c => c.Id == result.CategoryId);
 
-                    string rowColor = "";
-                    if (result.IsTieForMedal)
-                    {
-                        rowColor = "background-color: red;";
-                    }
-                    else if (result.Position == 1)
-                    {
-                        rowColor = "background-color: gold;";
-                    }
-                    else if (result.Position == 2)
-                    {
-                        rowColor = "background-color: silver;";
-                    }
-                    else if (result.Position == 3)
-                    {
-                        rowColor = "background-color: #CD7F32;";
-                    }
-
-                    <div class="result-card m-2 p-2 border rounded" style="@rowColor">
+                    <div class="result-card m-2 p-2 border rounded" style="@result.BackgroundColor">
                         <div><strong>Discipline:</strong> @disciplineName</div>
                         @if (isDivided && category != null)
                         {
