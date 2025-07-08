@@ -49,10 +49,10 @@
 												<td class="m-0" style="width: 30px;padding: 3px !important;@rowColor">@rank</td>
 												@foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
 												{
-													var result = resultsDictionary[(category.Id, discipline.Id)].ElementAtOrDefault(i);
-													var resultValue = result?.Points;
-            var awardValue = result?.PointsAward;
-            var bulls = result?.BullseyeCount;
+                                                                           var result = resultsDictionary[(category.Id, discipline.Id)].ElementAtOrDefault(i);
+                                                                           var resultValue = GetResultValueForDiscipline(category.Id, discipline.Id, i);
+            var awardValue = GetAwardValueForDiscipline(category.Id, discipline.Id, i);
+            var bulls = GetBullsForDiscipline(category.Id, discipline.Id, i);
             var backgroundColor = result?.BackgroundColor ??
                 "background-color: rgba(255, 0, 0, 0.1);";
 
@@ -102,7 +102,7 @@
 									<tr>
 										<td class="m-0" style="width: 30px;padding: 3px !important;@rowColor">@rank</td>
 
-										<td class="results-td">
+                                                                           <td class="results-td" style="@rowColor">
 											<div class="cell">
 												<span class="name">@GetResultNameForDisciplineOverall(0, i)</span>
 												<span class="value">@GetResultValueForDisciplineOverall(0, i)</span>
