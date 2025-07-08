@@ -143,26 +143,6 @@ namespace CompetitionResults.Data
             }
         }
 
-        private void AssignBackgroundColors(List<ResultDto> results)
-        {
-            foreach (var r in results)
-            {
-                if (r.IsTieForMedal)
-                {
-                    r.BackgroundColor = "background-color: red;";
-                }
-                else
-                {
-                    r.BackgroundColor = r.Position switch
-                    {
-                        1 => "background-color: gold;",
-                        2 => "background-color: silver;",
-                        3 => "background-color: #CD7F32;",
-                        _ => string.Empty
-                    };
-                }
-            }
-        }
 
 
 
@@ -193,10 +173,12 @@ namespace CompetitionResults.Data
                 ? results.OrderBy(r => r.Points ?? double.MaxValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList()
                 : results.OrderByDescending(r => r.Points ?? double.MinValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList();
 
-            AssignPointsAwards(results, results.Count);
-            AssignPositions(results, discipline.IsDividedToCategories, isReverseOrdered);
-            MarkTiesForMedals(results, discipline.IsDividedToCategories);
-            AssignBackgroundColors(results);
+            if (results.Any())
+            {
+                AssignPointsAwards(results, results.Count);
+                AssignPositions(results, discipline.IsDividedToCategories, isReverseOrdered);
+                MarkTiesForMedals(results, discipline.IsDividedToCategories);
+            }
 
             return results;
         }
@@ -269,8 +251,6 @@ namespace CompetitionResults.Data
             {
                 resultList[i].Position = i + 1;
             }
-
-            AssignBackgroundColors(resultList);
 
             return resultList;
         }
@@ -535,18 +515,41 @@ namespace CompetitionResults.Data
 		}
 	}
 
-	public class ResultDto
-	{
-        public int ThrowerId { get; set; }
-		public string ThrowerName { get; set; }
-        public int Position { get; set; }
-		public double? Points { get; set; }
-        public int? BullseyeCount { get; set; }
-        public double? PointsAward { get; set; }
-        public bool IsTieForMedal { get; set; } // použito v UI k zobrazení červeného pozadí
-        public int CategoryId { get; set; }
-        public int DisciplineId { get; set; } // přidáno pro snadné filtrování
-        public string BackgroundColor { get; set; }
+        public class ResultDto
+        {
+            public int ThrowerId { get; set; }
+            public string ThrowerName { get; set; }
+            public int Position { get; set; }
+            public double? Points { get; set; }
+            public int? BullseyeCount { get; set; }
+            public double? PointsAward { get; set; }
+            public bool IsTieForMedal { get; set; } // použito v UI k zobrazení červeného pozadí
+            public int CategoryId { get; set; }
+            public int DisciplineId { get; set; } // přidáno pro snadné filtrování
+
+            public string BackgroundColor
+            {
+                get
+                {
+                    if (!Points.HasValue)
+                    {
+                        return "background-color: rgba(255,0,0,0.1);";
+                    }
+
+                    if (IsTieForMedal)
+                    {
+                        return "background-color: red;";
+                    }
+
+                    return Position switch
+                    {
+                        1 => "background-color: gold;",
+                        2 => "background-color: silver;",
+                        3 => "background-color: #CD7F32;",
+                        _ => string.Empty
+                    };
+                }
+            }
         }
 
 }

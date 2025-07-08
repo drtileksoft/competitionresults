@@ -50,9 +50,28 @@
 								var points = selectedCategoryId != 0 ? GetResultValueForDiscipline(selectedCategoryId, selectedDisciplineId, i) : GetResultValueForDisciplineOverall(selectedDisciplineId, i);
 								var awardPoints = selectedCategoryId != 0 ? GetAwardValueForDiscipline(selectedCategoryId, selectedDisciplineId, i) : GetAwardValueForDisciplineOverall(selectedDisciplineId, i);
 
-								var result = selectedCategoryId != 0
-									? resultsDictionary[(selectedCategoryId, selectedDisciplineId)][i]
-									: resultsOverallDictionary[selectedDisciplineId][i];
+						ResultDto? result = new ResultDto
+						{
+							ThrowerName = "N/A",
+							Points = null,
+							BullseyeCount = null
+						};
+
+						if (selectedCategoryId != 0)
+						{
+							if (resultsDictionary.TryGetValue((selectedCategoryId, selectedDisciplineId), out var list) && i < list.Count)
+							{
+								result = list[i];
+							}
+						}
+						else
+						{
+							if (resultsOverallDictionary.TryGetValue(selectedDisciplineId, out var overallList) && i < overallList.Count)
+							{
+								result = overallList[i];
+							}
+						}
+
 
                                                                 <div class="result-card m-2 p-2 border rounded" style="@result.BackgroundColor">
 									<div class="rank">Rank: @(i + 1)</div>

@@ -105,11 +105,10 @@
 											var results = resultsByGroupedSelection[key];
 											var result = results.ElementAtOrDefault(i);
 											var name = result?.ThrowerName ?? "—";
-											var points = result?.Points;
-											var award = result?.PointsAward;
-											var bulls = result?.BullseyeCount;
-											var isTie = result?.IsTieForMedal ?? false;
-											var background = points.HasValue ? (isTie ? "background-color: red;" : "") : "background-color: rgba(255,0,0,0.1);";
+            var points = result?.Points;
+            var award = result?.PointsAward;
+            var bulls = result?.BullseyeCount;
+            var background = result?.BackgroundColor ?? "background-color: rgba(255,0,0,0.1);";
 
 											<td class="results-td" style="@background">
 												<div class="cell">
@@ -128,10 +127,9 @@
 												var result = results.ElementAtOrDefault(i);
 												var name = result?.ThrowerName ?? "—";
 												var points = result?.Points;
-												var award = result?.PointsAward;
-												var bulls = result?.BullseyeCount;
-												var isTie = result?.IsTieForMedal ?? false;
-												var background = points.HasValue ? (isTie ? "background-color: red;" : "") : "background-color: rgba(255,0,0,0.1);";
+            var award = result?.PointsAward;
+            var bulls = result?.BullseyeCount;
+            var background = result?.BackgroundColor ?? "background-color: rgba(255,0,0,0.1);";
 
 												<td class="results-td" style="@background">
 													<div class="cell">
