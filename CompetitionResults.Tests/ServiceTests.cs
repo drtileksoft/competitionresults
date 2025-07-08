@@ -1,15 +1,13 @@
 using CompetitionResults.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using Xunit;
 
 namespace CompetitionResults.Tests;
 
-public class ServiceTests : IClassFixture<DbFixture>
+public class ServiceTests : IClassFixture<InMemoryDbFixture>
 {
-    private readonly DbFixture _fixture;
+    private readonly InMemoryDbFixture _fixture;
 
-    public ServiceTests(DbFixture fixture)
+    public ServiceTests(InMemoryDbFixture fixture)
     {
         _fixture = fixture;
     }
@@ -18,80 +16,62 @@ public class ServiceTests : IClassFixture<DbFixture>
     public async Task CategoryService_ReturnsCategories()
     {
         var categories = await _fixture.CategoryService.GetAllCategoriesAsync(1);
-        Assert.True(categories.Count > 0);
+        Assert.Equal(SeedData.Categories.Length, categories.Count);
     }
 
     [Fact]
     public async Task DisciplineService_ReturnsDisciplines()
     {
         var disciplines = await _fixture.DisciplineService.GetAllDisciplinesAsync(1);
-        Assert.True(disciplines.Count > 0);
+        Assert.Equal(SeedData.Disciplines.Length, disciplines.Count);
     }
 
     [Fact]
     public async Task CompetitionService_ReturnsCompetitions()
     {
         var comps = await _fixture.CompetitionService.GetAllCompetitionsAsync();
-        Assert.True(comps.Count > 0);
+        Assert.Equal(SeedData.Competitions.Length, comps.Count);
     }
 
     [Fact]
     public async Task ThrowerService_ReturnsThrowers()
     {
         var throwers = await _fixture.ThrowerService.GetAllThrowersAsync(1);
-        Assert.True(throwers.Count > 0);
+        Assert.Equal(SeedData.Throwers.Length, throwers.Count);
     }
 
     [Fact]
-    public async Task ResultService_ComputesPositionsAndAwards()
+    public async Task ResultService_ReturnsExpectedResults_ForEachDiscipline()
     {
-        var competitionIds = await _fixture.Context.Competitions
-            .Select(c => c.Id)
-            .ToListAsync();
-
-        foreach (var competitionId in competitionIds)
+        foreach (var discipline in SeedData.Disciplines)
         {
-            var disciplines = await _fixture.Context.Disciplines
-                .Where(d => d.CompetitionId == competitionId)
-                .ToListAsync();
+            var serviceResults = await _fixture.ResultService.GetResultsByDisciplineAsync(discipline.Id, 1);
+            var expected = ExpectedResults.ByDiscipline[discipline.Id];
 
-            foreach (var discipline in disciplines)
+            Assert.Equal(expected.Count, serviceResults.Count);
+            for (int i = 0; i < expected.Count; i++)
             {
-                var results = await _fixture.Context.Results
-                    .Include(r => r.Thrower)
-                    .Where(r => r.DisciplineId == discipline.Id && r.CompetitionId == competitionId)
-                    .Select(r => new ResultDto
-                    {
-                        ThrowerId = r.ThrowerId,
-                        DisciplineId = r.DisciplineId,
-                        ThrowerName = !string.IsNullOrEmpty(r.Thrower.Nickname)
-                            ? r.Thrower.Nickname + " (" + r.Thrower.Name + " " + r.Thrower.Surname + ")"
-                            : r.Thrower.Name + " " + r.Thrower.Surname,
-                        CategoryId = r.Thrower.CategoryId,
-                        Points = r.Points,
-                        BullseyeCount = r.BullseyeCount
-                    }).ToListAsync();
-
-                var expected = discipline.HasPositionsInsteadPoints
-                    ? results.OrderBy(r => r.Points ?? double.MaxValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList()
-                    : results.OrderByDescending(r => r.Points ?? double.MinValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList();
-
-                _fixture.ResultService.AssignPointsAwards(expected, expected.Count);
-                _fixture.ResultService.AssignPositions(expected, discipline.IsDividedToCategories, discipline.HasPositionsInsteadPoints);
-                _fixture.ResultService.MarkTiesForMedals(expected, discipline.IsDividedToCategories);
-
-                var serviceResults = await _fixture.ResultService.GetResultsByDisciplineAsync(discipline.Id, competitionId);
-
-                Assert.Equal(expected.Count, serviceResults.Count);
-
-                for (int i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].ThrowerId, serviceResults[i].ThrowerId);
-                    Assert.Equal(expected[i].Position, serviceResults[i].Position);
-                    Assert.Equal(expected[i].PointsAward, serviceResults[i].PointsAward);
-                    Assert.Equal(expected[i].IsTieForMedal, serviceResults[i].IsTieForMedal);
-                }
+                Assert.Equal(expected[i].ThrowerId, serviceResults[i].ThrowerId);
+                Assert.Equal(expected[i].Position, serviceResults[i].Position);
+                Assert.Equal(expected[i].PointsAward, serviceResults[i].PointsAward);
+                Assert.Equal(expected[i].IsTieForMedal, serviceResults[i].IsTieForMedal);
+                Assert.Equal(expected[i].ThrowerName, serviceResults[i].ThrowerName);
             }
+        }
+    }
+
+    [Fact]
+    public async Task ResultService_ReturnsExpectedOverallResults()
+    {
+        var overall = await _fixture.ResultService.GetResultsTotalAsync(1);
+        var expected = ExpectedResults.Overall;
+
+        Assert.Equal(expected.Count, overall.Count);
+        for (int i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i].ThrowerId, overall[i].ThrowerId);
+            Assert.Equal(expected[i].ThrowerName, overall[i].ThrowerName);
+            Assert.Equal(expected[i].Points, overall[i].Points);
         }
     }
 }

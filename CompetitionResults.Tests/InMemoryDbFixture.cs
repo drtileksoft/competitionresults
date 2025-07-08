@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace CompetitionResults.Tests;
 
-public class DbFixture : IDisposable
+public class InMemoryDbFixture : IDisposable
 {
     public CompetitionDbContext Context { get; }
     public ResultService ResultService { get; }
@@ -14,12 +14,19 @@ public class DbFixture : IDisposable
     public CompetitionService CompetitionService { get; }
     public ThrowerService ThrowerService { get; }
 
-    public DbFixture()
+    public InMemoryDbFixture()
     {
         var options = new DbContextOptionsBuilder<CompetitionDbContext>()
-            .UseSqlite("Data Source=competition.db")
+            .UseInMemoryDatabase("CompetitionTestDb")
             .Options;
         Context = new CompetitionDbContext(options);
+
+        Context.Competitions.AddRange(SeedData.Competitions);
+        Context.Categories.AddRange(SeedData.Categories);
+        Context.Disciplines.AddRange(SeedData.Disciplines);
+        Context.Throwers.AddRange(SeedData.Throwers);
+        Context.Results.AddRange(SeedData.Results);
+        Context.SaveChanges();
 
         var notificationHub = new NotificationHub(null!);
         ResultService = new ResultService(Context, notificationHub);
