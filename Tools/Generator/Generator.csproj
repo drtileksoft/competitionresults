@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../CompetitionResults.csproj" />
+    <ProjectReference Include="../../CompetitionResults/CompetitionResults.csproj" />
     <ProjectReference Include="../../CompetitionResults.Tests/CompetitionResults.Tests.csproj" />
   </ItemGroup>
 </Project>
