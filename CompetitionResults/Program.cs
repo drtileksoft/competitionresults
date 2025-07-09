@@ -1,8 +1,9 @@
-using BlazorAppUsers.Areas.Identity;
+using CompetitionResults.Components.Account;
 using CompetitionResults.Data;
 using CompetitionResults.Notifications;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,19 +28,45 @@ namespace CompetitionResults
             });
 
             // Add services to the container.
-            builder.Services.AddRazorPages();
+            //builder.Services.AddRazorPages();
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-			// Add AthleticsDbContext to the service collection
-			builder.Services.AddDbContext<CompetitionDbContext>(options =>
+            builder.Services.AddCascadingAuthenticationState();
+            builder.Services.AddScoped<IdentityUserAccessor>();
+            builder.Services.AddScoped<IdentityRedirectManager>();
+            builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider<ApplicationUser>>();
+
+            //builder.Services.AddAuthentication(options =>
+            //{
+            //    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+            //    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            //})
+            //.AddIdentityCookies();
+
+            // Add DbContext to the service collection
+            builder.Services.AddDbContext<CompetitionDbContext>(options =>
 				options.UseSqlite(builder.Configuration.GetConnectionString("CompetitionDatabase")));
 
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<CompetitionDbContext>();
+            //builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //   .AddEntityFrameworkStores<CompetitionDbContext>()
+            //   .AddSignInManager()
+            //   //.AddRoles<IdentityRole>()
+            //   .AddDefaultTokenProviders();
 
-            builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
+            //builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //.AddRoles<IdentityRole>()
+            //.AddEntityFrameworkStores<CompetitionDbContext>();
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+            .AddEntityFrameworkStores<CompetitionDbContext>()
+            //.AddRoles<IdentityRole>()
+            .AddSignInManager()
+            .AddDefaultTokenProviders();
+
+            builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+            //builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
 
             builder.Services.AddScoped<UserIdStateService>();
             builder.Services.AddScoped<CompetitionStateService>();
@@ -51,8 +78,8 @@ namespace CompetitionResults
 
 			builder.Services.AddScoped<NotificationHub>();
 
-			builder.Services.AddAuthentication();
-            builder.Services.AddAuthorization();
+			//builder.Services.AddAuthentication();
+            //builder.Services.AddAuthorization();
 
             builder.Services.AddSignalR(options =>
             {
@@ -84,18 +111,17 @@ namespace CompetitionResults
 
             app.UseCors();
 
-            app.UseStaticFiles();
-
-            app.UseRouting();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
 
             app.UseAntiforgery();
+
+            app.MapStaticAssets();
+
             app.UseResponseCompression();
 
             app.MapControllers();
-            app.MapRazorPages();
+            //app.MapRazorPages();
 
             app.MapHub<NotificationHub>("/notificationHub");
             app.MapRazorComponents<CompetitionResults.Components.App>()

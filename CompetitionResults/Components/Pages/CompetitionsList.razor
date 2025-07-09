@@ -1,0 +1,109 @@
+﻿@page "/competitions"
+@using CompetitionResults.Data
+@using CompetitionResults.Components.Shared
+@using System.Security.Claims
+@inject CompetitionService CompetitionService
+@inject UserIdStateService UserIdStateService
+@inject IJSRuntime JSRuntime
+
+<h3>Competitions List</h3>
+<AuthorizeView Roles="Admin, Manager">
+	<Authorized>
+<button @onclick="AddNew">Add New Competition</button>
+
+<CompetitionEditModal @ref="competitionEditModal" OnClose="HandleModalClose" Category="currentCompetition" OnFormSubmit="HandleFormSubmit" />
+
+@if (competitions == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                        <th>Camping</th>
+                        <th>T-Shirt</th>
+                        <th>T-Shirt Link</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in competitions)
+            {
+                <tr>
+                    <td>@category.Name</td>
+                    <td>@category.Description</td>
+                    <td>@(category.CampingOnSiteAvailable ? "Yes" : "No")</td>
+                    <td>@(category.TShirtAvailable ? "Yes" : "No")</td>
+                    <td>@category.TShirtLink</td>
+                    <td>
+                        <button @onclick="() => EditCompetition(category)">Edit</button>
+                        <button @onclick="() => DeleteCompetition(category.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not loggged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private CompetitionEditModal competitionEditModal;
+    private List<Competition> competitions;
+    private Competition currentCompetition = new Competition();
+
+    protected override async Task OnInitializedAsync()
+    {
+        LoadData();
+    }
+
+    private async void LoadData()
+    {
+        competitions = await CompetitionService.GetCompetitionsForManagerAsync(await UserIdStateService.GetUserIdAsync());
+        StateHasChanged();
+    }
+
+    private async void AddNew()
+    {
+        currentCompetition = new Competition();
+        currentCompetition.CompetitionManagers = new List<CompetitionManager>();
+        currentCompetition.CompetitionManagers.Add(new CompetitionManager { ManagerId = await UserIdStateService.GetUserIdAsync() });
+        competitionEditModal.Open();
+        StateHasChanged();
+    }
+
+    private void EditCompetition(Competition competition)
+    {
+        currentCompetition = competition;
+        competitionEditModal.Open();
+        StateHasChanged();
+    }
+
+    private async Task DeleteCompetition(int competitionId)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this competition?");
+        if (confirmed)
+        {
+            await CompetitionService.DeleteCompetitionAsync(competitionId);
+            LoadData();
+        }        
+    }
+
+    private async Task HandleFormSubmit()
+    {
+        LoadData();
+    }
+
+    private async Task HandleModalClose()
+    {
+        LoadData();
+    }
+}
