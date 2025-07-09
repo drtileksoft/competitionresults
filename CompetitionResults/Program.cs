@@ -18,18 +18,18 @@ namespace CompetitionResults
 
             builder.Services.AddCors(options =>
             {
-                options.AddDefaultPolicy(
-                    builder =>
-                    {
-                        builder.WithOrigins("https://www.bladethrowers.cz")
-                               .AllowAnyHeader()
-                               .AllowAnyMethod();
-                    });
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.WithOrigins("https://www.bladethrowers.cz")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
             });
 
             // Add services to the container.
             builder.Services.AddRazorPages();
-			builder.Services.AddServerSideBlazor();
+            builder.Services.AddRazorComponents()
+                .AddInteractiveServerComponents();
 
 			// Add AthleticsDbContext to the service collection
 			builder.Services.AddDbContext<CompetitionDbContext>(options =>
@@ -73,31 +73,33 @@ namespace CompetitionResults
 			await SeedAdminUser(app.Services.CreateScope().ServiceProvider);
 
 			// Configure the HTTP request pipeline.
-			if (!app.Environment.IsDevelopment())
-			{
-				app.UseExceptionHandler("/Error");
-				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-				app.UseHsts();
-			}
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Error", createScopeForErrors: true);
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
 
 			//app.UseHttpsRedirection();
 
-			app.UseCors();
+            app.UseCors();
 
-			app.UseStaticFiles();
+            app.UseStaticFiles();
 
-			app.UseRouting();
+            app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-			app.UseResponseCompression();
+            app.UseAntiforgery();
+            app.UseResponseCompression();
 
-			app.MapControllers();
+            app.MapControllers();
+            app.MapRazorPages();
 
             app.MapHub<NotificationHub>("/notificationHub");
-			app.MapBlazorHub();
-			app.MapFallbackToPage("/_Host");
+            app.MapRazorComponents<CompetitionResults.Components.App>()
+                .AddInteractiveServerRenderMode();
 
 			app.Run();
 		}
