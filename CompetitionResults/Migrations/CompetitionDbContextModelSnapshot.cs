@@ -386,6 +386,9 @@ namespace CompetitionResults.Migrations
                     b.Property<bool>("PaymentDone")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("StartingNumber")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -417,6 +420,7 @@ namespace CompetitionResults.Migrations
                             Nationality = "CZ",
                             Nickname = "Suzanne KO",
                             PaymentDone = false,
+                            StartingNumber = 0,
                             Surname = "Koreňová",
                             WantTShirt = false
                         });

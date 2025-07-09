@@ -12,7 +12,7 @@
 <h3>Scores List</h3>
 <div>
     <input class="form-control d-inline-block me-2" style="width: 120px;" placeholder="#"
-           @bind="filterId" @bind:event="oninput" />
+           @bind="filterNumber" @bind:event="oninput" />
     <input class="form-control d-inline-block" style="width: 200px;" placeholder="Name"
            @bind="filterName" @bind:event="oninput" />
 </div>
@@ -46,7 +46,7 @@ else
             @foreach (var thrower in FilteredThrowers.OrderBy(t => t.Surname).ThenBy(t => t.Name))
             {
                 <tr>
-                    <td>@thrower.Id</td>
+                    <td>@thrower.StartingNumber</td>
                     <td><strong>@thrower.Surname @thrower.Name </strong>
                                 @if (!string.IsNullOrEmpty(thrower.Nickname))
                                 {
@@ -84,11 +84,11 @@ else
     List<Thrower> throwers;
     List<Discipline> disciplines;
     private Dictionary<int, Dictionary<int, double?>> allScores;
-    private string filterId = string.Empty;
+    private string filterNumber = string.Empty;
     private string filterName = string.Empty;
 
     IEnumerable<Thrower> FilteredThrowers => throwers.Where(t =>
-        (string.IsNullOrEmpty(filterId) || t.Id.ToString().Contains(filterId)) &&
+        (string.IsNullOrEmpty(filterNumber) || t.StartingNumber.ToString().Contains(filterNumber)) &&
         (string.IsNullOrEmpty(filterName) ||
          t.Name.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||
          t.Surname.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||

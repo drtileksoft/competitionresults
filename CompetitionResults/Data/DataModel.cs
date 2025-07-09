@@ -45,9 +45,9 @@
     }
 
     public class Thrower
-	{
-		[Key]
-		public int Id { get; set; }
+        {
+                [Key]
+                public int Id { get; set; }
 
 		[Required]
 		[StringLength(50)]
@@ -97,6 +97,8 @@
         public double? Payment { get; set; }
 
         public bool DoNotSendRegistrationEmail { get; set; }
+
+        public int StartingNumber { get; set; }
     }
 
 	public class Category
