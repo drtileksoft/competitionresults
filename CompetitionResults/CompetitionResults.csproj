@@ -14,16 +14,16 @@
     <None Remove="backupsUKAT2025\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="CompetitionResults.Tests\**" />
-    <Content Remove="CompetitionResults.Tests\**" />
-    <EmbeddedResource Remove="CompetitionResults.Tests\**" />
-    <None Remove="CompetitionResults.Tests\**" />
+    <Compile Remove="..\CompetitionResults.Tests\**" />
+    <Content Remove="..\CompetitionResults.Tests\**" />
+    <EmbeddedResource Remove="..\CompetitionResults.Tests\**" />
+    <None Remove="..\CompetitionResults.Tests\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Tools\**" />
-    <Content Remove="Tools\**" />
-    <EmbeddedResource Remove="Tools\**" />
-    <None Remove="Tools\**" />
+    <Compile Remove="..\Tools\**" />
+    <Content Remove="..\Tools\**" />
+    <EmbeddedResource Remove="..\Tools\**" />
+    <None Remove="..\Tools\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="competition.db" />

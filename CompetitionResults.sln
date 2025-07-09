@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompetitionResults", "CompetitionResults.csproj", "{4B1C0632-8F90-4A79-A237-001B1A05FB14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompetitionResults", "CompetitionResults/CompetitionResults.csproj", "{4B1C0632-8F90-4A79-A237-001B1A05FB14}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompetitionResults.Tests", "CompetitionResults.Tests\CompetitionResults.Tests.csproj", "{33CB76DD-7156-4799-BB73-BE22C5064297}"
 EndProject
