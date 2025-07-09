@@ -1,9 +1,7 @@
 ﻿using CompetitionResults.Notifications;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Encodings.Web;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using System.Net.Mail;
 using System.Net;
+using System.Net.Mail;
 
 namespace CompetitionResults.Data
 {
@@ -13,17 +11,14 @@ namespace CompetitionResults.Data
 		private readonly NotificationHub _notificationHub;
 		private readonly CompetitionDbContext _context;
         private readonly IConfiguration _configuration;
-        private readonly IEmailSender _emailSender;
 
         public ThrowerService(CompetitionDbContext context,
 			NotificationHub notificationHub,
-            IConfiguration configuration,
-            IEmailSender emailSender)
+            IConfiguration configuration)
         {
             _context = context;
 			_notificationHub = notificationHub;
             _configuration = configuration;
-            _emailSender = emailSender;
 		}
 
         public async Task<List<Thrower>> GetAllThrowersAsync(int competitionId)

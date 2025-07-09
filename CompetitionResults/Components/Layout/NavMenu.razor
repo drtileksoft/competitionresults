@@ -1,0 +1,208 @@
+﻿@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">CompetitionResults</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <AuthorizeView Roles="Admin">
+			<Authorized>	
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="administration">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Users
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="competitions">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Competitions
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="managers">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Managers
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="categories">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Categories
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="disciplines">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Disciplines
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="throwers">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Throwers
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="scores">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Scores
+					</NavLink>
+				</div>
+			</Authorized>
+		</AuthorizeView>
+		<AuthorizeView Roles="Manager">
+			<Authorized>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="administration">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Users
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="competitions">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Competitions
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="managers">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Managers
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="categories">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Categories
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="disciplines">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Disciplines
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="throwers">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Throwers
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="scores">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Scores
+					</NavLink>
+				</div>
+			</Authorized>
+		</AuthorizeView>
+		<AuthorizeView Roles="User">
+			<Authorized>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="administration">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Users
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="scores">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Scores
+					</NavLink>
+				</div>
+			</Authorized>
+		</AuthorizeView>
+		<AuthorizeView>
+			<Authorized>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="resultsstatic" title="Results Static">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (S)
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="resultsone" title="Results by discipline">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (G)
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="resultsthrower" title="Results by thrower">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (T)
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="resultsselector" title="Results selection">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (X)
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="medals-by-nation">
+						<span class="oi oi-medal" aria-hidden="true"></span> Medals
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink href="/account/logout" class="nav-link">Log out</NavLink>
+					@* <form name="logout" action="Account/Logout" method="post">
+						<AntiforgeryToken />
+						<input type="hidden" name="ReturnUrl" value="@currentUrl" />
+						<button type="submit" class="nav-link">
+							<span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+						</button>
+					</form> *@
+				</div>
+			</Authorized>
+			<NotAuthorized>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="registration" title="Registration">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Registration
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="resultsstatic" title="Results Static">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (S)
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="resultsone" title="Results by discipline">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (G)
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="resultsthrower" title="Results by thrower">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (T)
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="resultsselector" title="Results selection">
+						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (X)
+					</NavLink>
+				</div>
+				<div class="nav-item px-3">
+					<NavLink class="nav-link" href="medals-by-nation">
+						<span class="oi oi-medal" aria-hidden="true"></span> Medals
+					</NavLink>
+				</div>
+			</NotAuthorized>
+		</AuthorizeView>
+    </nav>
+	<div><img src="bt.png" width="150" style="margin-left:15px;background-color: white;border-radius: 15px;padding: 5px;" /></div>
+</div>
+
+@code {
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
+
