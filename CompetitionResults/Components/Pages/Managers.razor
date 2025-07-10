@@ -1,9 +1,12 @@
 @page "/managers"
 @using CompetitionResults.Data
+@using CompetitionResults.Constants
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Authorization
 @inject CompetitionService CompetitionServiceInstance
 @inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+@inject UserIdStateService UserIdStateService
 
 <h3>Competition Manager Assignments</h3>
 
@@ -52,11 +55,30 @@
     private List<Competition> competitions = new();
     private ApplicationUser selectedUser;
     private HashSet<int> assignedCompetitionIds = new();
+    private ApplicationUser currentUser;
+    private bool isAdmin;
+    private bool isManager;
 
     protected override async Task OnInitializedAsync()
     {
-        users = UserManager.Users.ToList();
-        competitions = await CompetitionServiceInstance.GetAllCompetitionsAsync();
+        var currentUserId = await UserIdStateService.GetUserIdAsync();
+        currentUser = await UserManager.FindByIdAsync(currentUserId);
+
+        isAdmin = await UserManager.IsInRoleAsync(currentUser, RoleNames.Admin);
+        isManager = await UserManager.IsInRoleAsync(currentUser, RoleNames.Manager);
+
+        if (isAdmin)
+        {
+            users = UserManager.Users.ToList();
+            competitions = await CompetitionServiceInstance.GetAllCompetitionsAsync();
+        }
+        else if (isManager)
+        {
+            var userUsers = await UserManager.GetUsersInRoleAsync(RoleNames.User);
+            var viewerUsers = await UserManager.GetUsersInRoleAsync(RoleNames.Viewer);
+            users = userUsers.Concat(viewerUsers).Where(u => u.Id != currentUserId).ToList();
+            competitions = await CompetitionServiceInstance.GetCompetitionsForManagerAsync(currentUserId);
+        }
     }
 
     private async Task OnUserChanged(ChangeEventArgs e)
@@ -78,6 +100,15 @@
         if (selectedUser == null)
         {
             return;
+        }
+
+        if (!isAdmin)
+        {
+            var roles = await UserManager.GetRolesAsync(selectedUser);
+            if (roles.Contains(RoleNames.Admin) || roles.Contains(RoleNames.Manager) || selectedUser.Id == currentUser.Id)
+            {
+                return;
+            }
         }
 
         if (assign)

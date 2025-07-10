@@ -33,8 +33,16 @@
 
     private async void LoadData()
     {
-        //competitions = await CompetitionService.GetCompetitionsForManagerAsync(await UserIdStateService.GetUserIdAsync());
-        competitions = await CompetitionService.GetAllCompetitionsAsync();
+        var userId = await UserIdStateService.GetUserIdAsync();
+        if (string.IsNullOrEmpty(userId))
+        {
+            competitions = await CompetitionService.GetAllCompetitionsAsync();
+        }
+        else
+        {
+            competitions = await CompetitionService.GetCompetitionsForManagerAsync(userId);
+        }
+
         if (competitions != null && competitions.Count > 0 && CompetitionState.SelectedCompetitionId == 0)
         {
             // Automatically select the first competition
@@ -51,10 +59,8 @@
     private async void OnSelectionChange(ChangeEventArgs e)
     {
         int competitionId = int.Parse(e.Value.ToString());
-        //var managerCompetitions = await CompetitionService.GetCompetitionsForManagerAsync(await UserIdStateService.GetUserIdAsync());
-        var managerCompetitions = await CompetitionService.GetAllCompetitionsAsync();
 
-        if (managerCompetitions.Any(c => c.Id == competitionId))
+        if (competitions.Any(c => c.Id == competitionId))
         {
             CompetitionState.SelectedCompetitionId = competitionId;
             errorMessage = string.Empty; // Clear previous error messages if any
