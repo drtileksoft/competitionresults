@@ -68,13 +68,11 @@
 										<th>@($"{category.Name} - {discipline.Name}")</th>
 									}
 
-
-										var remaining = PageSize - selectedGroupedDisciplines.Skip(currentPage * PageSize).Take(PageSize).Count();
-										@foreach (var disciplineId in selectedOverallDisciplines)
-										{
-											var discipline = disciplines.First(d => d.Id == disciplineId);
-											<th>@discipline.Name</th>
-										}
+									@foreach (var disciplineId in selectedOverallDisciplines)
+									{
+										var discipline = disciplines.First(d => d.Id == disciplineId);
+										<th>@discipline.Name</th>
+									}
 
 								</tr>
 							</thead>
