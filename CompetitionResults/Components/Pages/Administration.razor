@@ -155,7 +155,7 @@
 			await _RoleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
 		}
 		// Ensure a user named Admin@BlazorHelpWebsite.com is an Administrator
-		var user = await _UserManager.FindByNameAsync("admin@bladethrowers.cz");
+                var user = await _UserManager.FindByNameAsync(AppDefaults.AdminEmail);
 		if (user != null)
 		{
 			// Is Admin@BlazorHelpWebsite.com in administrator role?
