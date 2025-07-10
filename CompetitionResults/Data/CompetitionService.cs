@@ -1,4 +1,5 @@
 ﻿using CompetitionResults.Backup;
+using CompetitionResults.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace CompetitionResults.Data
@@ -63,6 +64,16 @@ namespace CompetitionResults.Data
         {
             _context.Competitions.Add(competition);
             await _context.SaveChangesAsync();
+
+            foreach (var key in TranslationKeys.All)
+            {
+                if (!_context.Translations.Any(t => t.Key == key && t.LocalLanguage == competition.LocalLanguage))
+                {
+                    _context.Translations.Add(new Translation { Key = key, LocalLanguage = competition.LocalLanguage, Value = key });
+                }
+            }
+            await _context.SaveChangesAsync();
+
             NotifyCompetitionsChanged();
         }
 

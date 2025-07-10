@@ -1,6 +1,7 @@
 ﻿@page "/administration"
 @using CompetitionResults.Data
 @using Microsoft.AspNetCore.Authorization;
+@using CompetitionResults.Constants
 @using Microsoft.AspNetCore.Identity;
 @using System.Linq;
 @inject UserManager<ApplicationUser> _UserManager
@@ -126,7 +127,7 @@
 	// Property used to add or edit the currently selected user
 	ApplicationUser objUser = new ApplicationUser();
 	// Tracks the selected role for the currently selected user
-	string CurrentUserRole { get; set; } = "User";
+        string CurrentUserRole { get; set; } = RoleNames.User;
 	// Collection to display the existing users
 	List<ApplicationUser> ColUsers = new List<ApplicationUser>();
 	// Options to display in the roles dropdown when editing a user
@@ -138,10 +139,10 @@
 
 	[CascadingParameter]
 	private Task<AuthenticationState> authenticationStateTask { get; set; }
-	string ADMINISTRATION_ROLE = "Admin";
-	string MANAGER_ROLE = "Manager";
-	string USER_ROLE = "User";
-	string VIEWER_ROLE = "Viewer";
+        string ADMINISTRATION_ROLE = RoleNames.Admin;
+        string MANAGER_ROLE = RoleNames.Manager;
+        string USER_ROLE = RoleNames.User;
+        string VIEWER_ROLE = RoleNames.Viewer;
 	System.Security.Claims.ClaimsPrincipal CurrentUser;
 	ApplicationUser CurrentApplicationUser;
 	protected override async Task OnInitializedAsync()
@@ -170,25 +171,25 @@
 
 		CurrentApplicationUser = await _UserManager.FindByNameAsync(CurrentUser.Identity.Name);
 
-		if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
-		{
-			Options = new List<string>() { "Viewer", "User", "Manager", "Admin" };
-		}
+                if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
+                {
+                        Options = new List<string>() { RoleNames.Viewer, RoleNames.User, RoleNames.Manager, RoleNames.Admin };
+                }
 
-		if (CurrentUser.IsInRole(MANAGER_ROLE))
-		{
-			Options = new List<string>() { "Viewer", "User", "Manager" };
-		}
+                if (CurrentUser.IsInRole(MANAGER_ROLE))
+                {
+                        Options = new List<string>() { RoleNames.Viewer, RoleNames.User, RoleNames.Manager };
+                }
 
-		if (CurrentUser.IsInRole(USER_ROLE))
-		{
-			Options = new List<string>() { "Viewer", "User" };
-		}
+                if (CurrentUser.IsInRole(USER_ROLE))
+                {
+                        Options = new List<string>() { RoleNames.Viewer, RoleNames.User };
+                }
 
-		if (CurrentUser.IsInRole(VIEWER_ROLE))
-		{
-			Options = new List<string>() { "Viewer" };
-		}
+                if (CurrentUser.IsInRole(VIEWER_ROLE))
+                {
+                        Options = new List<string>() { RoleNames.Viewer };
+                }
 
 		GetUsers();
 	}

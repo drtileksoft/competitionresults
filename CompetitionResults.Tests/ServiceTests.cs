@@ -1,4 +1,5 @@
 using CompetitionResults.Data;
+using CompetitionResults.Constants;
 using Xunit;
 
 namespace CompetitionResults.Tests;
@@ -73,5 +74,16 @@ public class ServiceTests : IClassFixture<InMemoryDbFixture>
             Assert.Equal(expected[i].ThrowerName, overall[i].ThrowerName);
             Assert.Equal(expected[i].Points, overall[i].Points);
         }
+    }
+
+    [Fact]
+    public async Task AddCompetition_AddsDefaultTranslations()
+    {
+        var comp = new Competition { Name = "Test", LocalLanguage = "DE" };
+        await _fixture.CompetitionService.AddCompetitionAsync(comp);
+
+        var translations = await _fixture.TranslationService.GetTranslationsByLanguageAsync("DE");
+        Assert.Equal(TranslationKeys.All.Length, translations.Count);
+        Assert.Contains(translations, t => t.Key == TranslationKeys.Name);
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace CompetitionResults.Data
 {
     using CompetitionResults.Backup;
+    using CompetitionResults.Constants;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 	using Microsoft.EntityFrameworkCore;
 
@@ -101,28 +102,28 @@
             );
 
             modelBuilder.Entity<Translation>().HasData(
-                new Translation { Id = 1, Key = "Camping on site", LocalLanguage = "CZ", Value = "Kempování na místě" },
-                new Translation { Id = 2, Key = "Want T-Shirt", LocalLanguage = "CZ", Value = "Chci tričko" },
-                new Translation { Id = 3, Key = "T-Shirt Size", LocalLanguage = "CZ", Value = "Velikost trička" },
-                new Translation { Id = 4, Key = "Registration for competition", LocalLanguage = "CZ", Value = "Registrace do závodu" },
-                new Translation { Id = 5, Key = "General Announcement", LocalLanguage = "CZ", Value = "Obecná zpráva" },
-                new Translation { Id = 6, Key = "Important - Payment for competition", LocalLanguage = "CZ", Value = "Dulezite - Platba za registraci" },
-                new Translation { Id = 7, Key = "You have been successfully registered to competition:", LocalLanguage = "CZ", Value = "Byl/a jste úspěšně registrován/a na soutěž:" },
-                new Translation { Id = 8, Key = "Name", LocalLanguage = "CZ", Value = "Jméno" },
-                new Translation { Id = 9, Key = "Surname", LocalLanguage = "CZ", Value = "Příjmení" },
-                new Translation { Id = 10, Key = "Nickname", LocalLanguage = "CZ", Value = "Přezdívka" },
-                new Translation { Id = 11, Key = "Nationality", LocalLanguage = "CZ", Value = "Národnost" },
-                new Translation { Id = 12, Key = "Club name", LocalLanguage = "CZ", Value = "Jméno klubu" },
-                new Translation { Id = 13, Key = "Email", LocalLanguage = "CZ", Value = "Email" },
-                new Translation { Id = 14, Key = "Note", LocalLanguage = "CZ", Value = "Poznámka" },
-                new Translation { Id = 15, Key = "Category", LocalLanguage = "CZ", Value = "Kategorie" },
-                new Translation { Id = 16, Key = "Hello,", LocalLanguage = "CZ", Value = "Dobrý den," },
-                new Translation { Id = 17, Key = "This email is automatically generated because you have registered for the competition and have not yet paid.", LocalLanguage = "CZ", Value = "Tento email je automaticky generován, protože jste se zaregistrovali na soutěž a ještě jste nezaplatili." },
-                new Translation { Id = 18, Key = "The limit for the number of participants has been set to {0}. Registration is final only after payment.", LocalLanguage = "CZ", Value = "Limit pro počet účastníků byl nastaven na {0}. Registrace je finální až po zaplacení." },
-                new Translation { Id = 19, Key = "Currently, {0} out of {1} participants have paid.", LocalLanguage = "CZ", Value = "Aktuálně má zaplaceno {0} z {1} účastníků." },
-                new Translation { Id = 20, Key = "Please pay as soon as possible, otherwise someone else will be faster than you and you will not be able to participate in the competition.", LocalLanguage = "CZ", Value = "Prosím, zaplaťte co nejdříve, jinak Vás předběhne někdo jiný a nebudete se moci zúčastnit soutěže." },
-                new Translation { Id = 21, Key = "Thank you.", LocalLanguage = "CZ", Value = "Děkujeme." },
-                new Translation { Id = 22, Key = "Team {0}", LocalLanguage = "CZ", Value = "Tým {0}" }
+                new Translation { Id = 1, Key = TranslationKeys.CampingOnSite, LocalLanguage = "CZ", Value = "Kempování na místě" },
+                new Translation { Id = 2, Key = TranslationKeys.WantTShirt, LocalLanguage = "CZ", Value = "Chci tričko" },
+                new Translation { Id = 3, Key = TranslationKeys.TShirtSize, LocalLanguage = "CZ", Value = "Velikost trička" },
+                new Translation { Id = 4, Key = TranslationKeys.RegistrationForCompetition, LocalLanguage = "CZ", Value = "Registrace do závodu" },
+                new Translation { Id = 5, Key = TranslationKeys.GeneralAnnouncement, LocalLanguage = "CZ", Value = "Obecná zpráva" },
+                new Translation { Id = 6, Key = TranslationKeys.ImportantPaymentForCompetition, LocalLanguage = "CZ", Value = "Dulezite - Platba za registraci" },
+                new Translation { Id = 7, Key = TranslationKeys.RegisteredToCompetition, LocalLanguage = "CZ", Value = "Byl/a jste úspěšně registrován/a na soutěž:" },
+                new Translation { Id = 8, Key = TranslationKeys.Name, LocalLanguage = "CZ", Value = "Jméno" },
+                new Translation { Id = 9, Key = TranslationKeys.Surname, LocalLanguage = "CZ", Value = "Příjmení" },
+                new Translation { Id = 10, Key = TranslationKeys.Nickname, LocalLanguage = "CZ", Value = "Přezdívka" },
+                new Translation { Id = 11, Key = TranslationKeys.Nationality, LocalLanguage = "CZ", Value = "Národnost" },
+                new Translation { Id = 12, Key = TranslationKeys.ClubName, LocalLanguage = "CZ", Value = "Jméno klubu" },
+                new Translation { Id = 13, Key = TranslationKeys.Email, LocalLanguage = "CZ", Value = "Email" },
+                new Translation { Id = 14, Key = TranslationKeys.Note, LocalLanguage = "CZ", Value = "Poznámka" },
+                new Translation { Id = 15, Key = TranslationKeys.Category, LocalLanguage = "CZ", Value = "Kategorie" },
+                new Translation { Id = 16, Key = TranslationKeys.Hello, LocalLanguage = "CZ", Value = "Dobrý den," },
+                new Translation { Id = 17, Key = TranslationKeys.UnpaidEmailIntro, LocalLanguage = "CZ", Value = "Tento email je automaticky generován, protože jste se zaregistrovali na soutěž a ještě jste nezaplatili." },
+                new Translation { Id = 18, Key = TranslationKeys.ParticipantLimit, LocalLanguage = "CZ", Value = "Limit pro počet účastníků byl nastaven na {0}. Registrace je finální až po zaplacení." },
+                new Translation { Id = 19, Key = TranslationKeys.PaymentStats, LocalLanguage = "CZ", Value = "Aktuálně má zaplaceno {0} z {1} účastníků." },
+                new Translation { Id = 20, Key = TranslationKeys.PayAsap, LocalLanguage = "CZ", Value = "Prosím, zaplaťte co nejdříve, jinak Vás předběhne někdo jiný a nebudete se moci zúčastnit soutěže." },
+                new Translation { Id = 21, Key = TranslationKeys.ThankYou, LocalLanguage = "CZ", Value = "Děkujeme." },
+                new Translation { Id = 22, Key = TranslationKeys.Team, LocalLanguage = "CZ", Value = "Tým {0}" }
             );
         }
 
