@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CompetitionResults.Migrations
 {
     [DbContext(typeof(CompetitionDbContext))]
-    [Migration("20240831132638_tshirtsize")]
-    partial class tshirtsize
+    [Migration("20250710210813_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.3");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.7");
 
             modelBuilder.Entity("CompetitionResults.Data.ApplicationUser", b =>
                 {
@@ -129,10 +129,47 @@ namespace CompetitionResults.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("CampingOnSiteAvailable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CompetitionPriceEUR")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CompetitionPriceLocal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmailTemplateFooter")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EmailTemplateFooterLocal")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LocalLanguage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("MaxCompetitorCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("TShirtAvailable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TShirtLink")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("TShirtPriceEUR")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("TShirtPriceLocal")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -142,7 +179,12 @@ namespace CompetitionResults.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Your competition name"
+                            CampingOnSiteAvailable = false,
+                            CompetitionPriceEUR = 90,
+                            CompetitionPriceLocal = 2200,
+                            LocalLanguage = "CZ",
+                            Name = "Your competition name",
+                            TShirtAvailable = false
                         });
                 });
 
@@ -303,6 +345,9 @@ namespace CompetitionResults.Migrations
                     b.Property<int>("CompetitionId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("BullseyeCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<double?>("Points")
                         .HasColumnType("REAL");
 
@@ -363,6 +408,9 @@ namespace CompetitionResults.Migrations
                     b.Property<bool>("PaymentDone")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("StartingNumber")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -394,8 +442,188 @@ namespace CompetitionResults.Migrations
                             Nationality = "CZ",
                             Nickname = "Suzanne KO",
                             PaymentDone = false,
+                            StartingNumber = 1,
                             Surname = "Koreňová",
                             WantTShirt = false
+                        });
+                });
+
+            modelBuilder.Entity("CompetitionResults.Data.Translation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LocalLanguage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Translations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Key = "Camping on site",
+                            LocalLanguage = "CZ",
+                            Value = "Kempování na místě"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Key = "Want T-Shirt",
+                            LocalLanguage = "CZ",
+                            Value = "Chci tričko"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Key = "T-Shirt Size",
+                            LocalLanguage = "CZ",
+                            Value = "Velikost trička"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Key = "Registration for competition",
+                            LocalLanguage = "CZ",
+                            Value = "Registrace do závodu"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Key = "General Announcement",
+                            LocalLanguage = "CZ",
+                            Value = "Obecná zpráva"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Key = "Important - Payment for competition",
+                            LocalLanguage = "CZ",
+                            Value = "Dulezite - Platba za registraci"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Key = "You have been successfully registered to competition:",
+                            LocalLanguage = "CZ",
+                            Value = "Byl/a jste úspěšně registrován/a na soutěž:"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Key = "Name",
+                            LocalLanguage = "CZ",
+                            Value = "Jméno"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Key = "Surname",
+                            LocalLanguage = "CZ",
+                            Value = "Příjmení"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Key = "Nickname",
+                            LocalLanguage = "CZ",
+                            Value = "Přezdívka"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Key = "Nationality",
+                            LocalLanguage = "CZ",
+                            Value = "Národnost"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Key = "Club name",
+                            LocalLanguage = "CZ",
+                            Value = "Jméno klubu"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Key = "Email",
+                            LocalLanguage = "CZ",
+                            Value = "Email"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Key = "Note",
+                            LocalLanguage = "CZ",
+                            Value = "Poznámka"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Key = "Category",
+                            LocalLanguage = "CZ",
+                            Value = "Kategorie"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Key = "Hello,",
+                            LocalLanguage = "CZ",
+                            Value = "Dobrý den,"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Key = "This email is automatically generated because you have registered for the competition and have not yet paid.",
+                            LocalLanguage = "CZ",
+                            Value = "Tento email je automaticky generován, protože jste se zaregistrovali na soutěž a ještě jste nezaplatili."
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Key = "The limit for the number of participants has been set to {0}. Registration is final only after payment.",
+                            LocalLanguage = "CZ",
+                            Value = "Limit pro počet účastníků byl nastaven na {0}. Registrace je finální až po zaplacení."
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Key = "Currently, {0} out of {1} participants have paid.",
+                            LocalLanguage = "CZ",
+                            Value = "Aktuálně má zaplaceno {0} z {1} účastníků."
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Key = "Please pay as soon as possible, otherwise someone else will be faster than you and you will not be able to participate in the competition.",
+                            LocalLanguage = "CZ",
+                            Value = "Prosím, zaplaťte co nejdříve, jinak Vás předběhne někdo jiný a nebudete se moci zúčastnit soutěže."
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Key = "Thank you.",
+                            LocalLanguage = "CZ",
+                            Value = "Děkujeme."
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Key = "Team {0}",
+                            LocalLanguage = "CZ",
+                            Value = "Tým {0}"
                         });
                 });
 
@@ -474,11 +702,9 @@ namespace CompetitionResults.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProviderDisplayName")
@@ -516,11 +742,9 @@ namespace CompetitionResults.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Value")
