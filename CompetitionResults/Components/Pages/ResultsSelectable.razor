@@ -178,23 +178,32 @@
 		}
 	}
 
-	private async void LoadCompetitionDataAsync()
+        private async void LoadCompetitionDataAsync()
     {
         categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
         disciplines = await DisciplineService.GetAllDisciplinesAsync(CompetitionState.SelectedCompetitionId);
+
+        // Preserve current selections when new data arrives via SignalR
+        // Only add entries that do not yet exist
 
         foreach (var category in categories)
         {
             foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
             {
                 var key = (category.Id, discipline.Id);
-                disciplineSelections[key] = false;
+                if (!disciplineSelections.ContainsKey(key))
+                {
+                    disciplineSelections[key] = false;
+                }
             }
         }
 
         foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories))
         {
-            overallDisciplineSelections[discipline.Id] = false;
+            if (!overallDisciplineSelections.ContainsKey(discipline.Id))
+            {
+                overallDisciplineSelections[discipline.Id] = false;
+            }
         }
 
         await RefreshResultsAsync();
