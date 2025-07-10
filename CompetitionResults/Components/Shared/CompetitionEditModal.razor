@@ -35,6 +35,16 @@
 						</div>
 
 						<div>
+							<label for="maxThrowers">T-Shirt price EUR:</label>
+							<InputNumber id="priceEUR" @bind-Value="@_competition.TShirtPriceEUR" />
+						</div>
+
+						<div>
+							<label for="maxThrowers">T-Shirt price LOCAL:</label>
+							<InputNumber id="priceEUR" @bind-Value="@_competition.TShirtPriceLocal" />
+						</div>
+
+						<div>
 							<label for="tshirtlink">T-Shirt image url (link to picture):</label>
 							<InputText id="tshirtlink" @bind-Value="@_competition.TShirtLink" />
 						</div>
@@ -59,20 +69,20 @@
 							<InputNumber id="priceEUR" @bind-Value="@_competition.CompetitionPriceEUR" />
 						</div>
 
-                                                <div>
-                                                        <label for="maxThrowers">Competition price LOCAL:</label>
-                                                        <InputNumber id="priceEUR" @bind-Value="@_competition.CompetitionPriceLocal" />
-                                                </div>
+                        <div>
+                                <label for="maxThrowers">Competition price LOCAL:</label>
+                                <InputNumber id="priceEUR" @bind-Value="@_competition.CompetitionPriceLocal" />
+                        </div>
 
-                                                <div>
-                                                        <label for="language">Local language (country code):</label>
-                                                        <select id="language" @bind="_competition.LocalLanguage">
-                                                                @foreach (var lang in languages)
-                                                                {
-                                                                        <option value="@lang.Key">@lang.Value (@lang.Key)</option>
-                                                                }
-                                                        </select>
-                                                </div>
+                        <div>
+                                <label for="language">Local language (country code):</label>
+                                <select id="language" @bind="_competition.LocalLanguage">
+                                        @foreach (var lang in languages)
+                                        {
+                                                <option value="@lang.Key">@lang.Value (@lang.Key)</option>
+                                        }
+                                </select>
+                        </div>
 
 					</div>
 				</div>

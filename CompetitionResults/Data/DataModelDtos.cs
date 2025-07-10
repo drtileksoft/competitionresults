@@ -18,6 +18,8 @@
         public bool TShirtAvailable { get; set; }
 
         public string? TShirtLink { get; set; }
+        public int? TShirtPriceEUR { get; set; }
+        public int? TShirtPriceLocal { get; set; }
 
         public int? MaxCompetitorCount { get; set; }
 

@@ -4,6 +4,7 @@
 @inject ThrowerService ThrowerService
 @inject CompetitionStateService CompetitionState
 @inject CategoryService CategoryService
+@inject CompetitionService CompetitionService
 @implements IDisposable
 @inject IJSRuntime JSRuntime
 
@@ -12,8 +13,8 @@
 	<Authorized>
 
 		<button @onclick="AddNew">Add New Thrower</button>
-		@* <button @onclick="SendEmailsToUnpaid">Send Emails to Unpaid Throwers</button> *@
-                <button @onclick="OpenGeneralEmailModal">Send Emails to Hungry Throwers</button>
+		<button @onclick="SendEmailsToUnpaid">Send Emails to Unpaid Throwers</button>
+        <button @onclick="OpenGeneralEmailModal">Send Emails</button>
 
                 <GeneralEmailModal @ref="generalEmailModal" OnSend="HandleSendGeneralEmails" />
 
@@ -320,12 +321,14 @@
                         if (thrower.Payment < 200) // Assume EUR
                         {
                                 var basePrice = competition?.CompetitionPriceEUR ?? 0;
-                                return thrower.WantTShirt ? basePrice + 10 : basePrice;
+								var tshirtPrice = competition?.TShirtPriceEUR ?? 0;
+				return thrower.WantTShirt ? basePrice + tshirtPrice : basePrice;
                         }
                         else // Assume Local currency
                         {
                                 var basePrice = competition?.CompetitionPriceLocal ?? 0;
-                                return thrower.WantTShirt ? basePrice + 250 : basePrice;
+								var tshirtPrice = competition?.TShirtPriceLocal ?? 0;
+				return thrower.WantTShirt ? basePrice + tshirtPrice : basePrice;
                         }
                 }
                 return 0;

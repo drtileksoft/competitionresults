@@ -55,7 +55,7 @@ namespace CompetitionResults.Data
                     !string.IsNullOrEmpty(competition.LocalLanguage) &&
                     thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
                 {
-                    await SendRegistrationEmailCZ(thrower);
+                    await SendRegistrationEmailLocal(thrower);
                 }
                 else
                 {
@@ -75,7 +75,7 @@ namespace CompetitionResults.Data
                     !string.IsNullOrEmpty(competition.LocalLanguage) &&
                     thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
                 {
-                    await SendRegistrationEmailCZ(thrower);
+                    await SendRegistrationEmailLocal(thrower);
                 }
                 else
                 {
@@ -174,7 +174,7 @@ namespace CompetitionResults.Data
             SendEmail(thrower.Email, "Registration for competition", email);
 		}
 
-		private async Task SendRegistrationEmailCZ(Thrower thrower)
+		private async Task SendRegistrationEmailLocal(Thrower thrower)
 		{
 			var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
 
