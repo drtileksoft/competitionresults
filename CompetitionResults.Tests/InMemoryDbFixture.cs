@@ -33,7 +33,7 @@ public class InMemoryDbFixture : IDisposable
         CategoryService = new CategoryService(Context);
         DisciplineService = new DisciplineService(Context);
         CompetitionService = new CompetitionService(Context);
-        ThrowerService = new ThrowerService(Context, notificationHub, new ConfigurationBuilder().Build(), new FakeEmailSender());
+        ThrowerService = new ThrowerService(Context, notificationHub, new ConfigurationBuilder().Build());
     }
 
     public void Dispose()
@@ -42,7 +42,3 @@ public class InMemoryDbFixture : IDisposable
     }
 }
 
-internal class FakeEmailSender : Microsoft.AspNetCore.Identity.UI.Services.IEmailSender
-{
-    public Task SendEmailAsync(string email, string subject, string htmlMessage) => Task.CompletedTask;
-}

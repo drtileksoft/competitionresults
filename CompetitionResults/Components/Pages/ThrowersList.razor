@@ -13,7 +13,7 @@
 
 		<button @onclick="AddNew">Add New Thrower</button>
 		@* <button @onclick="SendEmailsToUnpaid">Send Emails to Unpaid Throwers</button> *@
-		<button @onclick="SendEmailsWithMeal">Send Emails to Hungry Throwers</button>
+		<button @onclick="SendEmails">Send Emails to Hungry Throwers</button>
 
 		<ThrowerEditModal @ref="throwerEditModal" OnClose="HandleModalClose" Thrower="selectedThrower" OnFormSubmit="HandleFormSubmit" />
 
@@ -50,7 +50,7 @@
 						decimal targetPayment = CalculateTargetPayment(thrower);
 						decimal difference = thrower.Payment.HasValue ? targetPayment - Convert.ToDecimal(thrower.Payment.Value) : 0;
 						<tr>
-							<td>@thrower.StartingNumber</td>
+							<td>@thrower.StartingNumber.ToString("D3")</td>
 							<td>@thrower.Name</td>
 							<td>@thrower.Surname</td>
 							<td>@thrower.Nickname</td>
@@ -276,24 +276,24 @@
 		}
 	}
 
-	private async Task SendEmailsWithMeal()
+	private async Task SendEmails()
 	{
-		var unpaidThrowers = throwers.ToList();
-		if (unpaidThrowers.Any())
+		var allThrowers = throwers.ToList();
+		if (allThrowers.Any())
 		{
-			var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send emails to {unpaidThrowers.Count} hungry throwers?");
+			var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send emails to {allThrowers.Count} throwers?");
 			if (confirmed)
 			{
-				foreach (var thrower in unpaidThrowers)
+				foreach (var thrower in allThrowers)
 				{
-					ThrowerService.SendMealOrderEmail(thrower);
+					ThrowerService.SendGeneralEmail(thrower);
 				}
-				await JSRuntime.InvokeVoidAsync("alert", "Emails sent to hungry throwers.");
+				await JSRuntime.InvokeVoidAsync("alert", "Emails sent to throwers.");
 			}
 		}
 		else
 		{
-			await JSRuntime.InvokeVoidAsync("alert", "No unpaid throwers to send emails to.");
+			await JSRuntime.InvokeVoidAsync("alert", "No throwers to send emails to.");
 		}
 	}
 
