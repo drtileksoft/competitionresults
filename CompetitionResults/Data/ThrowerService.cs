@@ -1,16 +1,17 @@
-﻿using CompetitionResults.Notifications;
-using CompetitionResults.Constants;
+﻿using CompetitionResults.Constants;
+using CompetitionResults.Notifications;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Net.Mail;
+using System.Text;
 
 namespace CompetitionResults.Data
 {
 
     public class ThrowerService
-	{
-		private readonly NotificationHub _notificationHub;
-		private readonly CompetitionDbContext _context;
+    {
+        private readonly NotificationHub _notificationHub;
+        private readonly CompetitionDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly TranslationService _translationService;
 
@@ -20,10 +21,10 @@ namespace CompetitionResults.Data
             TranslationService translationService)
         {
             _context = context;
-                        _notificationHub = notificationHub;
+            _notificationHub = notificationHub;
             _configuration = configuration;
             _translationService = translationService;
-                }
+        }
 
         public async Task<List<Thrower>> GetAllThrowersAsync(int competitionId)
         {
@@ -40,7 +41,7 @@ namespace CompetitionResults.Data
         }
 
         public async Task AddThrowerAsync(Thrower thrower)
-		{
+        {
             if (thrower.StartingNumber == 0)
             {
                 var max = await _context.Throwers
@@ -55,73 +56,60 @@ namespace CompetitionResults.Data
             var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
             if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)
             {
-                if (competition != null &&
-                    !string.IsNullOrEmpty(competition.LocalLanguage) &&
-                    thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
-                {
-                    await SendRegistrationEmailLocal(thrower);
-                }
-                else
-                {
-                    await SendRegistrationEmail(thrower);
-                }
+                await SendRegistrationEmail(thrower);
             }
 
-			await _notificationHub.NotifyCompetitionChanged();
-		}
+            await _notificationHub.NotifyCompetitionChanged();
+        }
 
         public async Task ResendEmailAsync(Thrower thrower)
         {
             if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)
             {
-                var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
-                if (competition != null &&
-                    !string.IsNullOrEmpty(competition.LocalLanguage) &&
-                    thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
-                {
-                    await SendRegistrationEmailLocal(thrower);
-                }
-                else
-                {
-                    await SendRegistrationEmail(thrower);
-                }
+                await SendRegistrationEmail(thrower);
             }
         }
 
         public async Task SendUnpaidEmail(Thrower thrower)
         {
-            if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)
-            {
-                var competition = thrower.Competition ?? _context.Competitions.Find(thrower.CompetitionId);
-                if (competition != null &&
-                    !string.IsNullOrEmpty(competition.LocalLanguage) &&
-                    thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
-                {
-                    var lang = competition.LocalLanguage;
-                    var email = $"{await _translationService.GetValueAsync(TranslationKeys.Hello, lang)}\n\n";
-                    email += string.Format(await _translationService.GetValueAsync(TranslationKeys.UnpaidEmailIntro, lang)) + "\n";
-                    email += string.Format(await _translationService.GetValueAsync(TranslationKeys.ParticipantLimit, lang), thrower.Competition.MaxCompetitorCount) + "\n\n";
-                    email += string.Format(await _translationService.GetValueAsync(TranslationKeys.PaymentStats, lang), thrower.Competition.Throwers.Count(t => t.PaymentDone), thrower.Competition.Throwers.Count) + "\n\n";
-                    email += await _translationService.GetValueAsync(TranslationKeys.PayAsap, lang) + "\n\n";
-                    email += await _translationService.GetValueAsync(TranslationKeys.ThankYou, lang) + "\n\n";
-                    email += string.Format(await _translationService.GetValueAsync(TranslationKeys.Team, lang), thrower.Competition.Name);
+            if (thrower.Email == null || thrower.DoNotSendRegistrationEmail)
+                return;
 
-                    SendEmail(thrower.Email, await _translationService.GetValueAsync(TranslationKeys.ImportantPaymentForCompetition, lang), email);
-                }
-                else
-                {
-                    var email = $"Hello,\n\n";
-                    email += $"This email is automatically generated because you have registered for the competition and have not yet paid.\n";
-                    email += $"The limit for the number of participants has been set to {thrower.Competition.MaxCompetitorCount}. Registration is final only after payment.\n\n";
-                    email += $"Currently, {thrower.Competition.Throwers.Count(t => t.PaymentDone)} out of {thrower.Competition.Throwers.Count} participants have paid.\n\n";
-                    email += $"Please pay as soon as possible, otherwise someone else will be faster than you and you will not be able to participate in the competition.\n\n";
-                    email += $"Thank you.\n\n";
-                    email += $"Team {thrower.Competition.Name}";
+            var competition = thrower.Competition ?? await _context.Competitions.FindAsync(thrower.CompetitionId);
+            if (competition == null)
+                return;
 
-                    SendEmail(thrower.Email, "Important - Payment for competition", email);
-                }
-            }
+            var lang = (!string.IsNullOrEmpty(competition.LocalLanguage) &&
+                        thrower.Nationality?.ToUpper() == competition.LocalLanguage.ToUpper())
+                       ? competition.LocalLanguage
+                       : "EN";
+
+            var emailBuilder = new StringBuilder();
+
+            emailBuilder.AppendLine(await _translationService.GetValueAsync(TranslationKeys.Hello, lang));
+            emailBuilder.AppendLine();
+            emailBuilder.AppendLine(await _translationService.GetValueAsync(TranslationKeys.UnpaidEmailIntro, lang));
+            emailBuilder.AppendLine(string.Format(
+                await _translationService.GetValueAsync(TranslationKeys.ParticipantLimit, lang),
+                competition.MaxCompetitorCount));
+            emailBuilder.AppendLine();
+            emailBuilder.AppendLine(string.Format(
+                await _translationService.GetValueAsync(TranslationKeys.PaymentStats, lang),
+                competition.Throwers.Count(t => t.PaymentDone),
+                competition.Throwers.Count));
+            emailBuilder.AppendLine();
+            emailBuilder.AppendLine(await _translationService.GetValueAsync(TranslationKeys.PayAsap, lang));
+            emailBuilder.AppendLine();
+            emailBuilder.AppendLine(await _translationService.GetValueAsync(TranslationKeys.ThankYou, lang));
+            emailBuilder.AppendLine();
+            emailBuilder.AppendLine(string.Format(
+                await _translationService.GetValueAsync(TranslationKeys.Team, lang),
+                competition.Name));
+
+            var subject = await _translationService.GetValueAsync(TranslationKeys.ImportantPaymentForCompetition, lang);
+            SendEmail(thrower.Email, subject, emailBuilder.ToString());
         }
+
 
         public void SendGeneralEmail(Thrower thrower, string localMessage, string englishMessage)
         {
@@ -151,65 +139,41 @@ namespace CompetitionResults.Data
 
 
         private async Task SendRegistrationEmail(Thrower thrower)
-		{
-			var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
+        {
+            var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
+            var lang = (thrower.Nationality?.ToUpper() == competition?.LocalLanguage?.ToUpper())
+                ? competition.LocalLanguage
+                : "EN";
 
-			// Send email to the thrower with all details of his registration
-			var email = $"You have been successfully registered to competition: {competition.Name}.\n";
-			// Add all details of thrower
-			email += $"Name: {thrower.Name}\n";
-			email += $"Surname: {thrower.Surname}\n";
-			email += $"Nickname: {thrower.Nickname}\n";
-			email += $"Nationality: {thrower.Nationality}\n";
-			email += $"Club name: {thrower.ClubName}\n";
-			email += $"Email: {thrower.Email}\n";
-			email += $"Note: {thrower.Note}\n";
-			email += $"Category: {thrower.Category.Name}\n";
-			email += $"Is Camping On Site: {thrower.IsCampingOnSite}\n";
-			email += $"Want T-Shirt: {thrower.WantTShirt}\n";
+            var email = string.Format(await _translationService.GetValueAsync(TranslationKeys.RegisteredToCompetition, lang), competition.Name) + "\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.Name, lang)}: {thrower.Name}\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.Surname, lang)}: {thrower.Surname}\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.Nickname, lang)}: {thrower.Nickname}\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.Nationality, lang)}: {thrower.Nationality}\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.ClubName, lang)}: {thrower.ClubName}\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.Email, lang)}: {thrower.Email}\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.Note, lang)}: {thrower.Note}\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.Category, lang)}: {thrower.Category.Name}\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.CampingOnSite, lang)}: {thrower.IsCampingOnSite}\n";
+            email += $"{await _translationService.GetValueAsync(TranslationKeys.WantTShirt, lang)}: {thrower.WantTShirt}\n";
+
             if (thrower.WantTShirt)
             {
-                email += $"T-Shirt Size: {thrower.TShirtSize}\n";
+                email += $"{await _translationService.GetValueAsync(TranslationKeys.TShirtSize, lang)}: {thrower.TShirtSize}\n";
             }
 
-			email += $"\n";
+            email += "\n";
+            email += (lang == competition.LocalLanguage)
+                ? competition.EmailTemplateFooterLocal
+                : competition.EmailTemplateFooter;
 
-			email += competition.EmailTemplateFooter;
+            var subject = await _translationService.GetValueAsync(TranslationKeys.RegistrationForCompetition, lang);
 
-            SendEmail(thrower.Email, "Registration for competition", email);
-		}
+            SendEmail(thrower.Email, subject, email);
+        }
 
-                private async Task SendRegistrationEmailLocal(Thrower thrower)
-                {
-                        var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
-                        var lang = competition.LocalLanguage;
 
-                        // Send email to the thrower with all details of his registration
-                        var email = string.Format(await _translationService.GetValueAsync(TranslationKeys.RegisteredToCompetition, lang), competition.Name) + "\n";
-                        // Add all details of thrower
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.Name, lang)}: {thrower.Name}\n";
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.Surname, lang)}: {thrower.Surname}\n";
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.Nickname, lang)}: {thrower.Nickname}\n";
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.Nationality, lang)}: {thrower.Nationality}\n";
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.ClubName, lang)}: {thrower.ClubName}\n";
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.Email, lang)}: {thrower.Email}\n";
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.Note, lang)}: {thrower.Note}\n";
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.Category, lang)}: {thrower.Category.Name}\n";
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.CampingOnSite, lang)}: {thrower.IsCampingOnSite}\n";
-                        email += $"{await _translationService.GetValueAsync(TranslationKeys.WantTShirt, lang)}: {thrower.WantTShirt}\n";
-                        if (thrower.WantTShirt)
-                        {
-                                email += $"{await _translationService.GetValueAsync(TranslationKeys.TShirtSize, lang)}: {thrower.TShirtSize}\n";
-                        }
-
-			email += $"\n";
-
-			email += competition.EmailTemplateFooterLocal;
-
-                        SendEmail(thrower.Email, await _translationService.GetValueAsync(TranslationKeys.RegistrationForCompetition, lang), email);
-                }
-
-		public void SendEmail(string toEmail, string subject, string body)
+        public void SendEmail(string toEmail, string subject, string body)
         {
             try
             {
@@ -285,8 +249,8 @@ namespace CompetitionResults.Data
             _context.Throwers.Update(thrower);
             await _context.SaveChangesAsync();
 
-			await _notificationHub.NotifyCompetitionChanged();
-		}
+            await _notificationHub.NotifyCompetitionChanged();
+        }
 
         public async Task DeleteThrowerAsync(int id)
         {
@@ -296,8 +260,8 @@ namespace CompetitionResults.Data
                 _context.Throwers.Remove(thrower);
                 await _context.SaveChangesAsync();
 
-				await _notificationHub.NotifyCompetitionChanged();
-			}
+                await _notificationHub.NotifyCompetitionChanged();
+            }
         }
     }
 
