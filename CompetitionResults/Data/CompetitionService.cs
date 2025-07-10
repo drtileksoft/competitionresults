@@ -41,6 +41,17 @@ namespace CompetitionResults.Data
             }
         }
 
+        public async Task RemoveManagerFromCompetitionAsync(string userId, int competitionId)
+        {
+            var assignment = await _context.CompetitionManagers
+                .FirstOrDefaultAsync(cm => cm.ManagerId == userId && cm.CompetitionId == competitionId);
+            if (assignment != null)
+            {
+                _context.CompetitionManagers.Remove(assignment);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         // Get a single competition by ID
         public async Task<Competition> GetCompetitionByIdAsync(int id)
         {

@@ -1,92 +1,57 @@
-﻿@page "/managers"
+@page "/managers"
 @using CompetitionResults.Data
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Authorization
 @inject CompetitionService CompetitionServiceInstance
 @inject UserManager<ApplicationUser> UserManager
-@inject SignInManager<ApplicationUser> SignInManager
-@inject RoleManager<IdentityRole> RoleManager
 
-<h3>Assign Managers to Competitions</h3>
-<AuthorizeView Roles="Admin">
+<h3>Competition Manager Assignments</h3>
+
+<AuthorizeView Roles="Admin,Manager">
     <Authorized>
-        <div class="row">
-            <div class="col-md-6">
-                <h4>Managers</h4>
-                <ul>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label>Select manager:</label>
+                <select class="form-control" @onchange="OnUserChanged">
+                    <option value="">-- Select Manager --</option>
                     @foreach (var user in users)
                     {
-                        <li>
-                            <button class="btn btn-link" @onclick="() => SelectUser(user)">@user.UserName</button>
-                        </li>
+                        <option value="@user.Id" selected="@(selectedUser?.Id == user.Id)">@user.UserName</option>
                     }
-                </ul>
-            </div>
-            <div class="col-md-6">
-                @if (selectedUser != null)
-                {
-                    <h4>Assign to Competitions</h4>
-                    <ul>
-                        @foreach (var comp in competitions)
-                        {
-                            <li>
-                                <button class="btn btn-primary" @onclick="() => AssignToCompetition(selectedUser.Id, comp.Id)">
-                                    Assign to @comp.Name
-                                </button>
-                            </li>
-                        }
-                    </ul>
-                }
+                </select>
             </div>
         </div>
-    </Authorized>
-@*     <NotAuthorized>
-        <p>You're not logged in.</p>
-    </NotAuthorized> *@
-</AuthorizeView>
 
-<AuthorizeView Roles="Manager">
-    <Authorized>
-        <div class="row">
-            <div class="col-md-6">
-                <h4>Managers</h4>
-                <ul>
-                    @foreach (var user in users)
+        @if (selectedUser != null)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Competition</th>
+                        <th class="text-center">Assigned</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var comp in competitions)
                     {
-                        <li>
-                            <button class="btn btn-link" @onclick="() => SelectUser(user)">@user.UserName</button>
-                        </li>
+                        <tr>
+                            <td>@comp.Name</td>
+                            <td class="text-center">
+                                <input type="checkbox" checked="@IsAssigned(comp.Id)" @onchange="e => OnAssignmentChanged(comp.Id, (bool)e.Value)" />
+                            </td>
+                        </tr>
                     }
-                </ul>
-            </div>
-            <div class="col-md-6">
-                @if (selectedUser != null)
-                {
-                    <h4>Assign to Competitions</h4>
-                    <ul>
-                        @* @foreach (var comp in competitions.Where(c => c.CompetitionManagers.Any(m => m.ManagerId == UserManager.GetUserId(User)))) *@
-                        @foreach (var comp in competitions)
-                        {
-                            <li>
-                                <button class="btn btn-primary" @onclick="() => AssignToCompetition(selectedUser.Id, comp.Id)">
-                                    Assign to @comp.Name
-                                </button>
-                            </li>
-                        }
-                    </ul>
-                }
-            </div>
-        </div>
+                </tbody>
+            </table>
+        }
     </Authorized>
-@*     <NotAuthorized>
-        <p>You're not logged in.</p>
-    </NotAuthorized> *@
 </AuthorizeView>
 
 @code {
-    private List<ApplicationUser> users;
-    private List<Competition> competitions;
+    private List<ApplicationUser> users = new();
+    private List<Competition> competitions = new();
     private ApplicationUser selectedUser;
+    private HashSet<int> assignedCompetitionIds = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,13 +59,36 @@
         competitions = await CompetitionServiceInstance.GetAllCompetitionsAsync();
     }
 
-    private void SelectUser(ApplicationUser user)
+    private async Task OnUserChanged(ChangeEventArgs e)
     {
-        selectedUser = user;
+        var userId = e.Value?.ToString();
+        selectedUser = users.FirstOrDefault(u => u.Id == userId);
+
+        if (selectedUser != null)
+        {
+            var comps = await CompetitionServiceInstance.GetCompetitionsForManagerAsync(selectedUser.Id);
+            assignedCompetitionIds = comps.Select(c => c.Id).ToHashSet();
+        }
     }
 
-    private async Task AssignToCompetition(string userId, int competitionId)
+    private bool IsAssigned(int competitionId) => assignedCompetitionIds.Contains(competitionId);
+
+    private async Task OnAssignmentChanged(int competitionId, bool assign)
     {
-        await CompetitionServiceInstance.AssignManagerToCompetitionAsync(userId, competitionId);
+        if (selectedUser == null)
+        {
+            return;
+        }
+
+        if (assign)
+        {
+            await CompetitionServiceInstance.AssignManagerToCompetitionAsync(selectedUser.Id, competitionId);
+            assignedCompetitionIds.Add(competitionId);
+        }
+        else
+        {
+            await CompetitionServiceInstance.RemoveManagerFromCompetitionAsync(selectedUser.Id, competitionId);
+            assignedCompetitionIds.Remove(competitionId);
+        }
     }
 }
