@@ -7,6 +7,8 @@
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject CompetitionService CompetitionService
+@inject CompetitionStateService CompetitionState
 <h3>Administration</h3>
 <AuthorizeView Roles="Admin, Manager, User">
 	<Authorized>
@@ -336,11 +338,13 @@
 				return;
 			}
 
-			if (!string.IsNullOrEmpty(CurrentUserRole))
-			{
-				await _UserManager.AddToRoleAsync(newUser, CurrentUserRole);
-			}
-		}
+                        if (!string.IsNullOrEmpty(CurrentUserRole))
+                        {
+                                await _UserManager.AddToRoleAsync(newUser, CurrentUserRole);
+                        }
+
+                        await CompetitionService.AssignManagerToCompetitionAsync(newUser.Id, CompetitionState.SelectedCompetitionId);
+                }
 
 		ShowPopup = false;
 		GetUsers(); // Refresh tabulky
