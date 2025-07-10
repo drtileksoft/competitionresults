@@ -1,0 +1,97 @@
+@page "/translations"
+@using CompetitionResults.Data
+@using CompetitionResults.Components.Shared
+@inject TranslationService TranslationService
+@inject IJSRuntime JSRuntime
+
+<h3>Translations</h3>
+
+<AuthorizeView Roles="Admin, Manager">
+    <Authorized>
+        <button @onclick="AddNew">Add New Translation</button>
+
+        <TranslationEditModal @ref="translationEditModal" OnClose="HandleModalClose" Translation="currentTranslation" OnFormSubmit="HandleFormSubmit" />
+
+        @if (translations == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tr in translations)
+                    {
+                        <tr>
+                            <td>@tr.Key</td>
+                            <td>@tr.Value</td>
+                            <td>
+                                <button @onclick="() => EditTranslation(tr)">Edit</button>
+                                <button @onclick="() => DeleteTranslation(tr.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not loggged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private TranslationEditModal translationEditModal;
+    private List<Translation> translations;
+    private Translation currentTranslation = new Translation();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        translations = await TranslationService.GetAllTranslationsAsync();
+        StateHasChanged();
+    }
+
+    private void AddNew()
+    {
+        currentTranslation = new Translation();
+        translationEditModal.Open();
+    }
+
+    private void EditTranslation(Translation tr)
+    {
+        currentTranslation = tr;
+        translationEditModal.Open();
+    }
+
+    private async Task DeleteTranslation(int id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this translation?");
+        if (confirmed)
+        {
+            await TranslationService.DeleteTranslationAsync(id);
+            await LoadData();
+        }
+    }
+
+    private async Task HandleFormSubmit()
+    {
+        await LoadData();
+    }
+
+    private async Task HandleModalClose()
+    {
+        await LoadData();
+    }
+}

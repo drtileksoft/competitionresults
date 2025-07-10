@@ -252,14 +252,14 @@
 		}
 	}
 
-	private async Task SendUnpaidEmail(Thrower thrower)
-	{
-		var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send registration email to this thrower?");
-		if (confirmed)
-		{
-			ThrowerService.SendUnpaidEmail(thrower);
-		}
-	}
+        private async Task SendUnpaidEmail(Thrower thrower)
+        {
+            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send registration email to this thrower?");
+            if (confirmed)
+            {
+                await ThrowerService.SendUnpaidEmail(thrower);
+            }
+        }
 
 	private async Task SendEmailsToUnpaid()
 	{
@@ -269,10 +269,10 @@
 			var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send emails to {unpaidThrowers.Count} unpaid throwers?");
 			if (confirmed)
 			{
-				foreach (var thrower in unpaidThrowers)
-				{
-					ThrowerService.SendUnpaidEmail(thrower);
-				}
+                                foreach (var thrower in unpaidThrowers)
+                                {
+                                        await ThrowerService.SendUnpaidEmail(thrower);
+                                }
 				await JSRuntime.InvokeVoidAsync("alert", "Emails sent to unpaid throwers.");
 			}
 		}

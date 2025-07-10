@@ -12,6 +12,7 @@
         public DbSet<Category> Categories { get; set; }
         public DbSet<Discipline> Disciplines { get; set; }
         public DbSet<Results> Results { get; set; }
+        public DbSet<Translation> Translations { get; set; }
 
         public CompetitionDbContext(DbContextOptions<CompetitionDbContext> options)
             : base(options)
@@ -97,6 +98,24 @@
 
             modelBuilder.Entity<Thrower>().HasData(
                 new Thrower { Id = 1, Name = "Zuzana", Surname = "Koreňová", Nickname = "Suzanne KO", Nationality = "CZ", CompetitionId = 1, CategoryId = 2, StartingNumber = 1 }
+            );
+
+            modelBuilder.Entity<Translation>().HasData(
+                new Translation { Id = 1, Key = "Camping on site", Value = "Kempování na místě" },
+                new Translation { Id = 2, Key = "Want T-Shirt", Value = "Chci tričko" },
+                new Translation { Id = 3, Key = "T-Shirt Size", Value = "Velikost trička" },
+                new Translation { Id = 4, Key = "Registration for competition", Value = "Registrace do závodu" },
+                new Translation { Id = 5, Key = "General Announcement", Value = "Obecná zpráva" },
+                new Translation { Id = 6, Key = "Important - Payment for competition", Value = "Dulezite - Platba za registraci" },
+                new Translation { Id = 7, Key = "You have been successfully registered to competition:", Value = "Byl/a jste úspěšně registrován/a na soutěž:" },
+                new Translation { Id = 8, Key = "Name", Value = "Jméno" },
+                new Translation { Id = 9, Key = "Surname", Value = "Příjmení" },
+                new Translation { Id = 10, Key = "Nickname", Value = "Přezdívka" },
+                new Translation { Id = 11, Key = "Nationality", Value = "Národnost" },
+                new Translation { Id = 12, Key = "Club name", Value = "Jméno klubu" },
+                new Translation { Id = 13, Key = "Email", Value = "Email" },
+                new Translation { Id = 14, Key = "Note", Value = "Poznámka" },
+                new Translation { Id = 15, Key = "Category", Value = "Kategorie" }
             );
         }
 

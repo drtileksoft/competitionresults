@@ -11,15 +11,18 @@ namespace CompetitionResults.Data
 		private readonly NotificationHub _notificationHub;
 		private readonly CompetitionDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly TranslationService _translationService;
 
         public ThrowerService(CompetitionDbContext context,
-			NotificationHub notificationHub,
-            IConfiguration configuration)
+                        NotificationHub notificationHub,
+            IConfiguration configuration,
+            TranslationService translationService)
         {
             _context = context;
-			_notificationHub = notificationHub;
+                        _notificationHub = notificationHub;
             _configuration = configuration;
-		}
+            _translationService = translationService;
+                }
 
         public async Task<List<Thrower>> GetAllThrowersAsync(int competitionId)
         {
@@ -84,7 +87,7 @@ namespace CompetitionResults.Data
             }
         }
 
-        public void SendUnpaidEmail(Thrower thrower)
+        public async Task SendUnpaidEmail(Thrower thrower)
         {
             if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)
             {
@@ -93,15 +96,15 @@ namespace CompetitionResults.Data
                     !string.IsNullOrEmpty(competition.LocalLanguage) &&
                     thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
                 {
-                    var email = $"Dobrý den,\n\n";
-                    email += $"Tento email je automaticky generován, protože jste se zaregistrovali na soutěž a ještě jste nezaplatili.\n";
-                    email += $"Limit pro počet účastníků byl nastaven na {thrower.Competition.MaxCompetitorCount}.Registrace je finální až po zaplacení.\n\n";
-                    email += $"Aktuálně má zaplaceno {thrower.Competition.Throwers.Count(t => t.PaymentDone)} z {thrower.Competition.Throwers.Count} účastníků.\n\n";
-                    email += $"Prosím, zaplaťte co nejdříve, jinak Vás předběhne někdo jiný a nebudete se moci zúčastnit soutěže.\n\n";
-                    email += $"Děkujeme.\n\n";
-                    email += $"Tým {thrower.Competition.Name}";
+                    var email = $"{await _translationService.GetValueAsync("Hello,")}\n\n";
+                    email += string.Format(await _translationService.GetValueAsync("This email is automatically generated because you have registered for the competition and have not yet paid.")) + "\n";
+                    email += string.Format(await _translationService.GetValueAsync("The limit for the number of participants has been set to {0}. Registration is final only after payment."), thrower.Competition.MaxCompetitorCount) + "\n\n";
+                    email += string.Format(await _translationService.GetValueAsync("Currently, {0} out of {1} participants have paid."), thrower.Competition.Throwers.Count(t => t.PaymentDone), thrower.Competition.Throwers.Count) + "\n\n";
+                    email += await _translationService.GetValueAsync("Please pay as soon as possible, otherwise someone else will be faster than you and you will not be able to participate in the competition.") + "\n\n";
+                    email += await _translationService.GetValueAsync("Thank you.") + "\n\n";
+                    email += string.Format(await _translationService.GetValueAsync("Team {0}"), thrower.Competition.Name);
 
-                    SendEmail(thrower.Email, "Dulezite - Platba za registraci", email);
+                    SendEmail(thrower.Email, await _translationService.GetValueAsync("Important - Payment for competition"), email);
                 }
                 else
                 {
@@ -174,34 +177,34 @@ namespace CompetitionResults.Data
             SendEmail(thrower.Email, "Registration for competition", email);
 		}
 
-		private async Task SendRegistrationEmailLocal(Thrower thrower)
-		{
-			var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
+                private async Task SendRegistrationEmailLocal(Thrower thrower)
+                {
+                        var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
 
-			// Send email to the thrower with all details of his registration
-			var email = $"Byl/a jste úspěšně registrován/a na soutěž: {competition.Name}.\n";
-			// Add all details of thrower
-			email += $"Jméno: {thrower.Name}\n";
-			email += $"Příjmení: {thrower.Surname}\n";
-			email += $"Přezdívka: {thrower.Nickname}\n";
-			email += $"Národnost: {thrower.Nationality}\n";
-			email += $"Jméno klubu: {thrower.ClubName}\n";
-			email += $"Email: {thrower.Email}\n";
-			email += $"Poznámka: {thrower.Note}\n";
-			email += $"Kategorie: {thrower.Category.Name}\n";
-			email += $"Kempování na místě: {thrower.IsCampingOnSite}\n";
-			email += $"Chci tričko: {thrower.WantTShirt}\n";
-			if (thrower.WantTShirt)
-			{
-				email += $"Velikost trička: {thrower.TShirtSize}\n";
-			}
+                        // Send email to the thrower with all details of his registration
+                        var email = string.Format(await _translationService.GetValueAsync("You have been successfully registered to competition:"), competition.Name) + "\n";
+                        // Add all details of thrower
+                        email += $"{await _translationService.GetValueAsync("Name")}: {thrower.Name}\n";
+                        email += $"{await _translationService.GetValueAsync("Surname")}: {thrower.Surname}\n";
+                        email += $"{await _translationService.GetValueAsync("Nickname")}: {thrower.Nickname}\n";
+                        email += $"{await _translationService.GetValueAsync("Nationality")}: {thrower.Nationality}\n";
+                        email += $"{await _translationService.GetValueAsync("Club name")}: {thrower.ClubName}\n";
+                        email += $"{await _translationService.GetValueAsync("Email")}: {thrower.Email}\n";
+                        email += $"{await _translationService.GetValueAsync("Note")}: {thrower.Note}\n";
+                        email += $"{await _translationService.GetValueAsync("Category")}: {thrower.Category.Name}\n";
+                        email += $"{await _translationService.GetValueAsync("Camping on site")}: {thrower.IsCampingOnSite}\n";
+                        email += $"{await _translationService.GetValueAsync("Want T-Shirt")}: {thrower.WantTShirt}\n";
+                        if (thrower.WantTShirt)
+                        {
+                                email += $"{await _translationService.GetValueAsync("T-Shirt Size")}: {thrower.TShirtSize}\n";
+                        }
 
 			email += $"\n";
 
 			email += competition.EmailTemplateFooterLocal;
 
-			SendEmail(thrower.Email, "Registrace do závodu", email);
-		}
+                        SendEmail(thrower.Email, await _translationService.GetValueAsync("Registration for competition"), email);
+                }
 
 		public void SendEmail(string toEmail, string subject, string body)
         {
