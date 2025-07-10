@@ -1,0 +1,92 @@
+@page "/translations"
+@using CompetitionResults.Data
+@using CompetitionResults.Components.Shared
+@inject TranslationService TranslationService
+@inject CompetitionService CompetitionService
+@inject CompetitionStateService CompetitionState
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<h3>Translations</h3>
+
+<AuthorizeView Roles="Admin, Manager">
+    <Authorized>
+        <TranslationEditModal @ref="translationEditModal" OnClose="HandleModalClose" Translation="currentTranslation" OnFormSubmit="HandleFormSubmit" />
+
+        @if (translations == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tr in translations)
+                    {
+                        <tr>
+                            <td>@tr.Key</td>
+                            <td>@tr.Value</td>
+                            <td>
+                                <button @onclick="() => EditTranslation(tr)">Edit</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not loggged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private TranslationEditModal translationEditModal;
+    private List<Translation> translations;
+    private Translation currentTranslation = new Translation();
+    private string localLanguage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        CompetitionState.OnCompetitionChanged += LoadData;
+        LoadData();
+    }
+
+    private async void LoadData()
+    {
+        var comp = await CompetitionService.GetCompetitionByIdAsync(CompetitionState.SelectedCompetitionId);
+        localLanguage = comp?.LocalLanguage ?? "";
+        translations = await TranslationService.GetTranslationsByLanguageAsync(localLanguage);
+        StateHasChanged();
+    }
+
+    private void EditTranslation(Translation tr)
+    {
+        currentTranslation = tr;
+        currentTranslation.LocalLanguage = localLanguage;
+        translationEditModal.Open();
+    }
+
+
+    private async Task HandleFormSubmit()
+    {
+        LoadData();
+    }
+
+    private async Task HandleModalClose()
+    {
+        LoadData();
+    }
+
+    public void Dispose()
+    {
+        CompetitionState.OnCompetitionChanged -= LoadData;
+    }
+}
