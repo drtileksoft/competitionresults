@@ -22,7 +22,7 @@ namespace CompetitionResults
             {
                 options.AddDefaultPolicy(policy =>
                 {
-                    policy.WithOrigins("https://www.bladethrowers.cz")
+                    policy.WithOrigins(AppDefaults.DefaultOrigin)
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
@@ -85,7 +85,7 @@ namespace CompetitionResults
 
             builder.Services.AddSignalR(options =>
             {
-                options.MaximumReceiveMessageSize = 1024000; // 1 MB limit
+                options.MaximumReceiveMessageSize = AppDefaults.MaxSignalRMessageSize;
             });
 
             builder.Services.AddResponseCompression(opts =>
@@ -152,12 +152,12 @@ namespace CompetitionResults
 
         private static async Task SeedAdminUser(IServiceProvider serviceProvider)
         {
-            await CreateAndAssignRole(serviceProvider, "admin@competition", RoleNames.Admin, "Xxxxxxxxxxx_1");
-            await CreateAndAssignRole(serviceProvider, "admin@bladethrowers.cz", RoleNames.Admin, "Xxxxxxxxxxx_1");
-            await CreateAndAssignRole(serviceProvider, "manager@bladethrowers.cz", RoleNames.Manager, "Xxxxxxxxxxx_1");
-            await CreateAndAssignRole(serviceProvider, "user@bladethrowers.cz", RoleNames.User, "Xxxxxxxxxxx_1");
-            await CreateAndAssignRole(serviceProvider, "viewer@bladethrowers.cz", RoleNames.Viewer, "Xxxxxxxxxxx_1");
-            await CreateAndAssignRole(serviceProvider, "guest@bladethrowers.cz", RoleNames.Viewer, "Guest_1");
+            await CreateAndAssignRole(serviceProvider, "admin@competition", RoleNames.Admin, AppDefaults.DefaultPassword);
+            await CreateAndAssignRole(serviceProvider, AppDefaults.AdminEmail, RoleNames.Admin, AppDefaults.DefaultPassword);
+            await CreateAndAssignRole(serviceProvider, AppDefaults.ManagerEmail, RoleNames.Manager, AppDefaults.DefaultPassword);
+            await CreateAndAssignRole(serviceProvider, AppDefaults.UserEmail, RoleNames.User, AppDefaults.DefaultPassword);
+            await CreateAndAssignRole(serviceProvider, AppDefaults.ViewerEmail, RoleNames.Viewer, AppDefaults.DefaultPassword);
+            await CreateAndAssignRole(serviceProvider, AppDefaults.GuestEmail, RoleNames.Viewer, AppDefaults.GuestPassword);
 		}
 
         private static async Task CreateAndAssignRole(IServiceProvider serviceProvider, string email, string role, string password)
@@ -172,7 +172,7 @@ namespace CompetitionResults
                     UserName = email,
                     Email = email,
                     EmailConfirmed = true,
-                    DomainName = "bladethrowers.cz"
+                    DomainName = AppDefaults.Domain
                 };
 
                 var result = await userManager.CreateAsync(newUser, password);
