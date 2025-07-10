@@ -96,7 +96,7 @@
 
 
             modelBuilder.Entity<Thrower>().HasData(
-                new Thrower { Id = 1, Name = "Zuzana", Surname = "Koreňová", Nickname = "Suzanne KO", Nationality = "CZ", CompetitionId = 1, CategoryId = 2 }
+                new Thrower { Id = 1, Name = "Zuzana", Surname = "Koreňová", Nickname = "Suzanne KO", Nationality = "CZ", CompetitionId = 1, CategoryId = 2, StartingNumber = 1 }
             );
         }
 

@@ -33,7 +33,15 @@ namespace CompetitionResults.Data
 
         public async Task AddThrowerAsync(Thrower thrower)
 		{
-			_context.Throwers.Add(thrower);
+            if (thrower.StartingNumber == 0)
+            {
+                var max = await _context.Throwers
+                    .Where(t => t.CompetitionId == thrower.CompetitionId)
+                    .MaxAsync(t => (int?)t.StartingNumber) ?? 0;
+                thrower.StartingNumber = max + 1;
+            }
+
+            _context.Throwers.Add(thrower);
 			await _context.SaveChangesAsync();
 
             if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)

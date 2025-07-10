@@ -75,6 +75,8 @@
         public double? Payment { get; set; }
 
         public bool DoNotSendRegistrationEmail { get; set; }
+
+        public int StartingNumber { get; set; }
     }
 
     public class CategoryDto

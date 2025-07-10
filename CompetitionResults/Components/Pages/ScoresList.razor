@@ -46,7 +46,7 @@ else
             @foreach (var thrower in FilteredThrowers.OrderBy(t => t.Surname).ThenBy(t => t.Name))
             {
                 <tr>
-                    <td>@thrower.Id</td>
+                     <td>@thrower.StartingNumber</td>
                     <td><strong>@thrower.Surname @thrower.Name </strong>
                                 @if (!string.IsNullOrEmpty(thrower.Nickname))
                                 {
@@ -88,7 +88,7 @@ else
     private string filterName = string.Empty;
 
     IEnumerable<Thrower> FilteredThrowers => throwers.Where(t =>
-        (string.IsNullOrEmpty(filterId) || t.Id.ToString().Contains(filterId)) &&
+        (string.IsNullOrEmpty(filterId) || t.StartingNumber.ToString().Contains(filterId)) &&
         (string.IsNullOrEmpty(filterName) ||
          t.Name.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||
          t.Surname.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||

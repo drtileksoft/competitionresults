@@ -26,6 +26,7 @@
 			<table class="table">
 				<thead>
 					<tr>
+						<th>#</th>
 						<th>Name</th>
 						<th>Surname</th>
 						<th>Nickname</th>
@@ -42,13 +43,14 @@
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (var thrower in throwers)
+					@foreach (var thrower in throwers.OrderBy(t => t.StartingNumber))
 					{
 						var lowerCaseCode = thrower.Nationality.ToLowerInvariant();
 						var flagUrl = $"https://flagcdn.com/32x24/{lowerCaseCode}.png";
 						decimal targetPayment = CalculateTargetPayment(thrower);
 						decimal difference = thrower.Payment.HasValue ? targetPayment - Convert.ToDecimal(thrower.Payment.Value) : 0;
 						<tr>
+							<td>@thrower.StartingNumber</td>
 							<td>@thrower.Name</td>
 							<td>@thrower.Surname</td>
 							<td>@thrower.Nickname</td>
