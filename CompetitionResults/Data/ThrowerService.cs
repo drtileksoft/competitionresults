@@ -105,28 +105,22 @@ namespace CompetitionResults.Data
             }
         }
 
-        public void SendGeneralEmail(Thrower thrower)
+        public void SendGeneralEmail(Thrower thrower, string localMessage, string englishMessage)
         {
             if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)
             {
                 string email;
                 string subject;
 
-                if (thrower.Nationality.ToUpper() == "CZ")
+                if (!string.IsNullOrEmpty(thrower.Nationality) && thrower.Nationality.ToUpper() == "CZ")
                 {
-                    subject = "Aktualizace cateringu";
-
-                    email = "Vážení účastníci,\n\n";
-
-                    email += "S pozdravem,\nTým UKAT World Cup";
+                    subject = "Obecná zpráva";
+                    email = localMessage;
                 }
                 else
                 {
-                    subject = "Catering Update";
-
-                    email = "Dear participants,\n\n";
-
-                    email += "Warm regards,\nUKAT World Cup Organizing Team";
+                    subject = "General Announcement";
+                    email = englishMessage;
                 }
 
                 SendEmail(thrower.Email, subject, email);

@@ -13,7 +13,9 @@
 
 		<button @onclick="AddNew">Add New Thrower</button>
 		@* <button @onclick="SendEmailsToUnpaid">Send Emails to Unpaid Throwers</button> *@
-		<button @onclick="SendEmails">Send Emails to Hungry Throwers</button>
+                <button @onclick="OpenGeneralEmailModal">Send Emails to Hungry Throwers</button>
+
+                <GeneralEmailModal @ref="generalEmailModal" OnSend="HandleSendGeneralEmails" />
 
 		<ThrowerEditModal @ref="throwerEditModal" OnClose="HandleModalClose" Thrower="selectedThrower" OnFormSubmit="HandleFormSubmit" />
 
@@ -155,7 +157,8 @@
 </AuthorizeView>
 
 @code {
-	private ThrowerEditModal throwerEditModal;
+        private ThrowerEditModal throwerEditModal;
+        private GeneralEmailModal generalEmailModal;
 	private List<Thrower> throwers;
 	private Thrower selectedThrower = new Thrower();
 
@@ -276,26 +279,26 @@
 		}
 	}
 
-	private async Task SendEmails()
-	{
-		var allThrowers = throwers.ToList();
-		if (allThrowers.Any())
-		{
-			var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send emails to {allThrowers.Count} throwers?");
-			if (confirmed)
-			{
-				foreach (var thrower in allThrowers)
-				{
-					ThrowerService.SendGeneralEmail(thrower);
-				}
-				await JSRuntime.InvokeVoidAsync("alert", "Emails sent to throwers.");
-			}
-		}
-		else
-		{
-			await JSRuntime.InvokeVoidAsync("alert", "No throwers to send emails to.");
-		}
-	}
+        private async Task SendEmails(string localMessage, string englishMessage)
+        {
+                var allThrowers = throwers.ToList();
+                if (allThrowers.Any())
+                {
+                        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send emails to {allThrowers.Count} throwers?");
+                        if (confirmed)
+                        {
+                                foreach (var thrower in allThrowers)
+                                {
+                                        ThrowerService.SendGeneralEmail(thrower, localMessage, englishMessage);
+                                }
+                                await JSRuntime.InvokeVoidAsync("alert", "Emails sent to throwers.");
+                        }
+                }
+                else
+                {
+                        await JSRuntime.InvokeVoidAsync("alert", "No throwers to send emails to.");
+                }
+        }
 
 	private async Task DeleteThrower(int id)
 	{
@@ -341,9 +344,19 @@
 		LoadData();
 	}
 
-	private async Task HandleModalClose()
-	{
-		LoadData();
-	}
+        private async Task HandleModalClose()
+        {
+                LoadData();
+        }
+
+        private void OpenGeneralEmailModal()
+        {
+                generalEmailModal.Open();
+        }
+
+        private async Task HandleSendGeneralEmails(GeneralEmailModal.GeneralEmailContent content)
+        {
+                await SendEmails(content.LocalMessage, content.EnglishMessage);
+        }
 }
 
