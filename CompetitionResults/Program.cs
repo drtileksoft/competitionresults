@@ -74,7 +74,8 @@ namespace CompetitionResults
 			builder.Services.AddScoped<ThrowerService>();
 			builder.Services.AddScoped<CategoryService>();
 			builder.Services.AddScoped<DisciplineService>();
-			builder.Services.AddScoped<ResultService>();
+            builder.Services.AddScoped<ResultService>();
+            builder.Services.AddScoped<TranslationService>();
 
 			builder.Services.AddScoped<NotificationHub>();
 
