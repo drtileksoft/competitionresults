@@ -320,7 +320,10 @@
                                 await _UserManager.AddToRoleAsync(newUser, CurrentUserRole);
                         }
 
-                        await CompetitionService.AssignManagerToCompetitionAsync(newUser.Id, CompetitionState.SelectedCompetitionId);
+                        if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
+                        {
+                                await CompetitionService.AssignManagerToCompetitionAsync(newUser.Id, CompetitionState.SelectedCompetitionId);
+                        }
                 }
 
 		ShowPopup = false;

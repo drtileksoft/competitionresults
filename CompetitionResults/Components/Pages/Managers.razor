@@ -112,6 +112,12 @@
 
         if (assign)
         {
+            if (!isAdmin && !assignedCompetitionIds.Contains(competitionId))
+            {
+                // Managers cannot assign competitions the user does not already have
+                return;
+            }
+
             await CompetitionServiceInstance.AssignManagerToCompetitionAsync(selectedUser.Id, competitionId);
             assignedCompetitionIds.Add(competitionId);
         }
