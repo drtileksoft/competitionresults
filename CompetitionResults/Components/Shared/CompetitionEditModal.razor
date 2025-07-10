@@ -59,10 +59,20 @@
 							<InputNumber id="priceEUR" @bind-Value="@_competition.CompetitionPriceEUR" />
 						</div>
 
-						<div>
-							<label for="maxThrowers">Competition price LOCAL:</label>
-							<InputNumber id="priceEUR" @bind-Value="@_competition.CompetitionPriceLocal" />
-						</div>
+                                                <div>
+                                                        <label for="maxThrowers">Competition price LOCAL:</label>
+                                                        <InputNumber id="priceEUR" @bind-Value="@_competition.CompetitionPriceLocal" />
+                                                </div>
+
+                                                <div>
+                                                        <label for="language">Local language (country code):</label>
+                                                        <select id="language" @bind="_competition.LocalLanguage">
+                                                                @foreach (var lang in languages)
+                                                                {
+                                                                        <option value="@lang.Key">@lang.Value (@lang.Key)</option>
+                                                                }
+                                                        </select>
+                                                </div>
 
 					</div>
 				</div>
@@ -78,7 +88,60 @@
 @code {
 	public bool IsOpen { get; private set; }
 	[Parameter] public EventCallback OnClose { get; set; }
-	private Competition _competition;
+        private Competition _competition;
+        private Dictionary<string, string> languages = new Dictionary<string, string>
+        {
+                {"AF", "Afghanistan"}, {"AL", "Albania"}, {"DZ", "Algeria"}, {"AD", "Andorra"},
+                {"AO", "Angola"}, {"AG", "Antigua and Barbuda"}, {"AR", "Argentina"}, {"AM", "Armenia"},
+                {"AU", "Australia"}, {"AT", "Austria"}, {"AZ", "Azerbaijan"}, {"BS", "Bahamas"},
+                {"BH", "Bahrain"}, {"BD", "Bangladesh"}, {"BB", "Barbados"}, {"BY", "Belarus"},
+                {"BE", "Belgium"}, {"BZ", "Belize"}, {"BJ", "Benin"}, {"BT", "Bhutan"},
+                {"BO", "Bolivia"}, {"BA", "Bosnia and Herzegovina"}, {"BW", "Botswana"}, {"BR", "Brazil"},
+                {"BN", "Brunei"}, {"BG", "Bulgaria"}, {"BF", "Burkina Faso"}, {"BI", "Burundi"},
+                {"CV", "Cabo Verde"}, {"KH", "Cambodia"}, {"CM", "Cameroon"}, {"CA", "Canada"},
+                {"CF", "Central African Republic"}, {"TD", "Chad"}, {"CL", "Chile"}, {"CN", "China"},
+                {"CO", "Colombia"}, {"KM", "Comoros"}, {"CG", "Congo"}, {"CD", "Congo (DRC)"},
+                {"CR", "Costa Rica"}, {"CI", "Côte d'Ivoire"}, {"HR", "Croatia"}, {"CU", "Cuba"},
+                {"CY", "Cyprus"}, {"CZ", "Czech"}, {"DK", "Denmark"}, {"DJ", "Djibouti"},
+                {"DM", "Dominica"}, {"DO", "Dominican Republic"}, {"EC", "Ecuador"}, {"EG", "Egypt"},
+                {"SV", "El Salvador"}, {"GQ", "Equatorial Guinea"}, {"ER", "Eritrea"}, {"EE", "Estonia"},
+                {"SZ", "Eswatini"}, {"ET", "Ethiopia"}, {"FJ", "Fiji"}, {"FI", "Finland"},
+                {"FR", "France"}, {"GA", "Gabon"}, {"GM", "Gambia"}, {"GE", "Georgia"},
+                {"DE", "German"}, {"GH", "Ghana"}, {"GR", "Greek"}, {"GD", "Grenada"},
+                {"GT", "Guatemala"}, {"GN", "Guinea"}, {"GW", "Guinea-Bissau"}, {"GY", "Guyana"},
+                {"HT", "Haiti"}, {"HN", "Honduras"}, {"HU", "Hungarian"}, {"IS", "Icelandic"},
+                {"IN", "Hindi"}, {"ID", "Indonesian"}, {"IR", "Persian"}, {"IQ", "Arabic"},
+                {"IE", "Irish"}, {"IL", "Hebrew"}, {"IT", "Italian"}, {"JM", "Jamaican"},
+                {"JP", "Japanese"}, {"JO", "Arabic"}, {"KZ", "Kazakh"}, {"KE", "Swahili"},
+                {"KI", "Kiribati"}, {"KP", "Korean"}, {"KR", "Korean"}, {"KW", "Arabic"},
+                {"KG", "Kyrgyz"}, {"LA", "Lao"}, {"LV", "Latvian"}, {"LB", "Arabic"},
+                {"LS", "Sotho"}, {"LR", "English"}, {"LY", "Arabic"}, {"LI", "German"},
+                {"LT", "Lithuanian"}, {"LU", "Luxembourgish"}, {"MG", "Malagasy"}, {"MW", "Chichewa"},
+                {"MY", "Malay"}, {"MV", "Dhivehi"}, {"ML", "French"}, {"MT", "Maltese"},
+                {"MH", "Marshallese"}, {"MR", "Arabic"}, {"MU", "English"}, {"MX", "Spanish"},
+                {"FM", "English"}, {"MD", "Romanian"}, {"MC", "French"}, {"MN", "Mongolian"},
+                {"ME", "Montenegrin"}, {"MA", "Arabic"}, {"MZ", "Portuguese"}, {"MM", "Burmese"},
+                {"NA", "English"}, {"NR", "Nauruan"}, {"NP", "Nepali"}, {"NL", "Dutch"},
+                {"NZ", "English"}, {"NI", "Spanish"}, {"NE", "French"}, {"NG", "English"},
+                {"NO", "Norwegian"}, {"OM", "Arabic"}, {"PK", "Urdu"}, {"PW", "Palauan"},
+                {"PA", "Spanish"}, {"PG", "English"}, {"PY", "Spanish"}, {"PE", "Spanish"},
+                {"PH", "Filipino"}, {"PL", "Polish"}, {"PT", "Portuguese"}, {"QA", "Arabic"},
+                {"RO", "Romanian"}, {"RU", "Russian"}, {"RW", "Kinyarwanda"}, {"KN", "English"},
+                {"LC", "English"}, {"VC", "English"}, {"WS", "Samoan"},
+                {"SM", "Italian"}, {"ST", "Portuguese"}, {"SA", "Arabic"},
+                {"SN", "French"}, {"RS", "Serbian"}, {"SC", "Seychellois Creole"}, {"SL", "English"},
+                {"SG", "English"}, {"SK", "Slovak"}, {"SI", "Slovenian"}, {"SB", "English"},
+                {"SO", "Somali"}, {"ZA", "Zulu"}, {"SS", "English"}, {"ES", "Spanish"},
+                {"LK", "Sinhala"}, {"SD", "Arabic"}, {"SR", "Dutch"}, {"SE", "Swedish"},
+                {"CH", "German"}, {"SY", "Arabic"}, {"TW", "Chinese"}, {"TJ", "Tajik"},
+                {"TZ", "Swahili"}, {"TH", "Thai"}, {"TL", "Portuguese"}, {"TG", "French"},
+                {"TO", "Tongan"}, {"TT", "English"}, {"TN", "Arabic"}, {"TR", "Turkish"},
+                {"TM", "Turkmen"}, {"TV", "Tuvaluan"}, {"UG", "English"}, {"UA", "Ukrainian"},
+                {"AE", "Arabic"}, {"GB", "English"}, {"GB-WLS", "Welsh"}, {"GB-SCT", "Scottish Gaelic"}, {"US", "English"},
+                {"UY", "Spanish"}, {"UZ", "Uzbek"}, {"VU", "Bislama"}, {"VA", "Italian"},
+                {"VE", "Spanish"}, {"VN", "Vietnamese"}, {"YE", "Arabic"}, {"ZM", "English"},
+                {"ZW", "English"}
+        };
 
 	protected override async Task OnInitializedAsync()
 	{

@@ -226,9 +226,11 @@
 		CompetitionState.OnCompetitionChanged -= LoadData;
 	}
 
-	private async void AddNew()
-	{
-		selectedThrower = new Thrower { Nationality = "CZ", CompetitionId = CompetitionState.SelectedCompetitionId }; // Reset the form for a new thrower
+        private async void AddNew()
+        {
+                var competition = await CompetitionService.GetCompetitionByIdAsync(CompetitionState.SelectedCompetitionId);
+                var defaultNat = competition?.LocalLanguage ?? "";
+                selectedThrower = new Thrower { Nationality = defaultNat, CompetitionId = CompetitionState.SelectedCompetitionId }; // Reset the form for a new thrower
 		selectedThrower.CategoryId = (await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId)).FirstOrDefault()?.Id ?? 0;
 		throwerEditModal.Open();
 		StateHasChanged();
@@ -310,21 +312,24 @@
 		}
 	}
 
-	private decimal CalculateTargetPayment(Thrower thrower)
-	{
-		if (thrower.PaymentDone)
-		{
-			if (thrower.Payment < 200) // Assume EUR
-			{
-				return thrower.WantTShirt ? 100 : 90;
-			}
-			else // Assume CZK
-			{
-				return thrower.WantTShirt ? 2450 : 2200;
-			}
-		}
-		return 0;
-	}
+        private decimal CalculateTargetPayment(Thrower thrower)
+        {
+                if (thrower.PaymentDone)
+                {
+                        var competition = thrower.Competition;
+                        if (thrower.Payment < 200) // Assume EUR
+                        {
+                                var basePrice = competition?.CompetitionPriceEUR ?? 0;
+                                return thrower.WantTShirt ? basePrice + 10 : basePrice;
+                        }
+                        else // Assume Local currency
+                        {
+                                var basePrice = competition?.CompetitionPriceLocal ?? 0;
+                                return thrower.WantTShirt ? basePrice + 250 : basePrice;
+                        }
+                }
+                return 0;
+        }
 
 	private decimal GetTolerance(double? payment)
 	{

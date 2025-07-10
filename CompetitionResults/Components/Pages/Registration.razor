@@ -202,7 +202,9 @@ else
 
     private async void AddNew()
     {
-        selectedThrower = new Thrower { Nationality = "CZ", CompetitionId = CompetitionState.SelectedCompetitionId }; // Reset the form for a new thrower
+        var competition = await CompetitionService.GetCompetitionByIdAsync(CompetitionState.SelectedCompetitionId);
+        var defaultNat = competition?.LocalLanguage ?? "";
+        selectedThrower = new Thrower { Nationality = defaultNat, CompetitionId = CompetitionState.SelectedCompetitionId }; // Reset the form for a new thrower
         selectedThrower.CategoryId = (await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId)).FirstOrDefault()?.Id ?? 0;
         throwerRegistrationModal.Open();
         StateHasChanged();

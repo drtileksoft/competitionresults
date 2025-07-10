@@ -183,10 +183,12 @@
 
 
 
-	protected override async Task OnInitializedAsync()
-	{
-		_thrower = new Thrower { Nationality = "CZ" };
-		_competition = await CompetitionService.GetCompetitionByIdAsync(CompetitionState.SelectedCompetitionId);
+        protected override async Task OnInitializedAsync()
+        {
+                var competition = await CompetitionService.GetCompetitionByIdAsync(CompetitionState.SelectedCompetitionId);
+                var defaultNat = competition?.LocalLanguage ?? "";
+                _thrower = new Thrower { Nationality = defaultNat };
+                _competition = competition;
 
 		categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
 		if (categories.Any())

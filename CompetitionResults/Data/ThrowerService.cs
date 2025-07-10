@@ -23,7 +23,11 @@ namespace CompetitionResults.Data
 
         public async Task<List<Thrower>> GetAllThrowersAsync(int competitionId)
         {
-            return await _context.Throwers.Where(c => c.CompetitionId == competitionId).ToListAsync();
+            return await _context.Throwers
+                .Include(t => t.Category)
+                .Include(t => t.Competition)
+                .Where(c => c.CompetitionId == competitionId)
+                .ToListAsync();
         }
 
         public async Task<Thrower> GetThrowerByIdAsync(int id)
@@ -42,11 +46,14 @@ namespace CompetitionResults.Data
             }
 
             _context.Throwers.Add(thrower);
-			await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
+            var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
             if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)
             {
-                if (thrower.Nationality.ToUpper() == "CZ")
+                if (competition != null &&
+                    !string.IsNullOrEmpty(competition.LocalLanguage) &&
+                    thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
                 {
                     await SendRegistrationEmailCZ(thrower);
                 }
@@ -59,26 +66,32 @@ namespace CompetitionResults.Data
 			await _notificationHub.NotifyCompetitionChanged();
 		}
 
-		public async Task ResendEmailAsync(Thrower thrower)
-		{
-			if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)
-			{
-				if (thrower.Nationality.ToUpper() == "CZ")
-				{
-					await SendRegistrationEmailCZ(thrower);
-				}
-				else
-				{
-					await SendRegistrationEmail(thrower);
-				}
-			}
-		}
+        public async Task ResendEmailAsync(Thrower thrower)
+        {
+            if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)
+            {
+                var competition = await _context.Competitions.FindAsync(thrower.CompetitionId);
+                if (competition != null &&
+                    !string.IsNullOrEmpty(competition.LocalLanguage) &&
+                    thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
+                {
+                    await SendRegistrationEmailCZ(thrower);
+                }
+                else
+                {
+                    await SendRegistrationEmail(thrower);
+                }
+            }
+        }
 
         public void SendUnpaidEmail(Thrower thrower)
         {
             if (thrower.Email != null && !thrower.DoNotSendRegistrationEmail)
             {
-                if (thrower.Nationality.ToUpper() == "CZ")
+                var competition = thrower.Competition ?? _context.Competitions.Find(thrower.CompetitionId);
+                if (competition != null &&
+                    !string.IsNullOrEmpty(competition.LocalLanguage) &&
+                    thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
                 {
                     var email = $"Dobrý den,\n\n";
                     email += $"Tento email je automaticky generován, protože jste se zaregistrovali na soutěž a ještě jste nezaplatili.\n";
@@ -112,7 +125,11 @@ namespace CompetitionResults.Data
                 string email;
                 string subject;
 
-                if (!string.IsNullOrEmpty(thrower.Nationality) && thrower.Nationality.ToUpper() == "CZ")
+                var competition = thrower.Competition ?? _context.Competitions.Find(thrower.CompetitionId);
+                if (!string.IsNullOrEmpty(thrower.Nationality) &&
+                    competition != null &&
+                    !string.IsNullOrEmpty(competition.LocalLanguage) &&
+                    thrower.Nationality.ToUpper() == competition.LocalLanguage.ToUpper())
                 {
                     subject = "Obecná zpráva";
                     email = localMessage;
