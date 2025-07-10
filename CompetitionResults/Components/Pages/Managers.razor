@@ -75,8 +75,7 @@
         else if (isManager)
         {
             var userUsers = await UserManager.GetUsersInRoleAsync(RoleNames.User);
-            var viewerUsers = await UserManager.GetUsersInRoleAsync(RoleNames.Viewer);
-            users = userUsers.Concat(viewerUsers).Where(u => u.Id != currentUserId).ToList();
+            users = userUsers.Where(u => u.Id != currentUserId).ToList();
             competitions = await CompetitionServiceInstance.GetCompetitionsForManagerAsync(currentUserId);
         }
     }

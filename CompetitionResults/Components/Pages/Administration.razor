@@ -144,11 +144,10 @@
         string ADMINISTRATION_ROLE = RoleNames.Admin;
         string MANAGER_ROLE = RoleNames.Manager;
         string USER_ROLE = RoleNames.User;
-        string VIEWER_ROLE = RoleNames.Viewer;
-	System.Security.Claims.ClaimsPrincipal CurrentUser;
-	ApplicationUser CurrentApplicationUser;
-	protected override async Task OnInitializedAsync()
-	{
+        System.Security.Claims.ClaimsPrincipal CurrentUser;
+        ApplicationUser CurrentApplicationUser;
+        protected override async Task OnInitializedAsync()
+        {
 		// ensure there is a ADMINISTRATION_ROLE
 		var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
 		if (RoleResult == null)
@@ -175,22 +174,17 @@
 
                 if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
                 {
-                        Options = new List<string>() { RoleNames.Viewer, RoleNames.User, RoleNames.Manager, RoleNames.Admin };
+                        Options = new List<string>() { RoleNames.User, RoleNames.Manager, RoleNames.Admin };
                 }
 
                 if (CurrentUser.IsInRole(MANAGER_ROLE))
                 {
-                        Options = new List<string>() { RoleNames.Viewer, RoleNames.User, RoleNames.Manager };
+                        Options = new List<string>() { RoleNames.User, RoleNames.Manager };
                 }
 
                 if (CurrentUser.IsInRole(USER_ROLE))
                 {
-                        Options = new List<string>() { RoleNames.Viewer, RoleNames.User };
-                }
-
-                if (CurrentUser.IsInRole(VIEWER_ROLE))
-                {
-                        Options = new List<string>() { RoleNames.Viewer };
+                        Options = new List<string>() { RoleNames.User };
                 }
 
 		GetUsers();
@@ -219,56 +213,39 @@
 			}
 		}
 
-		if (CurrentUser.IsInRole(MANAGER_ROLE))
-		{
-			var admins = (await _UserManager.GetUsersInRoleAsync("Admin")).Select(admins => admins.Id);
+                if (CurrentUser.IsInRole(MANAGER_ROLE))
+                {
+                        var admins = (await _UserManager.GetUsersInRoleAsync(RoleNames.Admin)).Select(a => a.Id).ToHashSet();
+                        var managers = await CompetitionService.GetManagersForCompetitionAsync(CompetitionState.SelectedCompetitionId);
+                        foreach (var item in managers)
+                        {
+                                if (!admins.Contains(item.Id))
+                                {
+                                        ColUsers.Add(new ApplicationUser
+                                        {
+                                                Id = item.Id,
+                                                UserName = item.UserName,
+                                                Email = item.Email,
+                                                PasswordHash = "*****"
+                                        });
+                                }
+                        }
+                }
 
-			// get users from _UserManager
-			var user = _UserManager.Users.Where(u => u.DomainName == CurrentApplicationUser.DomainName).Select(x => new ApplicationUser
-				{
-					Id = x.Id,
-					UserName = x.UserName,
-					Email = x.Email,
-					PasswordHash = "*****"
-				});
-			foreach (var item in user)
-			{
-				if (!admins.Contains(item.Id))
-				{
-					ColUsers.Add(item);
-				}
-			}
-		}
-
-		if (CurrentUser.IsInRole(USER_ROLE))
-		{
-			var user = _UserManager.Users.Where(u => u.UserName == CurrentUser.Identity.Name).Select(x => new ApplicationUser
-				{
-					Id = x.Id,
-					UserName = x.UserName,
-					Email = x.Email,
-					PasswordHash = "*****"
-				});
-			foreach (var item in user)
-			{
-				ColUsers.Add(item);
-			}
-		}
-
-		if (CurrentUser.IsInRole(VIEWER_ROLE))
-		{
-			var user = _UserManager.Users.Where(u => u.UserName == CurrentUser.Identity.Name).Select(x => new ApplicationUser
-			{
-				Id = x.Id,
-				UserName = x.UserName,
-				Email = x.Email,
-				PasswordHash = "*****"
-			});
-			foreach (var item in user)
-			{
-				ColUsers.Add(item);
-			}
-		}
+                if (CurrentUser.IsInRole(USER_ROLE))
+                {
+                        var user = _UserManager.Users.Where(u => u.UserName == CurrentUser.Identity.Name).Select(x => new ApplicationUser
+                                {
+                                        Id = x.Id,
+                                        UserName = x.UserName,
+                                        Email = x.Email,
+                                        PasswordHash = "*****"
+                                });
+                        foreach (var item in user)
+                        {
+                                ColUsers.Add(item);
+                        }
+                }
 	}
 
 	void AddNewUser()
@@ -394,13 +371,6 @@
 				CurrentUserRole = USER_ROLE;
 			}
 
-			var UserResult4 =
-				await _UserManager
-				.IsInRoleAsync(user, VIEWER_ROLE);
-			if (UserResult4)
-			{
-				CurrentUserRole = VIEWER_ROLE;
-			}
 		}
 		// Open the Popup
 		ShowPopup = true;

@@ -7,7 +7,6 @@ namespace CompetitionResults.Constants
         public const string AdminEmail = "admin@" + Domain;
         public const string ManagerEmail = "manager@" + Domain;
         public const string UserEmail = "user@" + Domain;
-        public const string ViewerEmail = "viewer@" + Domain;
         public const string GuestEmail = "guest@" + Domain;
         public const string DefaultPassword = "Xxxxxxxxxxx_1";
         public const string GuestPassword = "Guest_1";

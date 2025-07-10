@@ -102,7 +102,7 @@ namespace CompetitionResults
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            string[] roleNames = { RoleNames.Admin, RoleNames.Manager, RoleNames.User, RoleNames.Viewer };
+            string[] roleNames = { RoleNames.Admin, RoleNames.Manager, RoleNames.User };
 			IdentityResult roleResult;
 
 			foreach (var roleName in roleNames)
@@ -122,8 +122,6 @@ namespace CompetitionResults
             await CreateAndAssignRole(serviceProvider, AppDefaults.AdminEmail, RoleNames.Admin, AppDefaults.DefaultPassword);
             await CreateAndAssignRole(serviceProvider, AppDefaults.ManagerEmail, RoleNames.Manager, AppDefaults.DefaultPassword);
             await CreateAndAssignRole(serviceProvider, AppDefaults.UserEmail, RoleNames.User, AppDefaults.DefaultPassword);
-            await CreateAndAssignRole(serviceProvider, AppDefaults.ViewerEmail, RoleNames.Viewer, AppDefaults.DefaultPassword);
-            await CreateAndAssignRole(serviceProvider, AppDefaults.GuestEmail, RoleNames.Viewer, AppDefaults.GuestPassword);
 		}
 
         private static async Task CreateAndAssignRole(IServiceProvider serviceProvider, string email, string role, string password)
