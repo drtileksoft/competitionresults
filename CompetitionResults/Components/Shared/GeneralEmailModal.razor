@@ -1,0 +1,64 @@
+@using Microsoft.AspNetCore.Components
+<div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send Email</h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label>Local message:</label>
+                    <InputTextArea class="form-control" @bind-Value="content.LocalMessage" />
+                </div>
+                <div class="mb-3">
+                    <label>English message:</label>
+                    <InputTextArea class="form-control" @bind-Value="content.EnglishMessage" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="Close">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="Send">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public class GeneralEmailContent
+    {
+        public string LocalMessage { get; set; }
+        public string EnglishMessage { get; set; }
+    }
+
+    public bool IsOpen { get; private set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<GeneralEmailContent> OnSend { get; set; }
+
+    private GeneralEmailContent content = new GeneralEmailContent();
+
+    public void Open()
+    {
+        content = new GeneralEmailContent();
+        IsOpen = true;
+        StateHasChanged();
+    }
+
+    private async Task Send()
+    {
+        if (OnSend.HasDelegate)
+        {
+            await OnSend.InvokeAsync(content);
+        }
+        await Close();
+    }
+
+    private async Task Close()
+    {
+        IsOpen = false;
+        if (OnClose.HasDelegate)
+        {
+            await OnClose.InvokeAsync();
+        }
+    }
+}
