@@ -53,6 +53,14 @@ namespace CompetitionResults.Data
             }
         }
 
+        public async Task<List<ApplicationUser>> GetManagersForCompetitionAsync(int competitionId)
+        {
+            return await _context.CompetitionManagers
+                .Where(cm => cm.CompetitionId == competitionId)
+                .Select(cm => cm.Manager)
+                .ToListAsync();
+        }
+
         // Get a single competition by ID
         public async Task<Competition> GetCompetitionByIdAsync(int id)
         {

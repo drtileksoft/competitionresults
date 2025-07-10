@@ -7,12 +7,10 @@ using System.Text.Json;
 
 public static class DbContextExtensions
 {
-    public static async Task<string> ExportDataToJsonAsync(CompetitionDbContext context, string filePath)
+    private static IMapper CreateMapper()
     {
-        //user roles
-        //users
-
-        var config = new MapperConfiguration(cfg => {
+        var config = new MapperConfiguration(cfg =>
+        {
             cfg.CreateMap<Competition, CompetitionDto>().ReverseMap();
             cfg.CreateMap<Category, CategoryDto>().ReverseMap();
             cfg.CreateMap<Discipline, DisciplineDto>().ReverseMap();
@@ -21,10 +19,14 @@ public static class DbContextExtensions
             cfg.CreateMap<CompetitionResults.Data.Results, ResultsDto>().ReverseMap();
             cfg.CreateMap<ApplicationUser, UserDto>().ReverseMap();
             cfg.CreateMap<IdentityUserRole<string>, UserRoleDto>().ReverseMap();
-        }
-        );
+        });
 
-        var mapper = config.CreateMapper();
+        return config.CreateMapper();
+    }
+
+    public static async Task<string> ExportDataToJsonAsync(CompetitionDbContext context, string filePath)
+    {
+        var mapper = CreateMapper();
 
         var options = new JsonSerializerOptions
         {
@@ -82,19 +84,7 @@ public static class DbContextExtensions
     {
         try
         {
-            var config = new MapperConfiguration(cfg => {
-                cfg.CreateMap<Competition, CompetitionDto>().ReverseMap();
-                cfg.CreateMap<Category, CategoryDto>().ReverseMap();
-                cfg.CreateMap<Discipline, DisciplineDto>().ReverseMap();
-                cfg.CreateMap<Thrower, ThrowerDto>().ReverseMap();
-                cfg.CreateMap<CompetitionManager, CompetitionManagerDto>().ReverseMap();
-                cfg.CreateMap<CompetitionResults.Data.Results, ResultsDto>().ReverseMap();
-                cfg.CreateMap<ApplicationUser, UserDto>().ReverseMap();
-                cfg.CreateMap<IdentityUserRole<string>, UserRoleDto>().ReverseMap();
-            }
-            );
-
-            var mapper = config.CreateMapper();
+            var mapper = CreateMapper();
 
             // Read the JSON file
             var json = await System.IO.File.ReadAllTextAsync(filePath);
