@@ -483,28 +483,6 @@ namespace CompetitionResults.Data
                 }
             }
 
-            // 3️⃣ Přidej ručně medaile za speciální disciplínu mimo systém
-            void AddMedals(string nationality, int gold, int silver, int bronze)
-            {
-                nationality = nationality.ToUpper();
-
-                if (!nationMedals.TryGetValue(nationality, out var entry))
-                {
-                    entry = new NationMedalsDto { Nationality = nationality };
-                    nationMedals[nationality] = entry;
-                }
-
-                entry.Gold += gold;
-                entry.Silver += silver;
-                entry.Bronze += bronze;
-            }
-
-            // 🟨 Slovensko: 2 medaile (např. 1 gold + 1 bronze)
-            AddMedals("SK", gold: 1, silver: 1, bronze: 0);
-
-            // 🟥 Česko: 1 medaile (např. 1 silver)
-            AddMedals("CZ", gold: 0, silver: 0, bronze: 1);
-
             return nationMedals.Values
                 .OrderByDescending(n => n.Total)
                 .ThenByDescending(n => n.Gold)
