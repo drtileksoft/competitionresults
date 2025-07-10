@@ -1,6 +1,7 @@
 using CompetitionResults.Components.Account;
 using CompetitionResults.Data;
 using CompetitionResults.Notifications;
+using CompetitionResults.Constants;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -131,11 +132,11 @@ namespace CompetitionResults
 			app.Run();
 		}
 
-		private static async Task InitializeRoles(IServiceProvider serviceProvider)
-		{
-			var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        private static async Task InitializeRoles(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-			string[] roleNames = { "Admin", "Manager", "User", "Viewer" };
+            string[] roleNames = { RoleNames.Admin, RoleNames.Manager, RoleNames.User, RoleNames.Viewer };
 			IdentityResult roleResult;
 
 			foreach (var roleName in roleNames)
@@ -151,12 +152,12 @@ namespace CompetitionResults
 
         private static async Task SeedAdminUser(IServiceProvider serviceProvider)
         {
-            await CreateAndAssignRole(serviceProvider, "admin@competition", "Admin", "Xxxxxxxxxxx_1");
-            await CreateAndAssignRole(serviceProvider, "admin@bladethrowers.cz", "Admin", "Xxxxxxxxxxx_1");
-			await CreateAndAssignRole(serviceProvider, "manager@bladethrowers.cz", "Manager", "Xxxxxxxxxxx_1");
-			await CreateAndAssignRole(serviceProvider, "user@bladethrowers.cz", "User", "Xxxxxxxxxxx_1");
-			await CreateAndAssignRole(serviceProvider, "viewer@bladethrowers.cz", "Viewer", "Xxxxxxxxxxx_1");
-			await CreateAndAssignRole(serviceProvider, "guest@bladethrowers.cz", "Viewer", "Guest_1");
+            await CreateAndAssignRole(serviceProvider, "admin@competition", RoleNames.Admin, "Xxxxxxxxxxx_1");
+            await CreateAndAssignRole(serviceProvider, "admin@bladethrowers.cz", RoleNames.Admin, "Xxxxxxxxxxx_1");
+            await CreateAndAssignRole(serviceProvider, "manager@bladethrowers.cz", RoleNames.Manager, "Xxxxxxxxxxx_1");
+            await CreateAndAssignRole(serviceProvider, "user@bladethrowers.cz", RoleNames.User, "Xxxxxxxxxxx_1");
+            await CreateAndAssignRole(serviceProvider, "viewer@bladethrowers.cz", RoleNames.Viewer, "Xxxxxxxxxxx_1");
+            await CreateAndAssignRole(serviceProvider, "guest@bladethrowers.cz", RoleNames.Viewer, "Guest_1");
 		}
 
         private static async Task CreateAndAssignRole(IServiceProvider serviceProvider, string email, string role, string password)
