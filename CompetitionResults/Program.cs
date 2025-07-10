@@ -4,7 +4,6 @@ using CompetitionResults.Notifications;
 using CompetitionResults.Constants;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,8 +27,6 @@ namespace CompetitionResults
                 });
             });
 
-            // Add services to the container.
-            //builder.Services.AddRazorPages();
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
@@ -38,36 +35,15 @@ namespace CompetitionResults
             builder.Services.AddScoped<IdentityRedirectManager>();
             builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider<ApplicationUser>>();
 
-            //builder.Services.AddAuthentication(options =>
-            //{
-            //    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-            //    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            //})
-            //.AddIdentityCookies();
-
-            // Add DbContext to the service collection
             builder.Services.AddDbContext<CompetitionDbContext>(options =>
 				options.UseSqlite(builder.Configuration.GetConnectionString("CompetitionDatabase")));
 
-            //builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            //   .AddEntityFrameworkStores<CompetitionDbContext>()
-            //   .AddSignInManager()
-            //   //.AddRoles<IdentityRole>()
-            //   .AddDefaultTokenProviders();
-
-            //builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            //.AddRoles<IdentityRole>()
-            //.AddEntityFrameworkStores<CompetitionDbContext>();
-
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<CompetitionDbContext>()
-            //.AddRoles<IdentityRole>()
             .AddSignInManager()
             .AddDefaultTokenProviders();
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
-            //builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
 
             builder.Services.AddScoped<UserIdStateService>();
             builder.Services.AddScoped<CompetitionStateService>();
@@ -79,9 +55,6 @@ namespace CompetitionResults
             builder.Services.AddScoped<TranslationService>();
 
 			builder.Services.AddScoped<NotificationHub>();
-
-			//builder.Services.AddAuthentication();
-            //builder.Services.AddAuthorization();
 
             builder.Services.AddSignalR(options =>
             {
@@ -101,7 +74,6 @@ namespace CompetitionResults
 			// Seed Admin user
 			await SeedAdminUser(app.Services.CreateScope().ServiceProvider);
 
-			// Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -109,12 +81,7 @@ namespace CompetitionResults
                 app.UseHsts();
             }
 
-			//app.UseHttpsRedirection();
-
             app.UseCors();
-
-            //app.UseAuthentication();
-            //app.UseAuthorization();
 
             app.UseAntiforgery();
 
@@ -123,7 +90,6 @@ namespace CompetitionResults
             app.UseResponseCompression();
 
             app.MapControllers();
-            //app.MapRazorPages();
 
             app.MapHub<NotificationHub>("/notificationHub");
             app.MapRazorComponents<CompetitionResults.Components.App>()
