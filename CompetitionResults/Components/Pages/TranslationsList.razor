@@ -56,10 +56,10 @@
     protected override async Task OnInitializedAsync()
     {
         CompetitionState.OnCompetitionChanged += LoadData;
-        await LoadData();
+        LoadData();
     }
 
-    private async Task LoadData()
+    private async void LoadData()
     {
         var comp = await CompetitionService.GetCompetitionByIdAsync(CompetitionState.SelectedCompetitionId);
         localLanguage = comp?.LocalLanguage ?? "";
@@ -77,12 +77,12 @@
 
     private async Task HandleFormSubmit()
     {
-        await LoadData();
+        LoadData();
     }
 
     private async Task HandleModalClose()
     {
-        await LoadData();
+        LoadData();
     }
 
     public void Dispose()
