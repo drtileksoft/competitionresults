@@ -23,9 +23,14 @@
 
         public int? MaxCompetitorCount { get; set; }
 
+        public int? CompetitionPriceEUR { get; set; }
+        public int? CompetitionPriceLocal { get; set; }
+
+        public string LocalLanguage { get; set; }
+
         public string? EmailTemplateFooter { get; set; }
 
-		public string? EmailTemplateFooterCZ { get; set; }
+		public string? EmailTemplateFooterLocal { get; set; }
 
 		// Navigation properties for related entities
 		public ICollection<Thrower> Throwers { get; set; }
@@ -72,17 +77,13 @@
 
 		public string? Note { get; set; }
 
-		// Foreign key for Category
 		public int CategoryId { get; set; }
 
-		// Navigation property for Category
 		[ForeignKey("CategoryId")]
 		public Category Category { get; set; }
 
-        // Foreign key for Competition
         public int CompetitionId { get; set; }
 
-        // Navigation property for Competition
         [ForeignKey("CompetitionId")]
         public Competition Competition { get; set; }
 

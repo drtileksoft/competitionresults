@@ -40,18 +40,28 @@
 						</div>
 
 						<div>
-							<label for="emailtemplate">Email template footer:</label>
+							<label for="emailtemplate">Email template footer english:</label>
 							<InputTextArea id="emailtemplate" @bind-Value="@_competition.EmailTemplateFooter" />
 						</div>
 
 						<div>
-							<label for="emailtemplate2">Email template footer CZ:</label>
-							<InputTextArea id="emailtemplate2" @bind-Value="@_competition.EmailTemplateFooterCZ" />
+							<label for="emailtemplate2">Email template footer local:</label>
+							<InputTextArea id="emailtemplate2" @bind-Value="@_competition.EmailTemplateFooterLocal" />
 						</div>
 
 						<div>
 							<label for="maxThrowers">Maximum number of competitors:</label>
 							<InputNumber id="maxThrowers" @bind-Value="@_competition.MaxCompetitorCount" />
+						</div>
+
+						<div>
+							<label for="maxThrowers">Competition price EUR:</label>
+							<InputNumber id="priceEUR" @bind-Value="@_competition.CompetitionPriceEUR" />
+						</div>
+
+						<div>
+							<label for="maxThrowers">Competition price LOCAL:</label>
+							<InputNumber id="priceEUR" @bind-Value="@_competition.CompetitionPriceLocal" />
 						</div>
 
 					</div>

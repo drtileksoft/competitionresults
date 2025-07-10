@@ -187,7 +187,7 @@ namespace CompetitionResults.Data
 
 			email += $"\n";
 
-			email += competition.EmailTemplateFooterCZ;
+			email += competition.EmailTemplateFooterLocal;
 
 			SendEmail(thrower.Email, "Registrace do závodu", email);
 		}

@@ -71,7 +71,7 @@
 
             // Seeding the data
             modelBuilder.Entity<Competition>().HasData(
-                new Competition { Id = 1, Name = "Your competition name" }
+                new Competition { Id = 1, Name = "Your competition name", LocalLanguage="CZ" }
             );
 
             modelBuilder.Entity<Category>().HasData(

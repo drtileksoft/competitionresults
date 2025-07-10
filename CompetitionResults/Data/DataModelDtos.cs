@@ -19,10 +19,17 @@
 
         public string? TShirtLink { get; set; }
 
+        public int? MaxCompetitorCount { get; set; }
+
+        public int? CompetitionPriceEUR { get; set; }
+        public int? CompetitionPriceLocal { get; set; }
+
+        public string LocalLanguage { get; set; }
+
         public string? EmailTemplateFooter { get; set; }
 
-		public string? EmailTemplateFooterCZ { get; set; }
-	}
+        public string? EmailTemplateFooterLocal { get; set; }
+    }
 
     public class CompetitionManagerDto
     {

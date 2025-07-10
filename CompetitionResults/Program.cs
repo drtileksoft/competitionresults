@@ -156,41 +156,7 @@ namespace CompetitionResults
 			await CreateAndAssignRole(serviceProvider, "user@bladethrowers.cz", "User", "Xxxxxxxxxxx_1");
 			await CreateAndAssignRole(serviceProvider, "viewer@bladethrowers.cz", "Viewer", "Xxxxxxxxxxx_1");
 			await CreateAndAssignRole(serviceProvider, "guest@bladethrowers.cz", "Viewer", "Guest_1");
-
-			// Assign all users to both competitions
-			//await AssignUsersToCompetitions(serviceProvider);
 		}
-
-   //     private static async Task AssignUsersToCompetitions(IServiceProvider serviceProvider)
-   //     {
-   //         var dbContext = serviceProvider.GetRequiredService<CompetitionDbContext>();
-   //         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-   //         // Specific user emails
-   //         //string[] userEmails = { "admin@bladethrowers.cz", "manager@bladethrowers.cz", "user@bladethrowers.cz", "viewer@bladethrowers.cz", "guest@bladethrowers.cz" };
-   //         //int[] competitionIds = { 1, 2 }; // The competition IDs to assign users to
-
-			//string[] userEmails = { "admin@competition" };
-			//int[] competitionIds = { 1 }; // The competition IDs to assign users to
-
-			//foreach (var email in userEmails)
-   //         {
-   //             var user = await userManager.FindByEmailAsync(email);
-   //             if (user != null)
-   //             {
-   //                 foreach (var compId in competitionIds)
-   //                 {
-   //                     var alreadyAssigned = dbContext.CompetitionManagers.Any(cm => cm.ManagerId == user.Id && cm.CompetitionId == compId);
-   //                     if (!alreadyAssigned)
-   //                     {
-   //                         dbContext.CompetitionManagers.Add(new CompetitionManager { ManagerId = user.Id, CompetitionId = compId });
-   //                     }
-   //                 }
-   //             }
-   //         }
-
-   //         await dbContext.SaveChangesAsync();
-   //     }
 
         private static async Task CreateAndAssignRole(IServiceProvider serviceProvider, string email, string role, string password)
         {
