@@ -15,7 +15,7 @@ namespace CompetitionResults.Data
 			_notificationHub = notificationHub;
 		}
 
-        public void AssignPointsAwards(List<ResultDto> results, int maxAwardValue)
+        public void CalculateAwardPoints(List<ResultDto> results, int maxAwardPoints)
         {
             double? previousPoints = null;
             int? previousBullseyes = null;
@@ -38,7 +38,7 @@ namespace CompetitionResults.Data
                 if (!isTie)
                     rank = i;
 
-                current.PointsAward = maxAwardValue - rank;
+                current.PointsAward = maxAwardPoints - rank;
 
                 previousPoints = current.Points;
                 previousBullseyes = current.BullseyeCount;
@@ -114,11 +114,11 @@ namespace CompetitionResults.Data
 
             for (int i = 0; i < results.Count; i++)
             {
-                var r = results[i];
+                var currentResult = results[i];
 
                 bool isTie = prevPoints.HasValue &&
-                             r.Points == prevPoints &&
-                             r.BullseyeCount == prevBulls;
+                             currentResult.Points == prevPoints &&
+                             currentResult.BullseyeCount == prevBulls;
 
                 if (!isTie)
                     logicalRank = rank + 1;
@@ -127,7 +127,7 @@ namespace CompetitionResults.Data
                 {
                     // najdi všechny, kteří mají stejné points & bulls v rámci těchto top 3 pozic
                     var tiedGroup = results
-                        .Where(x => x.Points == r.Points && x.BullseyeCount == r.BullseyeCount)
+                        .Where(x => x.Points == currentResult.Points && x.BullseyeCount == currentResult.BullseyeCount)
                         .ToList();
 
                     if (tiedGroup.Count > 1)
@@ -138,15 +138,15 @@ namespace CompetitionResults.Data
                 }
 
                 rank++;
-                prevPoints = r.Points;
-                prevBulls = r.BullseyeCount;
+                prevPoints = currentResult.Points;
+                prevBulls = currentResult.BullseyeCount;
             }
         }
 
 
 
 
-        public async Task<List<ResultDto>> GetMixedRankedResultsAsync(int disciplineId, int competitionId)
+        public async Task<List<ResultDto>> GetRankedResultsAsync(int disciplineId, int competitionId)
         {
             var discipline = await _context.Disciplines
                 .SingleAsync(d => d.Id == disciplineId && d.CompetitionId == competitionId);
@@ -174,21 +174,21 @@ namespace CompetitionResults.Data
                 .Select(t => new { t.Id, t.Name, t.Surname, t.Nickname, t.CategoryId })
                 .ToListAsync();
 
-            foreach (var t in allThrowers)
+            foreach (var thrower in allThrowers)
             {
-                if (results.Any(r => r.ThrowerId == t.Id))
+                if (results.Any(r => r.ThrowerId == thrower.Id))
                     continue;
 
-                var name = !string.IsNullOrEmpty(t.Nickname)
-                    ? $"{t.Nickname} ({t.Name} {t.Surname})"
-                    : $"{t.Name} {t.Surname}";
+                var name = !string.IsNullOrEmpty(thrower.Nickname)
+                    ? $"{thrower.Nickname} ({thrower.Name} {thrower.Surname})"
+                    : $"{thrower.Name} {thrower.Surname}";
 
                 results.Add(new ResultDto
                 {
-                    ThrowerId = t.Id,
+                    ThrowerId = thrower.Id,
                     DisciplineId = disciplineId,
                     ThrowerName = name,
-                    CategoryId = t.CategoryId,
+                    CategoryId = thrower.CategoryId,
                     Points = null,
                     BullseyeCount = null
                 });
@@ -201,7 +201,7 @@ namespace CompetitionResults.Data
 
             if (results.Any())
             {
-                AssignPointsAwards(results, results.Count);
+                CalculateAwardPoints(results, results.Count);
                 AssignPositions(results, discipline.IsDividedToCategories, isReverseOrdered);
                 MarkTiesForMedals(results, discipline.IsDividedToCategories);
             }
@@ -215,7 +215,7 @@ namespace CompetitionResults.Data
 
         public async Task<List<ResultDto>> GetResultsByCategoryAndDisciplineAsync(int categoryId, int disciplineId, int competitionId)
         {
-            var allResults = await GetMixedRankedResultsAsync(disciplineId, competitionId);
+            var allResults = await GetRankedResultsAsync(disciplineId, competitionId);
             return allResults
                 .Where(r => r.CategoryId == categoryId)
                 .ToList();
@@ -224,7 +224,7 @@ namespace CompetitionResults.Data
 
         public async Task<List<ResultDto>> GetResultsByDisciplineAsync(int disciplineId, int competitionId)
         {
-            return await GetMixedRankedResultsAsync(disciplineId, competitionId);
+            return await GetRankedResultsAsync(disciplineId, competitionId);
         }
 
 
@@ -253,20 +253,20 @@ namespace CompetitionResults.Data
             {
                 var results = await GetResultsByDisciplineAsync(discipline.Id, competitionId);
 
-                foreach (var r in results.Where(r => r.PointsAward.HasValue))
+                foreach (var result in results.Where(r => r.PointsAward.HasValue))
                 {
-                    if (!totals.TryGetValue(r.ThrowerId, out var entry))
+                    if (!totals.TryGetValue(result.ThrowerId, out var entry))
                     {
                         entry = new ResultDto
                         {
-                            ThrowerId = r.ThrowerId,
-                            ThrowerName = r.ThrowerName,
+                            ThrowerId = result.ThrowerId,
+                            ThrowerName = result.ThrowerName,
                             Points = 0
                         };
-                        totals[r.ThrowerId] = entry;
+                        totals[result.ThrowerId] = entry;
                     }
 
-                    entry.Points += r.PointsAward.Value;
+                    entry.Points += result.PointsAward.Value;
                 }
             }
 

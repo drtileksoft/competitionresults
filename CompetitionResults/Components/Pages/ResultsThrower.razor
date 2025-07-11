@@ -91,7 +91,7 @@ else
 
         foreach (var disc in disciplines)
         {
-            var discResults = await ResultsService.GetMixedRankedResultsAsync(disc.Id, compId);
+            var discResults = await ResultsService.GetRankedResultsAsync(disc.Id, compId);
             allDisciplineResults[disc.Id] = discResults;
 
             selectedThrowerResults.AddRange(discResults.Where(r => r.ThrowerId == throwerId));
