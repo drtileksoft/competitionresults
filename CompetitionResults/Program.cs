@@ -63,7 +63,11 @@ namespace CompetitionResults
             var supportedCultures = new[]
             {
                 new CultureInfo("en"),
-                new CultureInfo("cs")
+                new CultureInfo("cs"),
+                new CultureInfo("sk"),
+                new CultureInfo("ru"),
+                new CultureInfo("fr"),
+                new CultureInfo("it")
             };
 
             builder.Services.Configure<RequestLocalizationOptions>(options =>

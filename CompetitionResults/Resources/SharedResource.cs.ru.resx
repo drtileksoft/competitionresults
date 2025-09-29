@@ -13,192 +13,192 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="An unhandled error has occurred." xml:space="preserve">
-    <value>Došlo k neočekávané chybě.</value>
+    <value>Произошла необработанная ошибка.</value>
   </data>
   <data name="Reload" xml:space="preserve">
-    <value>Znovu načíst</value>
+    <value>Перезагрузить</value>
   </data>
   <data name="Competition Results" xml:space="preserve">
-    <value>Výsledky soutěže</value>
+    <value>Результаты соревнований</value>
   </data>
   <data name="Results" xml:space="preserve">
-    <value>Výsledky</value>
+    <value>Результаты</value>
   </data>
   <data name="Navigation menu" xml:space="preserve">
-    <value>Navigační nabídka</value>
+    <value>Меню навигации</value>
   </data>
   <data name="Home" xml:space="preserve">
-    <value>Domů</value>
+    <value>Главная</value>
   </data>
   <data name="Users" xml:space="preserve">
-    <value>Uživatelé</value>
+    <value>Пользователи</value>
   </data>
   <data name="Competitions" xml:space="preserve">
-    <value>Soutěže</value>
+    <value>Соревнования</value>
   </data>
   <data name="Managers" xml:space="preserve">
-    <value>Manažeři</value>
+    <value>Менеджеры</value>
   </data>
   <data name="Categories" xml:space="preserve">
-    <value>Kategorie</value>
+    <value>Категории</value>
   </data>
   <data name="Disciplines" xml:space="preserve">
-    <value>Disciplíny</value>
+    <value>Дисциплины</value>
   </data>
   <data name="Translations" xml:space="preserve">
-    <value>Překlady</value>
+    <value>Переводы</value>
   </data>
   <data name="Throwers" xml:space="preserve">
-    <value>Závodníci</value>
+    <value>Участники</value>
   </data>
   <data name="Scores" xml:space="preserve">
-    <value>Body</value>
+    <value>Очки</value>
   </data>
   <data name="Results (S)" xml:space="preserve">
-    <value>Výsledky (S)</value>
+    <value>Результаты (S)</value>
   </data>
   <data name="Results Static" xml:space="preserve">
-    <value>Statické výsledky</value>
+    <value>Статические результаты</value>
   </data>
   <data name="Results (G)" xml:space="preserve">
-    <value>Výsledky (G)</value>
+    <value>Результаты (G)</value>
   </data>
   <data name="Results by discipline" xml:space="preserve">
-    <value>Výsledky podle disciplín</value>
+    <value>Результаты по дисциплинам</value>
   </data>
   <data name="Results (T)" xml:space="preserve">
-    <value>Výsledky (T)</value>
+    <value>Результаты (T)</value>
   </data>
   <data name="Results by thrower" xml:space="preserve">
-    <value>Výsledky podle závodníka</value>
+    <value>Результаты по участникам</value>
   </data>
   <data name="Results (X)" xml:space="preserve">
-    <value>Výsledky (X)</value>
+    <value>Результаты (X)</value>
   </data>
   <data name="Results selection" xml:space="preserve">
-    <value>Výběr výsledků</value>
+    <value>Выбор результатов</value>
   </data>
   <data name="Results (C)" xml:space="preserve">
-    <value>Výsledky (C)</value>
+    <value>Результаты (C)</value>
   </data>
   <data name="Results by country" xml:space="preserve">
-    <value>Výsledky podle země</value>
+    <value>Результаты по странам</value>
   </data>
   <data name="Medals" xml:space="preserve">
-    <value>Medaile</value>
+    <value>Медали</value>
   </data>
   <data name="Log out" xml:space="preserve">
-    <value>Odhlásit se</value>
+    <value>Выйти</value>
   </data>
   <data name="Registration" xml:space="preserve">
-    <value>Registrace</value>
+    <value>Регистрация</value>
   </data>
   <data name="User" xml:space="preserve">
-    <value>Uživatel</value>
+    <value>Пользователь</value>
   </data>
   <data name="Log in" xml:space="preserve">
-    <value>Přihlásit se</value>
+    <value>Войти</value>
   </data>
   <data name="Competition Scores" xml:space="preserve">
-    <value>Body soutěže</value>
+    <value>Очки соревнования</value>
   </data>
   <data name="App to make competition scoring easy and fast." xml:space="preserve">
-    <value>Aplikace pro snadné a rychlé zpracování výsledků soutěže.</value>
+    <value>Приложение для быстрого и простого подсчёта результатов соревнований.</value>
   </data>
   <data name="Backup all data" xml:space="preserve">
-    <value>Zálohovat všechna data</value>
+    <value>Резервное копирование всех данных</value>
   </data>
   <data name="Clear competition scores" xml:space="preserve">
-    <value>Vymazat výsledky soutěže</value>
+    <value>Очистить результаты соревнования</value>
   </data>
   <data name="Import all data" xml:space="preserve">
-    <value>Importovat všechna data</value>
+    <value>Импортировать все данные</value>
   </data>
   <data name="Backup competition data" xml:space="preserve">
-    <value>Zálohovat data soutěže</value>
+    <value>Резервное копирование данных соревнования</value>
   </data>
   <data name="Import competition data" xml:space="preserve">
-    <value>Importovat data soutěže</value>
+    <value>Импортировать данные соревнования</value>
   </data>
   <data name="Are you sure you want to clear all results?" xml:space="preserve">
-    <value>Opravdu chcete smazat všechny výsledky?</value>
+    <value>Вы уверены, что хотите очистить все результаты?</value>
   </data>
   <data name="Generate random scores for all disciplines and throwers?" xml:space="preserve">
-    <value>Vygenerovat náhodné výsledky pro všechny disciplíny a závodníky?</value>
+    <value>Сгенерировать случайные очки для всех дисциплин и участников?</value>
   </data>
   <data name="Are you sure you want to clear database?" xml:space="preserve">
-    <value>Opravdu chcete vymazat databázi?</value>
+    <value>Вы уверены, что хотите очистить базу данных?</value>
   </data>
   <data name="Invalid competition selection." xml:space="preserve">
-    <value>Neplatný výběr soutěže.</value>
+    <value>Неверный выбор соревнования.</value>
   </data>
   <data name="No competitions available" xml:space="preserve">
-    <value>Žádné soutěže nejsou k dispozici</value>
+    <value>Соревнования недоступны</value>
   </data>
   <data name="English" xml:space="preserve">
-    <value>Angličtina</value>
+    <value>Английский</value>
   </data>
   <data name="Čeština" xml:space="preserve">
-    <value>Čeština</value>
+    <value>Чешский</value>
   </data>
   <data name="Slovenčina" xml:space="preserve">
-    <value>Slovenština</value>
+    <value>Словацкий</value>
   </data>
   <data name="Русский" xml:space="preserve">
-    <value>Ruština</value>
+    <value>Русский</value>
   </data>
   <data name="Français" xml:space="preserve">
-    <value>Francouzština</value>
+    <value>Французский</value>
   </data>
   <data name="Italiano" xml:space="preserve">
-    <value>Italština</value>
+    <value>Итальянский</value>
   </data>
   <data name="Competitions List" xml:space="preserve">
-    <value>Seznam soutěží</value>
+    <value>Список соревнований</value>
   </data>
   <data name="Add New Competition" xml:space="preserve">
-    <value>Přidat novou soutěž</value>
+    <value>Добавить новое соревнование</value>
   </data>
   <data name="Loading..." xml:space="preserve">
-    <value>Načítání...</value>
+    <value>Загрузка...</value>
   </data>
   <data name="No competitions found." xml:space="preserve">
-    <value>Žádné soutěže nebyly nalezeny.</value>
+    <value>Соревнования не найдены.</value>
   </data>
   <data name="Name" xml:space="preserve">
-    <value>Název</value>
+    <value>Название</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Popis</value>
+    <value>Описание</value>
   </data>
   <data name="Camping" xml:space="preserve">
-    <value>Kempování</value>
+    <value>Кемпинг</value>
   </data>
   <data name="T-Shirt" xml:space="preserve">
-    <value>Tričko</value>
+    <value>Футболка</value>
   </data>
   <data name="T-Shirt Link" xml:space="preserve">
-    <value>Odkaz na tričko</value>
+    <value>Ссылка на футболку</value>
   </data>
   <data name="Actions" xml:space="preserve">
-    <value>Akce</value>
+    <value>Действия</value>
   </data>
   <data name="Yes" xml:space="preserve">
-    <value>Ano</value>
+    <value>Да</value>
   </data>
   <data name="No" xml:space="preserve">
-    <value>Ne</value>
+    <value>Нет</value>
   </data>
   <data name="Edit" xml:space="preserve">
-    <value>Upravit</value>
+    <value>Редактировать</value>
   </data>
   <data name="Delete" xml:space="preserve">
-    <value>Smazat</value>
+    <value>Удалить</value>
   </data>
   <data name="You're not logged in." xml:space="preserve">
-    <value>Nejste přihlášeni.</value>
+    <value>Вы не вошли в систему.</value>
   </data>
   <data name="Are you sure you want to delete this competition?" xml:space="preserve">
-    <value>Opravdu chcete smazat tuto soutěž?</value>
+    <value>Вы уверены, что хотите удалить это соревнование?</value>
   </data>
 </root>
