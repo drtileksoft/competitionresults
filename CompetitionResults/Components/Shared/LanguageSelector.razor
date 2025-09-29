@@ -14,7 +14,11 @@
     private readonly IReadOnlyList<CultureOption> supportedCultures = new[]
     {
         new CultureOption("en", "English"),
-        new CultureOption("cs", "Čeština")
+        new CultureOption("cs", "Čeština"),
+        new CultureOption("sk", "Slovenčina"),
+        new CultureOption("ru", "Русский"),
+        new CultureOption("fr", "Français"),
+        new CultureOption("it", "Italiano")
     };
 
     private string currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
