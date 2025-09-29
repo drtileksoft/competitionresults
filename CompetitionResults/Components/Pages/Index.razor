@@ -14,12 +14,23 @@
 
 <AuthorizeView Roles="Admin">
     <Authorized>
-        <button @onclick="CreateBackup">Backup data</button>
+        <button @onclick="CreateBackup">Backup all data</button>
         @* <button @onclick="ClearDatabase">Clear database</button> *@
-        <button @onclick="ClearScores">Clear scores</button>
-        <button @onclick="FillRandomScores">Fill random scores</button>
+        <button @onclick="ClearScores">Clear competition scores</button>
+        @* <button @onclick="FillRandomScores">Fill random scores</button> *@
         <InputFile id="fileInput" accept=".json" multiple="false" OnChange="HandleFileSelected" style="display:none" />
-        <button @onclick="TriggerFileInput">Import data</button>
+        <button @onclick="TriggerFileInput">Import all data</button>
+    </Authorized>
+    <NotAuthorized>
+    </NotAuthorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Manager">
+    <Authorized>
+        <button @onclick="CreateCompBackup">Backup competition data</button>
+        <button @onclick="ClearScores">Clear competition scores</button>
+        <InputFile id="compfileInput" accept=".json" multiple="false" OnChange="HandleCompFileSelected" style="display:none" />
+        <button @onclick="TriggerCompFileInput">Import competition data</button>
     </Authorized>
     <NotAuthorized>
     </NotAuthorized>
@@ -88,6 +99,39 @@
             var jsonData = await reader.ReadToEndAsync();
 
             await CompetitionService.RestoreAllAsync(jsonData);
+        }
+    }
+
+    private async void CreateCompBackup()
+    {
+        var jsonData = await CompetitionService.BackupCompetitionAsync(CompetitionState.SelectedCompetitionId);
+
+        if (!string.IsNullOrEmpty(jsonData))
+        {
+            // Construct a filename based on the current date/time or another scheme
+            var now = DateTime.Now;
+            var filename = $"backup_competition_{now:yyyyMMddHHmmss}.json";
+
+            // Invoke the JavaScript function to initiate the download
+            await JSRuntime.InvokeVoidAsync("downloadJson", jsonData, filename);
+        }
+    }
+
+    private async Task TriggerCompFileInput()
+    {
+        await JSRuntime.InvokeVoidAsync("triggerCompFileInput");
+    }
+
+    private async Task HandleCompFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using var stream = file.OpenReadStream(2048000);
+            using var reader = new System.IO.StreamReader(stream);
+            var jsonData = await reader.ReadToEndAsync();
+
+            await CompetitionService.RestoreCompetitionAsync(jsonData);
         }
     }
 }

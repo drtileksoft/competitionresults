@@ -3,6 +3,10 @@ function triggerFileInput() {
     document.getElementById('fileInput').click();
 }
 
+function triggerCompFileInput() {
+    document.getElementById('compfileInput').click();
+}
+
 function downloadJson(jsonData, filename) {
     // Create a Blob from the JSON data
     const blob = new Blob([jsonData], { type: 'application/json' });

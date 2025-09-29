@@ -1,0 +1,150 @@
+@page "/resultsbycountry"
+@using CompetitionResults.Data
+@inject ResultService ResultsService
+@inject ThrowerService ThrowerService
+@inject DisciplineService DisciplineService
+@inject CategoryService CategoryService
+@inject CompetitionStateService CompetitionState
+
+<h3>Results by Country</h3>
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (loadError != null)
+{
+    <div class="alert alert-danger">@loadError</div>
+}
+else
+{
+    <div class="mb-3">
+        <label for="countrySelect" class="form-label fw-semibold">Country</label>
+        <select id="countrySelect" class="form-select" @bind="selectedCountry">
+            <option value="">All countries</option>
+            @foreach (var c in countries)
+            {
+                <option value="@c">@c</option>
+            }
+        </select>
+        @if (!string.IsNullOrEmpty(selectedCountry))
+        {
+            <div class="mt-2 small text-muted">Showing only throwers from <strong>@selectedCountry</strong>.</div>
+        }
+    </div>
+
+    @foreach (var disc in disciplines)
+    {
+        <div class="card my-3 shadow-sm">
+            <div class="card-header">
+                <h5 class="m-0">@disc.Name</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (!resultsByDiscipline.TryGetValue(disc.Id, out var results) || results == null || results.Count == 0)
+                {
+                    <div class="p-3 text-muted"><em>No results.</em></div>
+                }
+                else
+                {
+                    var filtered = results
+                        .Where(r => string.IsNullOrEmpty(selectedCountry) 
+                            || (throwerById.TryGetValue(r.ThrowerId, out var th) 
+                                && th.Nationality == selectedCountry))
+                        .ToList();
+
+                    if (filtered.Count == 0)
+                    {
+                        <div class="p-3 text-muted"><em>No results for @selectedCountry.</em></div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:64px;">Rank</th>
+                                        <th>Thrower</th>
+                                        <th class="text-end" style="width:120px;">Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        var rank = 1;
+                                        foreach (var r in filtered)
+                                        {
+                                            <tr>
+                                                <td>@rank</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span>@r.ThrowerName</span>
+                                                        @if (throwerById.TryGetValue(r.ThrowerId, out var th))
+                                                        {
+                                                            <span class="badge bg-secondary">@th.Nationality</span>
+                                                        }
+                                                    </div>
+                                                </td>
+                                                <td class="text-end">@r.Points</td>
+                                            </tr>
+                                            rank++;
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<Discipline> disciplines = new();
+    private List<Thrower> throwers = new();
+    private Dictionary<int, Thrower> throwerById = new();
+    private Dictionary<int, List<ResultDto>> resultsByDiscipline = new();
+    private List<string> countries = new();
+    private string selectedCountry = string.Empty;
+    private bool isLoading = true;
+    private string? loadError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var compId = CompetitionState.SelectedCompetitionId;
+
+            throwers = await ThrowerService.GetAllThrowersAsync(compId);
+            throwerById = throwers.ToDictionary(t => t.Id, t => t);
+
+            disciplines = await DisciplineService.GetAllDisciplinesAsync(compId);
+
+            countries = throwers
+                .Select(t => t.Nationality)
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Distinct()
+                .OrderBy(c => c)
+                .ToList();
+
+            foreach (var disc in disciplines)
+            {
+                var ranked = await ResultsService.GetRankedResultsAsync(disc.Id, compId);
+                resultsByDiscipline[disc.Id] = ranked ?? new List<ResultDto>();
+            }
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private Task OnCountryChanged(ChangeEventArgs _)
+    {
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

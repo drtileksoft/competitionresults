@@ -147,6 +147,32 @@ namespace CompetitionResults.Data
             File.Delete(tempFilePath);
         }
 
+        // Get backup
+        public async Task<string> BackupCompetitionAsync(int competitionId)
+        {
+            try
+            {
+                return await DbContextExtensions.ExportCompetitionToJsonAsync(_context, competitionId);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        public async Task RestoreCompetitionAsync(string jsonData)
+        {
+            // Write the jsonData to a temporary file or handle it directly
+            var tempFilePath = Path.GetTempFileName();
+            await File.WriteAllTextAsync(tempFilePath, jsonData);
+
+            // Use the existing import method
+            await DbContextExtensions.ImportCompetitionAsNewAsync(_context, tempFilePath);
+
+            // Clean up temporary file
+            File.Delete(tempFilePath);
+        }
+
         public async Task ClearDBAsync()
         {
             await DbContextExtensions.ClearDBAsync(_context);

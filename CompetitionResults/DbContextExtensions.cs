@@ -7,6 +7,348 @@ using System.Text.Json;
 
 public static class DbContextExtensions
 {
+
+    // --- DTO package for a single competition backup ---
+    public class CompetitionPackageDto
+    {
+        public CompetitionDto Competition { get; set; }
+        public List<CategoryDto> Categories { get; set; } = new();
+        public List<DisciplineDto> Disciplines { get; set; } = new();
+        public List<ThrowerDto> Throwers { get; set; } = new();
+        public List<ResultsDto> Results { get; set; } = new();
+    }
+
+    // --- Export: one competition + related data (IDs in JSON are original; import will rekey) ---
+    public static async Task<string> ExportCompetitionToJsonAsync(
+        CompetitionDbContext context,
+        int competitionId,
+        string? filePath = null)
+    {
+        var mapper = CreateMapper();
+
+        var comp
+            = await context.Competitions.AsNoTracking().FirstAsync(c => c.Id == competitionId);
+
+        var categories
+            = await context.Categories.AsNoTracking()
+                .Where(x => x.CompetitionId == competitionId)
+                .OrderBy(x => x.Id)
+                .ToListAsync();
+
+        var disciplines
+            = await context.Disciplines.AsNoTracking()
+                .Where(x => x.CompetitionId == competitionId)
+                .OrderBy(x => x.Id)
+                .ToListAsync();
+
+        var throwers
+            = await context.Throwers.AsNoTracking()
+                .Where(x => x.CompetitionId == competitionId)
+                .OrderBy(x => x.Id)
+                .ToListAsync();
+
+        var results
+            = await context.Results.AsNoTracking()
+                .Where(x => x.CompetitionId == competitionId)
+                .OrderBy(x => x.DisciplineId).ThenBy(x => x.ThrowerId)
+                .ToListAsync();
+
+        var dto = new CompetitionPackageDto
+        {
+            Competition = mapper.Map<CompetitionDto>(comp),
+            Categories = mapper.Map<List<CategoryDto>>(categories),
+            Disciplines = mapper.Map<List<DisciplineDto>>(disciplines),
+            Throwers = mapper.Map<List<ThrowerDto>>(throwers),
+            Results = mapper.Map<List<ResultsDto>>(results)
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        if (!string.IsNullOrWhiteSpace(filePath))
+        {
+            await File.WriteAllTextAsync(filePath, json);
+        }
+
+        return json;
+    }
+
+    // ------------------------------
+    // Import: if a competition with the same Name already exists, delete it (cascade) and re-import as NEW.
+    //  - Snapshot its managers (ManagerId list) before delete and reattach them to the NEW competition.
+    //  - Insert NEW competition from package with all children:
+    //      * all NEW ids,
+    //      * references remapped (Thrower.CategoryId required; Results FKs),
+    //  - Users & UserRoles untouched.
+    // ------------------------------
+    public static async Task<int> ImportCompetitionAsNewAsync(
+        CompetitionDbContext context,
+        string jsonOrFilePath)
+    {
+        // Load JSON (path or raw json)
+        string json = File.Exists(jsonOrFilePath)
+            ? await File.ReadAllTextAsync(jsonOrFilePath)
+            : jsonOrFilePath;
+
+        var package = JsonSerializer.Deserialize<CompetitionPackageDto>(
+            json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        ) ?? throw new InvalidOperationException("Invalid or empty competition package.");
+
+        if (package.Competition == null)
+            throw new InvalidOperationException("Package is missing Competition.");
+
+        if (string.IsNullOrWhiteSpace(package.Competition.Name))
+            throw new InvalidOperationException("Package.Competition.Name is required to match/replace existing competition.");
+
+        // 0) If a competition with the same Name exists, snapshot managers and delete that competition (and dependents)
+        var preservedManagerIds = new List<string>();
+
+        // Exact match by Name (trim for safety); adjust if you prefer case-insensitive compare at DB level
+        string targetName = package.Competition.Name.Trim();
+
+        var existing = await context.Competitions
+            .FirstOrDefaultAsync(c => c.Name == targetName);
+
+        if (existing != null)
+        {
+            preservedManagerIds = await context.CompetitionManagers
+                .Where(cm => cm.CompetitionId == existing.Id)
+                .Select(cm => cm.ManagerId)
+                .ToListAsync();
+
+            await DeleteCompetitionCascadeAsync(context, existing.Id);
+        }
+
+        // 1) Create new Competition (NEW Id), copying all scalar props except Id
+        var newComp = new Competition();
+        CopyScalarProps(package.Competition, newComp, excludeProps: new[] { "Id" });
+        // ensure defaults in case DTO omitted some optional fields etc.
+
+        context.Competitions.Add(newComp);
+        await context.SaveChangesAsync(); // generate new Id
+        int newCompetitionId = newComp.Id;
+
+        // 2) Reinsert children with NEW ids and remap references
+        // Build old->new maps
+        var oldCatToNew = new Dictionary<int, int>();
+        var oldDisToNew = new Dictionary<int, int>();
+        var oldThrToNew = new Dictionary<int, int>();
+
+        // 2a) Categories (if present)
+        if (package.Categories?.Count > 0)
+        {
+            foreach (var cDto in package.Categories)
+            {
+                var cat = new Category
+                {
+                    CompetitionId = newCompetitionId
+                };
+                CopyScalarProps(cDto, cat, excludeProps: new[] { "Id", "CompetitionId" });
+
+                context.Categories.Add(cat);
+                await context.SaveChangesAsync();
+
+                oldCatToNew[cDto.Id] = cat.Id;
+            }
+        }
+
+        // 2b) Disciplines — CategoryId se NEREMAPUJE (v modelu Disciplines kategorie nejsou)
+        if (package.Disciplines?.Count > 0)
+        {
+            foreach (var dDto in package.Disciplines)
+            {
+                var dis = new Discipline
+                {
+                    CompetitionId = newCompetitionId
+                };
+
+                // Nekopíruj "Id" a "CompetitionId"; "CategoryId" z DTO ignorujeme
+                CopyScalarProps(dDto, dis, excludeProps: new[] { "Id", "CompetitionId", "CategoryId" });
+
+                context.Disciplines.Add(dis);
+                await context.SaveChangesAsync();
+
+                oldDisToNew[dDto.Id] = dis.Id;
+            }
+        }
+
+        // 2c) Throwers — POVINNÉ remapování CategoryId na nově vložené kategorie
+        if (package.Throwers?.Count > 0)
+        {
+            foreach (var tDto in package.Throwers)
+            {
+                var thr = new Thrower
+                {
+                    CompetitionId = newCompetitionId
+                };
+
+                // Zkopíruj vše kromě Id, CompetitionId a CategoryId (ten přemapujeme níže)
+                CopyScalarProps(tDto, thr, excludeProps: new[] { "Id", "CompetitionId", "CategoryId" });
+
+                // Vytažení původního CategoryId z DTO (musí existovat a mapovat se)
+                var catProp = tDto.GetType().GetProperty("CategoryId", BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+                if (catProp == null || !catProp.CanRead)
+                    throw new InvalidOperationException("Thrower DTO is missing readable CategoryId.");
+
+                var oldCatObj = catProp.GetValue(tDto);
+                if (oldCatObj == null)
+                    throw new InvalidOperationException("Thrower DTO has null CategoryId, but model requires a non-null CategoryId.");
+
+                int oldCatId = Convert.ToInt32(oldCatObj);
+
+                if (!oldCatToNew.TryGetValue(oldCatId, out var newCatId))
+                    throw new InvalidOperationException($"Missing Category mapping for Thrower.CategoryId old Id {oldCatId}. Make sure the package includes Categories and they are imported first.");
+
+                // Nastav remapované CategoryId na entitu
+                var thrCatProp = typeof(Thrower).GetProperty("CategoryId");
+                thrCatProp!.SetValue(thr, newCatId);
+
+                context.Throwers.Add(thr);
+                await context.SaveChangesAsync();
+
+                oldThrToNew[tDto.Id] = thr.Id;
+            }
+        }
+
+        // 2d) Results (composite key; create new rows with remapped FK and copy all other scalar props)
+        if (package.Results?.Count > 0)
+        {
+            var batch = new List<CompetitionResults.Data.Results>();
+            foreach (var rDto in package.Results)
+            {
+                // Map ThrowerId / DisciplineId
+                int newThrowerId = MapRequired(oldThrToNew, rDto.ThrowerId, "ThrowerId");
+                int newDisciplineId = MapRequired(oldDisToNew, rDto.DisciplineId, "DisciplineId");
+
+                var res = new CompetitionResults.Data.Results
+                {
+                    CompetitionId = newCompetitionId,
+                    ThrowerId = newThrowerId,
+                    DisciplineId = newDisciplineId
+                };
+
+                // Copy other scalar props except FK/composite parts
+                CopyScalarProps(rDto, res, excludeProps: new[] { "Id", "CompetitionId", "ThrowerId", "DisciplineId" });
+
+                batch.Add(res);
+            }
+
+            if (batch.Count > 0)
+            {
+                context.Results.AddRange(batch);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        // 3) Re-attach preserved managers to NEW competition
+        if (preservedManagerIds.Count > 0)
+        {
+            var managerLinks = preservedManagerIds.Select(mid => new CompetitionManager
+            {
+                CompetitionId = newCompetitionId,
+                ManagerId = mid
+            }).ToList();
+
+            context.CompetitionManagers.AddRange(managerLinks);
+            await context.SaveChangesAsync();
+        }
+
+        return newCompetitionId;
+    }
+
+    // --- Utility: map required old->new with clear error messages ---
+    private static int MapRequired(Dictionary<int, int> map, int oldId, string propName)
+    {
+        if (!map.TryGetValue(oldId, out var newId))
+            throw new InvalidOperationException($"Missing mapping for {propName} old Id {oldId}.");
+        return newId;
+    }
+
+    // --- Utility: copy scalar (value-type/string/nullable) props by name, excluding some ---
+    private static void CopyScalarProps<TSrc, TDest>(TSrc src, TDest dest, string[]? excludeProps = null)
+    {
+        var excludes = new HashSet<string>(excludeProps ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+
+        var sProps = typeof(TSrc).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        var dProps = typeof(TDest).GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                                  .Where(p => p.CanWrite)
+                                  .ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var sp in sProps)
+        {
+            if (excludes.Contains(sp.Name)) continue;
+            if (!dProps.TryGetValue(sp.Name, out var dp)) continue;
+
+            if (!IsScalarLike(sp.PropertyType)) continue;
+
+            var val = sp.GetValue(src);
+            dp.SetValue(dest, val);
+        }
+    }
+
+    private static bool IsScalarLike(Type t)
+    {
+        var nt = Nullable.GetUnderlyingType(t) ?? t;
+        return nt.IsPrimitive
+            || nt.IsEnum
+            || nt == typeof(string)
+            || nt == typeof(decimal)
+            || nt == typeof(DateTime)
+            || nt == typeof(DateTimeOffset)
+            || nt == typeof(TimeSpan)
+            || nt == typeof(Guid);
+    }
+
+    private static bool HasWritableProperty(object obj, string propName)
+        => obj.GetType().GetProperty(propName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase)?.CanWrite == true;
+
+    private static void SetIntProperty(object obj, string propName, int value)
+        => obj.GetType().GetProperty(propName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase)!.SetValue(obj, value);
+
+    // --- Cascade delete helper for one competition (Categories, Disciplines, Throwers, Results, Managers) ---
+    public static async Task DeleteCompetitionCascadeAsync(CompetitionDbContext context, int competitionId)
+    {
+        // Results
+        var results = await context.Results
+            .Where(r => r.CompetitionId == competitionId)
+            .ToListAsync();
+        context.Results.RemoveRange(results);
+
+        // Throwers
+        var throwers = await context.Throwers
+            .Where(t => t.CompetitionId == competitionId)
+            .ToListAsync();
+        context.Throwers.RemoveRange(throwers);
+
+        // Disciplines
+        var disciplines = await context.Disciplines
+            .Where(d => d.CompetitionId == competitionId)
+            .ToListAsync();
+        context.Disciplines.RemoveRange(disciplines);
+
+        // Categories
+        var categories = await context.Categories
+            .Where(cat => cat.CompetitionId == competitionId)
+            .ToListAsync();
+        context.Categories.RemoveRange(categories);
+
+        // Managers
+        var managers = await context.CompetitionManagers
+            .Where(cm => cm.CompetitionId == competitionId)
+            .ToListAsync();
+        context.CompetitionManagers.RemoveRange(managers);
+
+        // Competition
+        var comp = await context.Competitions.FirstOrDefaultAsync(c => c.Id == competitionId);
+        if (comp != null) context.Competitions.Remove(comp);
+
+        await context.SaveChangesAsync();
+    }
+
+
     private static IMapper CreateMapper()
     {
         var config = new MapperConfiguration(cfg =>
