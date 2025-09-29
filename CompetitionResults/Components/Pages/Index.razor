@@ -1,25 +1,26 @@
-﻿@page "/"
+@page "/"
 @using System.Security.Claims
 @using CompetitionResults.Data
 @inject CompetitionService CompetitionService
 @inject CompetitionStateService CompetitionState
 @inject ResultService ResultsServiceInstance
 @inject IJSRuntime JSRuntime;
+@inject IStringLocalizer<SharedResource> L
 
-<PageTitle>Competition Scores</PageTitle>
+<PageTitle>@L["Competition Scores"]</PageTitle>
 
-<h1>Competition Scores</h1>
+<h1>@L["Competition Scores"]</h1>
 
-<p>App to make competition scoring easy and fast.</p>
+<p>@L["App to make competition scoring easy and fast."]</p>
 
 <AuthorizeView Roles="Admin">
     <Authorized>
-        <button @onclick="CreateBackup">Backup all data</button>
-        @* <button @onclick="ClearDatabase">Clear database</button> *@
-        <button @onclick="ClearScores">Clear competition scores</button>
-        @* <button @onclick="FillRandomScores">Fill random scores</button> *@
+        <button @onclick="CreateBackup">@L["Backup all data"]</button>
+        @* <button @onclick="ClearDatabase">@L["Clear database"]</button> *@
+        <button @onclick="ClearScores">@L["Clear competition scores"]</button>
+        @* <button @onclick="FillRandomScores">@L["Fill random scores"]</button> *@
         <InputFile id="fileInput" accept=".json" multiple="false" OnChange="HandleFileSelected" style="display:none" />
-        <button @onclick="TriggerFileInput">Import all data</button>
+        <button @onclick="TriggerFileInput">@L["Import all data"]</button>
     </Authorized>
     <NotAuthorized>
     </NotAuthorized>
@@ -27,10 +28,10 @@
 
 <AuthorizeView Roles="Manager">
     <Authorized>
-        <button @onclick="CreateCompBackup">Backup competition data</button>
-        <button @onclick="ClearScores">Clear competition scores</button>
+        <button @onclick="CreateCompBackup">@L["Backup competition data"]</button>
+        <button @onclick="ClearScores">@L["Clear competition scores"]</button>
         <InputFile id="compfileInput" accept=".json" multiple="false" OnChange="HandleCompFileSelected" style="display:none" />
-        <button @onclick="TriggerCompFileInput">Import competition data</button>
+        <button @onclick="TriggerCompFileInput">@L["Import competition data"]</button>
     </Authorized>
     <NotAuthorized>
     </NotAuthorized>
@@ -59,7 +60,7 @@
 
     private async void ClearScores()
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to clear all results?");
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to clear all results?"]);
         if (confirmed)
         {
             await ResultsServiceInstance.DeleteResultsAsync(CompetitionState.SelectedCompetitionId);
@@ -68,7 +69,7 @@
 
     private async void FillRandomScores()
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Generate random scores for all disciplines and throwers?");
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Generate random scores for all disciplines and throwers?"]);
         if (confirmed)
         {
             await ResultsServiceInstance.FillRandomScoresAsync(CompetitionState.SelectedCompetitionId);
@@ -77,7 +78,7 @@
 
     private async void ClearDatabase()
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to clear database?");
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to clear database?"]);
         if (confirmed)
         {
             await CompetitionService.ClearDBAsync();

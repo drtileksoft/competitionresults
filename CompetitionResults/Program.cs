@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
+using System.Globalization;
+using System.Linq;
 
 namespace CompetitionResults
 {
@@ -16,6 +20,8 @@ namespace CompetitionResults
 			var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
+
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             builder.Services.AddCors(options =>
             {
@@ -54,6 +60,28 @@ namespace CompetitionResults
             builder.Services.AddScoped<ResultService>();
             builder.Services.AddScoped<TranslationService>();
 
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en"),
+                new CultureInfo("cs")
+            };
+
+            builder.Services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture("en");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+
+                var cookieProvider = options.RequestCultureProviders
+                    .OfType<CookieRequestCultureProvider>()
+                    .FirstOrDefault();
+
+                if (cookieProvider != null)
+                {
+                    cookieProvider.CookieName = CookieRequestCultureProvider.DefaultCookieName;
+                }
+            });
+
 			builder.Services.AddScoped<NotificationHub>();
 
             builder.Services.AddSignalR(options =>
@@ -80,6 +108,9 @@ namespace CompetitionResults
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
+            app.UseRequestLocalization(localizationOptions);
 
             app.UseCors();
 

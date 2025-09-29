@@ -21,6 +21,11 @@ main {
     align-items: center;
 }
 
+.top-row ::deep .language-selector {
+    margin-right: auto;
+    max-width: 8rem;
+}
+
     .top-row ::deep a, .top-row ::deep .btn-link {
         white-space: nowrap;
         margin-left: 1.5rem;

@@ -1,15 +1,23 @@
-﻿@using CompetitionResults.Data
+@using CompetitionResults.Data
 @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
 @inject CompetitionStateService CompetitionState
 @inject CompetitionService CompetitionService
 @inject UserIdStateService UserIdStateService
+@inject IStringLocalizer<SharedResource> L
 @implements IDisposable
 
-<select @onchange="OnSelectionChange" style="width: 400px; margin-top: 15px;">
-    @foreach (var competition in competitions)
+<select value="@CompetitionState.SelectedCompetitionId" @onchange="OnSelectionChange" style="width: 400px; margin-top: 15px;">
+    @if (competitions is null || competitions.Count == 0)
     {
-        <option value="@competition.Id">@competition.Name</option>
+        <option disabled selected>@L["No competitions available"]</option>
+    }
+    else
+    {
+        @foreach (var competition in competitions)
+        {
+            <option value="@competition.Id">@competition.Name</option>
+        }
     }
 </select>
 
@@ -21,8 +29,8 @@
 }
 
 @code {
-    private string errorMessage;
-    private List<Competition> competitions;
+    private string errorMessage = string.Empty;
+    private List<Competition>? competitions;
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,7 +53,6 @@
 
         if (competitions != null && competitions.Count > 0 && CompetitionState.SelectedCompetitionId == 0)
         {
-            // Automatically select the first competition
             CompetitionState.SelectedCompetitionId = competitions[0].Id;
         }
         StateHasChanged();
@@ -56,20 +63,22 @@
         CompetitionService.OnCompetitionsChanged -= LoadData;
     }
 
-    private async void OnSelectionChange(ChangeEventArgs e)
+    private void OnSelectionChange(ChangeEventArgs e)
     {
-        int competitionId = int.Parse(e.Value.ToString());
+        if (!int.TryParse(e.Value?.ToString(), out var competitionId))
+        {
+            errorMessage = L["Invalid competition selection."];
+            return;
+        }
 
-        if (competitions.Any(c => c.Id == competitionId))
+        if (competitions != null && competitions.Any(c => c.Id == competitionId))
         {
             CompetitionState.SelectedCompetitionId = competitionId;
-            errorMessage = string.Empty; // Clear previous error messages if any
+            errorMessage = string.Empty;
         }
         else
         {
-            errorMessage = "Error: Invalid competition selection.";
+            errorMessage = L["Invalid competition selection."];
         }
     }
-
-
 }

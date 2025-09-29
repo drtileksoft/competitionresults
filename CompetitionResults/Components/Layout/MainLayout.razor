@@ -1,5 +1,6 @@
-﻿@using CompetitionResults.Components.Shared
+@using CompetitionResults.Components.Shared
 @inherits LayoutComponentBase
+@inject IStringLocalizer<SharedResource> L
 
 <div class="page">
     <div class="sidebar">
@@ -8,6 +9,7 @@
 
     <main>
         <div class="top-row px-4 auth">
+            <LanguageSelector />
             <CompetitionDropdown />
             <LoginDisplay />
         </div>
@@ -19,7 +21,7 @@
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
+    @L["An unhandled error has occurred."]
+    <a href="." class="reload">@L["Reload"]</a>
     <span class="dismiss">🗙</span>
 </div>

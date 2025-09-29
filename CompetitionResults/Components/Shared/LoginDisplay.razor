@@ -1,14 +1,14 @@
-﻿@implements IDisposable
-
+@implements IDisposable
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<SharedResource> L
 
 <AuthorizeView>
     <Authorized>
-        <span class="ml-2">&nbsp;&nbsp;User: @context.User.Identity?.Name!</span>
-        <NavLink href="/account/logout" class="nav-link">Log out</NavLink>
+        <span class="ml-2">&nbsp;&nbsp;@L["User"]: @context.User.Identity?.Name!</span>
+        <NavLink href="/account/logout" class="nav-link">@L["Log out"]</NavLink>
     </Authorized>
     <NotAuthorized>
-        <a href="/account/login" class="nav-link">Log in</a>
+        <a href="/account/login" class="nav-link">@L["Log in"]</a>
     </NotAuthorized>
 </AuthorizeView>
 
@@ -32,4 +32,3 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }
-
