@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
-using System.Linq;
 
 namespace CompetitionResults
 {
@@ -71,15 +70,16 @@ namespace CompetitionResults
                 options.DefaultRequestCulture = new RequestCulture("en");
                 options.SupportedCultures = supportedCultures;
                 options.SupportedUICultures = supportedCultures;
+                options.ApplyCurrentCultureToResponseHeaders = true;
 
-                var cookieProvider = options.RequestCultureProviders
-                    .OfType<CookieRequestCultureProvider>()
-                    .FirstOrDefault();
-
-                if (cookieProvider != null)
+                options.RequestCultureProviders = new IRequestCultureProvider[]
                 {
-                    cookieProvider.CookieName = CookieRequestCultureProvider.DefaultCookieName;
-                }
+                    new CookieRequestCultureProvider
+                    {
+                        CookieName = CookieRequestCultureProvider.DefaultCookieName
+                    },
+                    new AcceptLanguageHeaderRequestCultureProvider()
+                };
             });
 
 			builder.Services.AddScoped<NotificationHub>();
