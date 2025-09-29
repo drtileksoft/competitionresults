@@ -1,10 +1,13 @@
 @using CompetitionResults.Data
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.JSInterop
+@using System.Globalization
 @using System.Security.Claims
 @inject CompetitionStateService CompetitionState
 @inject CompetitionService CompetitionService
 @inject UserIdStateService UserIdStateService
 @inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
 <select value="@CompetitionState.SelectedCompetitionId" @onchange="OnSelectionChange" style="width: 400px; margin-top: 15px;">
@@ -29,17 +32,30 @@
 }
 
 @code {
+    private const string SelectedCompetitionStorageKey = "competitionresults.selectedCompetitionId";
+
     private string errorMessage = string.Empty;
     private List<Competition>? competitions;
+    private int? persistedCompetitionId;
+    private bool canUseBrowserStorage;
 
     protected override async Task OnInitializedAsync()
     {
-        CompetitionService.OnCompetitionsChanged += LoadData;
+        CompetitionService.OnCompetitionsChanged += HandleCompetitionsChanged;
 
-        LoadData();
+        await LoadCompetitionsAsync();
     }
 
-    private async void LoadData()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            canUseBrowserStorage = true;
+            await RestorePersistedSelectionAsync();
+        }
+    }
+
+    private async Task LoadCompetitionsAsync()
     {
         var userId = await UserIdStateService.GetUserIdAsync();
         if (string.IsNullOrEmpty(userId))
@@ -51,19 +67,15 @@
             competitions = await CompetitionService.GetCompetitionsForManagerAsync(userId);
         }
 
-        if (competitions != null && competitions.Count > 0 && CompetitionState.SelectedCompetitionId == 0)
-        {
-            CompetitionState.SelectedCompetitionId = competitions[0].Id;
-        }
-        StateHasChanged();
+        await ApplySelectionAsync();
     }
 
     public void Dispose()
     {
-        CompetitionService.OnCompetitionsChanged -= LoadData;
+        CompetitionService.OnCompetitionsChanged -= HandleCompetitionsChanged;
     }
 
-    private void OnSelectionChange(ChangeEventArgs e)
+    private async Task OnSelectionChange(ChangeEventArgs e)
     {
         if (!int.TryParse(e.Value?.ToString(), out var competitionId))
         {
@@ -74,11 +86,114 @@
         if (competitions != null && competitions.Any(c => c.Id == competitionId))
         {
             CompetitionState.SelectedCompetitionId = competitionId;
+            persistedCompetitionId = competitionId;
             errorMessage = string.Empty;
+            await PersistSelectionAsync(competitionId);
         }
         else
         {
             errorMessage = L["Invalid competition selection."];
+        }
+    }
+
+    private void HandleCompetitionsChanged()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadCompetitionsAsync();
+            StateHasChanged();
+        });
+    }
+
+    private async Task ApplySelectionAsync()
+    {
+        if (competitions is null || competitions.Count == 0)
+        {
+            CompetitionState.SelectedCompetitionId = 0;
+            persistedCompetitionId = null;
+            await PersistSelectionAsync(null);
+            errorMessage = string.Empty;
+            return;
+        }
+
+        var currentSelection = CompetitionState.SelectedCompetitionId;
+        var hasCurrentSelection = competitions.Any(c => c.Id == currentSelection);
+
+        int desiredSelection;
+
+        if (persistedCompetitionId.HasValue && competitions.Any(c => c.Id == persistedCompetitionId.Value))
+        {
+            desiredSelection = persistedCompetitionId.Value;
+        }
+        else if (hasCurrentSelection && currentSelection != 0)
+        {
+            desiredSelection = currentSelection;
+        }
+        else
+        {
+            desiredSelection = competitions[0].Id;
+        }
+
+        if (CompetitionState.SelectedCompetitionId != desiredSelection)
+        {
+            CompetitionState.SelectedCompetitionId = desiredSelection;
+        }
+
+        persistedCompetitionId = desiredSelection;
+        await PersistSelectionAsync(desiredSelection);
+    }
+
+    private async Task RestorePersistedSelectionAsync()
+    {
+        if (!canUseBrowserStorage)
+        {
+            return;
+        }
+
+        try
+        {
+            var storedValue = await JSRuntime.InvokeAsync<string>("localStorage.getItem", SelectedCompetitionStorageKey);
+            if (int.TryParse(storedValue, out var storedId))
+            {
+                persistedCompetitionId = storedId;
+            }
+            else
+            {
+                persistedCompetitionId = null;
+            }
+        }
+        catch (JSException)
+        {
+            canUseBrowserStorage = false;
+            persistedCompetitionId = null;
+            return;
+        }
+
+        await ApplySelectionAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task PersistSelectionAsync(int? competitionId)
+    {
+        if (!canUseBrowserStorage)
+        {
+            return;
+        }
+
+        try
+        {
+            if (competitionId.HasValue)
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", SelectedCompetitionStorageKey, competitionId.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", SelectedCompetitionStorageKey);
+            }
+        }
+        catch (JSException)
+        {
+            canUseBrowserStorage = false;
         }
     }
 }
