@@ -1,4 +1,4 @@
-namespace CompetitionResults.Resources
+namespace CompetitionResults
 {
     /// <summary>
     /// Marker class for shared localization resources.

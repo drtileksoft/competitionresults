@@ -1,12 +1,13 @@
 using CompetitionResults.Components.Account;
+using CompetitionResults.Constants;
 using CompetitionResults.Data;
 using CompetitionResults.Notifications;
-using CompetitionResults.Constants;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 
@@ -95,10 +96,29 @@ namespace CompetitionResults
                       new[] { "application/octet-stream" });
             });
 
+            //builder.Logging.ClearProviders();
+            //builder.Logging.AddConsole();
+
             var app = builder.Build();
 
-			// Initialize roles
-			await InitializeRoles(app.Services.CreateScope().ServiceProvider);
+
+
+            //var factory = app.Services.GetRequiredService<IStringLocalizerFactory>();
+            //var localizer = factory.Create(typeof(SharedResource));
+
+            //Console.WriteLine("=== Localization debug ===");
+            //Console.WriteLine("CurrentUICulture: " + CultureInfo.CurrentUICulture.Name);
+
+            //foreach (var key in new[] { "Edit", "Camping", "Log in", "Managers" })
+            //{
+            //    Console.WriteLine($"{key} => {localizer[key]}");
+            //}
+
+
+
+
+            // Initialize roles
+            await InitializeRoles(app.Services.CreateScope().ServiceProvider);
 			// Seed Admin user
 			await SeedAdminUser(app.Services.CreateScope().ServiceProvider);
 
