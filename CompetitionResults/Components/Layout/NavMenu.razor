@@ -1,203 +1,203 @@
-﻿@implements IDisposable
-
+@implements IDisposable
+@inject IStringLocalizer<SharedResource> L
 @inject NavigationManager NavigationManager
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="" title="Competition Results">Results</a>
+        <a class="navbar-brand" href="" title='@L["Competition Results"]'>@L["Results"]</a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<input type="checkbox" title='@L["Navigation menu"]' class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> @L["Home"]
             </NavLink>
         </div>
 
         <AuthorizeView Roles="Admin">
-			<Authorized>	
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="administration">
-						<span class="bi bi-person-nav-menu" aria-hidden="true"></span> Users
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="competitions">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Competitions
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="managers">
-						<span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Managers
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="categories">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Categories
-					</NavLink>
-				</div>
-                                <div class="nav-item px-3">
-                                        <NavLink class="nav-link" href="disciplines">
-                                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Disciplines
-                                        </NavLink>
-                                </div>
-                                <div class="nav-item px-3">
-                                        <NavLink class="nav-link" href="translations">
-                                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Translations
-                                        </NavLink>
-                                </div>
-                                <div class="nav-item px-3">
-					<NavLink class="nav-link" href="throwers">
-						<span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Throwers
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="scores">
-						<span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Scores
-					</NavLink>
-				</div>
-			</Authorized>
-		</AuthorizeView>
-		<AuthorizeView Roles="Manager">
-			<Authorized>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="administration">
-						<span class="bi bi-person-nav-menu" aria-hidden="true"></span> Users
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="competitions">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Competitions
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="managers">
-						<span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Managers
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="categories">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Categories
-					</NavLink>
-				</div>
-                                <div class="nav-item px-3">
-                                        <NavLink class="nav-link" href="disciplines">
-                                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Disciplines
-                                        </NavLink>
-                                </div>
-                                <div class="nav-item px-3">
-                                        <NavLink class="nav-link" href="translations">
-                                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Translations
-                                        </NavLink>
-                                </div>
-                                <div class="nav-item px-3">
-                                        <NavLink class="nav-link" href="throwers">
-                                                <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Throwers
-                                        </NavLink>
-                                </div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="scores">
-						<span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Scores
-					</NavLink>
-				</div>
-			</Authorized>
-		</AuthorizeView>
-		<AuthorizeView Roles="User">
-			<Authorized>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="administration">
-						<span class="bi bi-person-nav-menu" aria-hidden="true"></span> Users
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="scores">
-						<span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Scores
-					</NavLink>
-				</div>
-			</Authorized>
-		</AuthorizeView>
-		<AuthorizeView>
-			<Authorized>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsstatic" title="Results Static">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (S)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsone" title="Results by discipline">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (G)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsthrower" title="Results by thrower">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (T)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsselector" title="Results selection">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (X)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsbycountry" title="Results by country">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (C)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="medals-by-nation" title="Medals">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Medals
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink href="/account/logout" class="nav-link">
-						<span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Log out
-					</NavLink>
-				</div>
-			</Authorized>
-			<NotAuthorized>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="registration" title="Registration">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Registration
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsstatic" title="Results Static">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (S)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsone" title="Results by discipline">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (G)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsthrower" title="Results by thrower">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (T)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsselector" title="Results selection">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (X)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="resultsbycountry" title="Results by country">
-						<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Results (C)
-					</NavLink>
-				</div>
-				<div class="nav-item px-3">
-					<NavLink class="nav-link" href="medals-by-nation">
-						<span class="oi oi-medal" aria-hidden="true"></span> Medals
-					</NavLink>
-				</div>
-			</NotAuthorized>
-		</AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="administration">
+                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> @L["Users"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="competitions">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Competitions"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="managers">
+                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> @L["Managers"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="categories">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Categories"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="disciplines">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Disciplines"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="translations">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Translations"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="throwers">
+                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @L["Throwers"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="scores">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> @L["Scores"]
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="Manager">
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="administration">
+                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> @L["Users"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="competitions">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Competitions"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="managers">
+                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> @L["Managers"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="categories">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Categories"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="disciplines">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Disciplines"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="translations">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Translations"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="throwers">
+                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @L["Throwers"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="scores">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> @L["Scores"]
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="User">
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="administration">
+                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> @L["Users"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="scores">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> @L["Scores"]
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsstatic" title='@L["Results Static"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (S)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsone" title='@L["Results by discipline"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (G)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsthrower" title='@L["Results by thrower"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (T)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsselector" title='@L["Results selection"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (X)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsbycountry" title='@L["Results by country"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (C)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="medals-by-nation" title='@L["Medals"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Medals"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink href="/account/logout" class="nav-link">
+                        <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> @L["Log out"]
+                    </NavLink>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="registration" title='@L["Registration"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Registration"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsstatic" title='@L["Results Static"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (S)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsone" title='@L["Results by discipline"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (G)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsthrower" title='@L["Results by thrower"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (T)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsselector" title='@L["Results selection"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (X)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="resultsbycountry" title='@L["Results by country"]'>
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @L["Results (C)"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="medals-by-nation">
+                        <span class="oi oi-medal" aria-hidden="true"></span> @L["Medals"]
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </nav>
-	<div><img src="bt.png" width="150" style="margin-left:15px;background-color: white;border-radius: 15px;padding: 5px;" /></div>
+    <div><img src="bt.png" width="150" style="margin-left:15px;background-color: white;border-radius: 15px;padding: 5px;" /></div>
 </div>
 
 @code {
@@ -220,4 +220,3 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }
-

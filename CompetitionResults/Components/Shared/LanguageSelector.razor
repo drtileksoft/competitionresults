@@ -1,0 +1,47 @@
+@using System
+@using System.Globalization
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<SharedResource> L
+
+<select class="form-select form-select-sm language-selector" value="@currentCulture" @onchange="OnLanguageChanged">
+    @foreach (var option in supportedCultures)
+    {
+        <option value="@option.Code">@L[option.DisplayName]</option>
+    }
+</select>
+
+@code {
+    private readonly IReadOnlyList<CultureOption> supportedCultures = new[]
+    {
+        new CultureOption("en", "English"),
+        new CultureOption("cs", "Čeština")
+    };
+
+    private string currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+    private void OnLanguageChanged(ChangeEventArgs args)
+    {
+        var newCulture = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(newCulture) || newCulture == currentCulture)
+        {
+            return;
+        }
+
+        currentCulture = newCulture;
+        var relativeUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        if (!relativeUrl.StartsWith('/'))
+        {
+            relativeUrl = $"/{relativeUrl}";
+        }
+
+        if (string.IsNullOrWhiteSpace(relativeUrl) || relativeUrl == "/")
+        {
+            relativeUrl = "/";
+        }
+
+        var encodedReturnUrl = Uri.EscapeDataString(relativeUrl);
+        NavigationManager.NavigateTo($"/culture/set?culture={newCulture}&returnUrl={encodedReturnUrl}", forceLoad: true);
+    }
+
+    private record CultureOption(string Code, string DisplayName);
+}
