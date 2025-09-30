@@ -618,18 +618,6 @@
   <data name="Development Mode" xml:space="preserve">
     <value>Vývojářský režim</value>
   </data>
-  <data name="Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred." xml:space="preserve">
-    <value><![CDATA[Přepnutí do prostředí <strong>Development</strong> zobrazí podrobné informace o vzniklé chybě.]]></value>
-  </data>
-  <data name="<strong>The Development environment shouldn't be enabled for deployed applications.</strong>" xml:space="preserve">
-    <value><![CDATA[<strong>Prostředí Development by nemělo být povoleno v nasazených aplikacích.</strong>]]></value>
-  </data>
-  <data name="It can result in displaying sensitive information from exceptions to end users." xml:space="preserve">
-    <value>Může vést k zobrazení citlivých informací z výjimek koncovým uživatelům.</value>
-  </data>
-  <data name="For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong> and restarting the app." xml:space="preserve">
-    <value><![CDATA[Pro místní ladění povolte prostředí <strong>Development</strong> nastavením proměnné <strong>ASPNETCORE_ENVIRONMENT</strong> na hodnotu <strong>Development</strong> a restartujte aplikaci.]]></value>
-  </data>
   <data name="Administration" xml:space="preserve">
     <value>Administrace</value>
   </data>

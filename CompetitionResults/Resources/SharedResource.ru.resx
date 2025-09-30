@@ -618,18 +618,6 @@
   <data name="Development Mode" xml:space="preserve">
     <value>Режим разработки</value>
   </data>
-  <data name="Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred." xml:space="preserve">
-    <value><![CDATA[Переход в среду <strong>Development</strong> показывает подробную информацию о возникшей ошибке.]]></value>
-  </data>
-  <data name="<strong>The Development environment shouldn't be enabled for deployed applications.</strong>" xml:space="preserve">
-    <value><![CDATA[<strong>Среду Development не следует включать для развернутых приложений.</strong>]]></value>
-  </data>
-  <data name="It can result in displaying sensitive information from exceptions to end users." xml:space="preserve">
-    <value>Это может привести к отображению конфиденциальной информации из исключений конечным пользователям.</value>
-  </data>
-  <data name="For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong> and restarting the app." xml:space="preserve">
-    <value><![CDATA[Для локальной отладки включите среду <strong>Development</strong>, установив переменную <strong>ASPNETCORE_ENVIRONMENT</strong> в значение <strong>Development</strong> и перезапустив приложение.]]></value>
-  </data>
   <data name="Administration" xml:space="preserve">
     <value>Администрирование</value>
   </data>

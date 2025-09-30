@@ -618,18 +618,6 @@
   <data name="Development Mode" xml:space="preserve">
     <value>Modalità sviluppo</value>
   </data>
-  <data name="Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred." xml:space="preserve">
-    <value><![CDATA[Passare all'ambiente <strong>Development</strong> mostra informazioni dettagliate sull'errore verificatosi.]]></value>
-  </data>
-  <data name="<strong>The Development environment shouldn't be enabled for deployed applications.</strong>" xml:space="preserve">
-    <value><![CDATA[<strong>L'ambiente Development non dovrebbe essere abilitato per le applicazioni distribuite.</strong>]]></value>
-  </data>
-  <data name="It can result in displaying sensitive information from exceptions to end users." xml:space="preserve">
-    <value>Potrebbe esporre agli utenti finali informazioni sensibili provenienti dalle eccezioni.</value>
-  </data>
-  <data name="For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong> and restarting the app." xml:space="preserve">
-    <value><![CDATA[Per il debug locale abilita l'ambiente <strong>Development</strong> impostando la variabile <strong>ASPNETCORE_ENVIRONMENT</strong> su <strong>Development</strong> e riavviando l'applicazione.]]></value>
-  </data>
   <data name="Administration" xml:space="preserve">
     <value>Amministrazione</value>
   </data>
