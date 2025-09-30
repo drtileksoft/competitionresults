@@ -73,4 +73,30 @@ function generatePDF(htmlId) {
     });
 }
 
+window.scoresList = window.scoresList || {};
+
+window.scoresList.getSortPreference = function (cookieName) {
+    if (!cookieName) {
+        return null;
+    }
+
+    const match = document.cookie.match(new RegExp("(?:^|; )" + cookieName.replace(/([.$?*|{}()\[\]\\/+^])/g, "\\$1") + "=([^;]*)"));
+    return match ? decodeURIComponent(match[1]) : null;
+};
+
+window.scoresList.setSortPreference = function (cookieName, value, days) {
+    if (!cookieName) {
+        return;
+    }
+
+    let expires = "";
+    if (typeof days === "number") {
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        expires = "; expires=" + date.toUTCString();
+    }
+
+    document.cookie = cookieName + "=" + encodeURIComponent(value ?? "") + expires + "; path=/";
+};
+
 

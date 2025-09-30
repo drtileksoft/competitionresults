@@ -2,11 +2,14 @@
 @using CompetitionResults
 @using CompetitionResults.Components.Shared
 @using CompetitionResults.Data
+@using System.Linq
 @using static CompetitionResults.Components.Shared.ScoreEditModal
+@using Microsoft.JSInterop
 @inject DisciplineService DisciplineService
 @inject ThrowerService ThrowerService
 @inject ResultService ResultService
 @inject CompetitionStateService CompetitionState
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 @inject IStringLocalizer<SharedResource> L
 
@@ -33,8 +36,8 @@ else
     <table class="table medium-font">
         <thead>
             <tr>
-                <th>#</th>
-                <th>@L["Name"]</th>
+                <th role="button" @onclick="async () => await SortByColumnAsync(SortOption.StartNumber)"># @GetSortIndicator(SortOption.StartNumber)</th>
+                <th role="button" @onclick="async () => await SortByColumnAsync(SortOption.Name)">@L["Name"] @GetSortIndicator(SortOption.Name)</th>
                         <th>@L["Edit"]</th>
                         <th>@L["Bullseyes"]</th>
                 @foreach (var discipline in disciplines)
@@ -44,7 +47,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var thrower in FilteredThrowers.OrderBy(t => t.Surname).ThenBy(t => t.Name))
+            @foreach (var thrower in FilteredThrowers)
             {
                 <tr>
                             <td>@thrower.StartingNumber.ToString("D3")</td>
@@ -88,17 +91,78 @@ else
     private string filterId = string.Empty;
     private string filterName = string.Empty;
 
-    IEnumerable<Thrower> FilteredThrowers => throwers.Where(t =>
-        (string.IsNullOrEmpty(filterId) || t.StartingNumber.ToString("D3").Contains(filterId)) &&
-        (string.IsNullOrEmpty(filterName) ||
-         t.Name.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||
-         t.Surname.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||
-         (!string.IsNullOrEmpty(t.Nickname) && t.Nickname.Contains(filterName, StringComparison.OrdinalIgnoreCase))));
+    IEnumerable<Thrower> FilteredThrowers =>
+        ApplySort((throwers ?? Enumerable.Empty<Thrower>()).Where(t =>
+            (string.IsNullOrEmpty(filterId) || t.StartingNumber.ToString("D3").Contains(filterId)) &&
+            (string.IsNullOrEmpty(filterName) ||
+             t.Name.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||
+             t.Surname.Contains(filterName, StringComparison.OrdinalIgnoreCase) ||
+             (!string.IsNullOrEmpty(t.Nickname) && t.Nickname.Contains(filterName, StringComparison.OrdinalIgnoreCase)))));
+
+    private const string SortPreferenceCookieName = "scores-list-sort";
+    private SortOption CurrentSortOption { get; set; } = SortOption.StartNumber;
+    private bool SortAscending { get; set; } = true;
+    private bool sortPreferenceLoaded;
+
+    private IEnumerable<Thrower> ApplySort(IEnumerable<Thrower> source)
+    {
+        return CurrentSortOption switch
+        {
+            SortOption.Name => SortAscending
+                ? source.OrderBy(t => t.Surname).ThenBy(t => t.Name)
+                : source.OrderByDescending(t => t.Surname).ThenByDescending(t => t.Name),
+            _ => SortAscending
+                ? source.OrderBy(t => t.StartingNumber)
+                : source.OrderByDescending(t => t.StartingNumber)
+        };
+    }
+
+    private async Task SortByColumnAsync(SortOption option)
+    {
+        if (CurrentSortOption == option)
+        {
+            SortAscending = !SortAscending;
+        }
+        else
+        {
+            CurrentSortOption = option;
+            SortAscending = true;
+        }
+
+        await SaveSortPreferenceAsync();
+        StateHasChanged();
+    }
+
+    private string GetSortIndicator(SortOption option)
+    {
+        if (CurrentSortOption == option)
+        {
+            return SortAscending ? "▲" : "▼";
+        }
+
+        return string.Empty;
+    }
+
+    private enum SortOption
+    {
+        StartNumber,
+        Name
+    }
 
     protected override async Task OnInitializedAsync()
     {
         CompetitionState.OnCompetitionChanged += LoadScores;
         LoadScores();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadSortPreferenceAsync();
+            sortPreferenceLoaded = true;
+            StateHasChanged();
+        }
     }
 
     public void Dispose()
@@ -107,7 +171,7 @@ else
     }
 
     private async void LoadScores()
-	{
+    {
         throwers = await ThrowerService.GetAllThrowersAsync(CompetitionState.SelectedCompetitionId);
         disciplines = await DisciplineService.GetAllDisciplinesAsync(CompetitionState.SelectedCompetitionId);
 
@@ -117,8 +181,8 @@ else
             allScores[thrower.Id] = await ResultService.GetScoresByThrowerIdAsync(thrower.Id, CompetitionState.SelectedCompetitionId);
         }
 
-		StateHasChanged();
-	}
+        StateHasChanged();
+    }
 
     private double? GetPoints(int throwerId, int disciplineId)
     {
@@ -144,6 +208,48 @@ else
         await ResultService.UpdateScoresAsync(CompetitionState.SelectedCompetitionId, throwerScores.ThrowerId, throwerScores.Scores);
 
         LoadScores();
+    }
+
+    private async Task LoadSortPreferenceAsync()
+    {
+        try
+        {
+            var storedValue = await JSRuntime.InvokeAsync<string>("scoresList.getSortPreference", SortPreferenceCookieName);
+            if (!string.IsNullOrEmpty(storedValue))
+            {
+                var parts = storedValue.Split('|');
+                if (parts.Length >= 1 && Enum.TryParse(parts[0], out SortOption option))
+                {
+                    CurrentSortOption = option;
+                    if (parts.Length >= 2)
+                    {
+                        SortAscending = !string.Equals(parts[1], "desc", StringComparison.OrdinalIgnoreCase);
+                    }
+                }
+            }
+        }
+        catch (JSException)
+        {
+            // Ignore errors when accessing cookies via JS interop
+        }
+    }
+
+    private async Task SaveSortPreferenceAsync()
+    {
+        if (!sortPreferenceLoaded)
+        {
+            return;
+        }
+
+        try
+        {
+            var preference = $"{CurrentSortOption}|{(SortAscending ? "asc" : "desc")}";
+            await JSRuntime.InvokeVoidAsync("scoresList.setSortPreference", SortPreferenceCookieName, preference, 365);
+        }
+        catch (JSException)
+        {
+            // Ignore errors when storing cookies via JS interop
+        }
     }
 
     private async Task HandleModalClose()
