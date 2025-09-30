@@ -201,4 +201,211 @@
   <data name="Are you sure you want to delete this competition?" xml:space="preserve">
     <value>Вы уверены, что хотите удалить это соревнование?</value>
   </data>
+  <data name="Add New Category" xml:space="preserve">
+    <value>Добавить новую категорию</value>
+  </data>
+  <data name="Are you sure you want to delete this category?" xml:space="preserve">
+    <value>Вы уверены, что хотите удалить эту категорию?</value>
+  </data>
+  <data name="Categories List" xml:space="preserve">
+    <value>Список категорий</value>
+  </data>
+  <data name="Disciplines List" xml:space="preserve">
+    <value>Список дисциплин</value>
+  </data>
+  <data name="Add New Discipline" xml:space="preserve">
+    <value>Добавить новую дисциплину</value>
+  </data>
+  <data name="Is Divided To Categories" xml:space="preserve">
+    <value>Разделена на категории</value>
+  </data>
+  <data name="Has Positions Instead of Points" xml:space="preserve">
+    <value>Использует места вместо очков</value>
+  </data>
+  <data name="Has Decimal Points" xml:space="preserve">
+    <value>Использует десятичные очки</value>
+  </data>
+  <data name="Competition Manager Assignments" xml:space="preserve">
+    <value>Назначения менеджеров соревнований</value>
+  </data>
+  <data name="Select manager:" xml:space="preserve">
+    <value>Выберите менеджера:</value>
+  </data>
+  <data name="-- Select Manager --" xml:space="preserve">
+    <value>-- Выберите менеджера --</value>
+  </data>
+  <data name="Competition" xml:space="preserve">
+    <value>Соревнование</value>
+  </data>
+  <data name="Assigned" xml:space="preserve">
+    <value>Назначено</value>
+  </data>
+  <data name="Throwers List" xml:space="preserve">
+    <value>Список метателей</value>
+  </data>
+  <data name="Add New Thrower" xml:space="preserve">
+    <value>Добавить нового метателя</value>
+  </data>
+  <data name="Send Emails to Unpaid Throwers" xml:space="preserve">
+    <value>Отправить письма неоплатившим метателям</value>
+  </data>
+  <data name="Send Emails" xml:space="preserve">
+    <value>Отправить письма</value>
+  </data>
+  <data name="Surname" xml:space="preserve">
+    <value>Фамилия</value>
+  </data>
+  <data name="Nickname" xml:space="preserve">
+    <value>Никнейм</value>
+  </data>
+  <data name="Nationality" xml:space="preserve">
+    <value>Гражданство</value>
+  </data>
+  <data name="Flag" xml:space="preserve">
+    <value>Флаг</value>
+  </data>
+  <data name="Club Name" xml:space="preserve">
+    <value>Название клуба</value>
+  </data>
+  <data name="Camping on site" xml:space="preserve">
+    <value>Кемпинг на месте</value>
+  </data>
+  <data name="Want T-Shirt (size)" xml:space="preserve">
+    <value>Хочет футболку (размер)</value>
+  </data>
+  <data name="Is paid (amount)" xml:space="preserve">
+    <value>Оплачено (сумма)</value>
+  </data>
+  <data name="To Be Paid" xml:space="preserve">
+    <value>К оплате</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>Примечание</value>
+  </data>
+  <data name="Send registration email" xml:space="preserve">
+    <value>Отправить регистрационное письмо</value>
+  </data>
+  <data name="Send unpaid email" xml:space="preserve">
+    <value>Отправить письмо о задолженности</value>
+  </data>
+  <data name="Total throwers: {0}" xml:space="preserve">
+    <value>Всего метателей: {0}</value>
+  </data>
+  <data name="Total payments: {0}" xml:space="preserve">
+    <value>Всего оплат: {0}</value>
+  </data>
+  <data name="Total countries: {0}" xml:space="preserve">
+    <value>Всего стран: {0}</value>
+  </data>
+  <data name="Categories:" xml:space="preserve">
+    <value>Категории:</value>
+  </data>
+  <data name="Total campers: {0}" xml:space="preserve">
+    <value>Всего кемперов: {0}</value>
+  </data>
+  <data name="T-shirts:" xml:space="preserve">
+    <value>Футболки:</value>
+  </data>
+  <data name="Throwers by country:" xml:space="preserve">
+    <value>Метатели по странам:</value>
+  </data>
+  <data name="Total missing payments above tolerance:" xml:space="preserve">
+    <value>Общая сумма недоплат сверх допуска:</value>
+  </data>
+  <data name="Are you sure you want to send registration email to this thrower?" xml:space="preserve">
+    <value>Вы уверены, что хотите отправить регистрационное письмо этому метателю?</value>
+  </data>
+  <data name="Are you sure you want to send unpaid email to this thrower?" xml:space="preserve">
+    <value>Вы уверены, что хотите отправить письмо о задолженности этому метателю?</value>
+  </data>
+  <data name="Are you sure you want to send emails to {0} unpaid throwers?" xml:space="preserve">
+    <value>Вы уверены, что хотите отправить письма {0} неоплатившим метателям?</value>
+  </data>
+  <data name="Emails sent to unpaid throwers." xml:space="preserve">
+    <value>Письма отправлены неоплатившим метателям.</value>
+  </data>
+  <data name="No unpaid throwers to send emails to." xml:space="preserve">
+    <value>Нет неоплативших метателей для отправки писем.</value>
+  </data>
+  <data name="Are you sure you want to send emails to {0} throwers?" xml:space="preserve">
+    <value>Вы уверены, что хотите отправить письма {0} метателям?</value>
+  </data>
+  <data name="Emails sent to throwers." xml:space="preserve">
+    <value>Письма отправлены метателям.</value>
+  </data>
+  <data name="No throwers to send emails to." xml:space="preserve">
+    <value>Нет метателей для отправки писем.</value>
+  </data>
+  <data name="Are you sure you want to delete this thrower?" xml:space="preserve">
+    <value>Вы уверены, что хотите удалить этого метателя?</value>
+  </data>
+  <data name="Send Email" xml:space="preserve">
+    <value>Отправить письмо</value>
+  </data>
+  <data name="Local message:" xml:space="preserve">
+    <value>Сообщение на местном языке:</value>
+  </data>
+  <data name="English message:" xml:space="preserve">
+    <value>Сообщение на английском:</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Отправить</value>
+  </data>
+  <data name="Edit Thrower" xml:space="preserve">
+    <value>Редактировать метателя</value>
+  </data>
+  <data name="Name:" xml:space="preserve">
+    <value>Имя:</value>
+  </data>
+  <data name="Surname:" xml:space="preserve">
+    <value>Фамилия:</value>
+  </data>
+  <data name="Nickname:" xml:space="preserve">
+    <value>Никнейм:</value>
+  </data>
+  <data name="Nationality:" xml:space="preserve">
+    <value>Гражданство:</value>
+  </data>
+  <data name="Club Name:" xml:space="preserve">
+    <value>Название клуба:</value>
+  </data>
+  <data name="Email:" xml:space="preserve">
+    <value>E-mail:</value>
+  </data>
+  <data name="Note:" xml:space="preserve">
+    <value>Примечание:</value>
+  </data>
+  <data name="Category:" xml:space="preserve">
+    <value>Категория:</value>
+  </data>
+  <data name="Camping on site:" xml:space="preserve">
+    <value>Кемпинг на месте:</value>
+  </data>
+  <data name="Interested in T-Shirt of competition for additional 10€:" xml:space="preserve">
+    <value>Интересуется футболкой соревнования за доплату 10 €:</value>
+  </data>
+  <data name="T-Shirt design" xml:space="preserve">
+    <value>Дизайн футболки</value>
+  </data>
+  <data name="Select T-Shirt Size:" xml:space="preserve">
+    <value>Выберите размер футболки:</value>
+  </data>
+  <data name="Is Paid:" xml:space="preserve">
+    <value>Оплачено:</value>
+  </data>
+  <data name="Payment:" xml:space="preserve">
+    <value>Платеж:</value>
+  </data>
+  <data name="Do not send registration email:" xml:space="preserve">
+    <value>Не отправлять регистрационное письмо:</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Закрыть</value>
+  </data>
+  <data name="Save changes" xml:space="preserve">
+    <value>Сохранить изменения</value>
+  </data>
 </root>

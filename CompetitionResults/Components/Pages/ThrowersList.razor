@@ -7,44 +7,45 @@
 @inject CompetitionService CompetitionService
 @implements IDisposable
 @inject IJSRuntime JSRuntime
+@inject IStringLocalizer<SharedResource> L
 
-<h3>Throwers List</h3>
+<h3>@L["Throwers List"]</h3>
 <AuthorizeView Roles="Admin, Manager">
-	<Authorized>
+        <Authorized>
 
-		<button @onclick="AddNew">Add New Thrower</button>
-		<button @onclick="SendEmailsToUnpaid">Send Emails to Unpaid Throwers</button>
-        <button @onclick="OpenGeneralEmailModal">Send Emails</button>
+                <button @onclick="AddNew">@L["Add New Thrower"]</button>
+                <button @onclick="SendEmailsToUnpaid">@L["Send Emails to Unpaid Throwers"]</button>
+        <button @onclick="OpenGeneralEmailModal">@L["Send Emails"]</button>
 
                 <GeneralEmailModal @ref="generalEmailModal" OnSend="HandleSendGeneralEmails" />
 
-		<ThrowerEditModal @ref="throwerEditModal" OnClose="HandleModalClose" Thrower="selectedThrower" OnFormSubmit="HandleFormSubmit" />
+                <ThrowerEditModal @ref="throwerEditModal" OnClose="HandleModalClose" Thrower="selectedThrower" OnFormSubmit="HandleFormSubmit" />
 
-		@if (throwers == null)
-		{
-			<p><em>Loading...</em></p>
-		}
-		else
-		{
-			<table class="table">
-				<thead>
-					<tr>
-						<th>#</th>
-						<th>Name</th>
-						<th>Surname</th>
-						<th>Nickname</th>
-						<th>Nationality</th>
-						<th>Flag</th>
-						<th>Club Name</th>
-						<th>Email</th>
-						<th>Camping on site</th>
-						<th>Want T-Shirt (size)</th>
-						<th>Is paid (amount)</th>
-						<th>To Be Paid</th>
-						<th>Note</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
+                @if (throwers == null)
+                {
+                        <p><em>@L["Loading..."]</em></p>
+                }
+                else
+                {
+                        <table class="table">
+                                <thead>
+                                        <tr>
+                                                <th>#</th>
+                                                <th>@L["Name"]</th>
+                                                <th>@L["Surname"]</th>
+                                                <th>@L["Nickname"]</th>
+                                                <th>@L["Nationality"]</th>
+                                                <th>@L["Flag"]</th>
+                                                <th>@L["Club Name"]</th>
+                                                <th>@L["Email"]</th>
+                                                <th>@L["Camping on site"]</th>
+                                                <th>@L["Want T-Shirt (size)"]</th>
+                                                <th>@L["Is paid (amount)"]</th>
+                                                <th>@L["To Be Paid"]</th>
+                                                <th>@L["Note"]</th>
+                                                <th>@L["Actions"]</th>
+                                        </tr>
+                                </thead>
 				<tbody>
 					@foreach (var thrower in throwers.OrderBy(t => t.StartingNumber))
 					{
@@ -66,9 +67,9 @@
 							</td>
 							<td>@thrower.ClubName</td>
 							<td>@thrower.Email</td>
-							<td>@(thrower.IsCampingOnSite ? "Yes" : "No")</td>
-							<td>@(thrower.WantTShirt ? "Yes" : "No") (@thrower.TShirtSize)</td>
-							<td style="background-color: @(!thrower.PaymentDone ? "red" : "white");">@(thrower.PaymentDone ? "Yes" : "No") (@thrower.Payment) </td>
+                                                        <td>@(thrower.IsCampingOnSite ? L["Yes"] : L["No"])</td>
+                                                        <td>@(thrower.WantTShirt ? L["Yes"] : L["No"]) (@thrower.TShirtSize)</td>
+                                                        <td style="background-color: @(!thrower.PaymentDone ? "red" : "white");">@(thrower.PaymentDone ? L["Yes"] : L["No"]) (@thrower.Payment) </td>
 							<td>
 								@{
 									var displayedDifference = difference < 0 ? 0 : difference;
@@ -87,13 +88,13 @@
 							</td>
 
 							<td>
-								<button @onclick="() => SendEmail(thrower)">Send reg. e-mail</button>
-								@if (!thrower.PaymentDone)
-								{
-									<button @onclick="() => SendUnpaidEmail(thrower)">Send unpaid e-mail</button>
-								}
-								<button @onclick="() => EditThrower(thrower)">Edit</button>
-								<button @onclick="() => DeleteThrower(thrower.Id)">Delete</button>
+                                                                <button @onclick="() => SendEmail(thrower)">@L["Send registration email"]</button>
+                                                                @if (!thrower.PaymentDone)
+                                                                {
+                                                                        <button @onclick="() => SendUnpaidEmail(thrower)">@L["Send unpaid email"]</button>
+                                                                }
+                                                                <button @onclick="() => EditThrower(thrower)">@L["Edit"]</button>
+                                                                <button @onclick="() => DeleteThrower(thrower.Id)">@L["Delete"]</button>
 							</td>
 						</tr>
 					}
@@ -102,59 +103,59 @@
 
 			<div style="margin-top: 20px;">
 				<p>
-					<h4>Total throwers: @throwersCount</h4>
-					<h4>Total payments: @paymentsCount</h4>
-				</p>
-				<p>
-					<h4>Total countries: @countryCount</h4>
-					@foreach (var country in countryFlags)
-					{
-						var flagUrl = $"https://flagcdn.com/32x24/{country}.png";
-						<img src="@flagUrl" alt="@country" title="@country" style="height:20px; width:30px; margin-left: 5px;" />
-					}
-				</p>
+                                        <h4>@L["Total throwers: {0}", throwersCount]</h4>
+                                        <h4>@L["Total payments: {0}", paymentsCount]</h4>
+                                </p>
+                                <p>
+                                        <h4>@L["Total countries: {0}", countryCount]</h4>
+                                        @foreach (var country in countryFlags)
+                                        {
+                                                var flagUrl = $"https://flagcdn.com/32x24/{country}.png";
+                                                <img src="@flagUrl" alt="@country" title="@country" style="height:20px; width:30px; margin-left: 5px;" />
+                                        }
+                                </p>
 
-				<h4>Categories:</h4>
-				<ul>
-					@foreach (var category in categoriesDict)
-					{
-						<li>@category.Key: @category.Value</li>
-					}
-				</ul>
+                                <h4>@L["Categories:"]</h4>
+                                <ul>
+                                        @foreach (var category in categoriesDict)
+                                        {
+                                                <li>@category.Key: @category.Value</li>
+                                        }
+                                </ul>
 
-				<p>
-					<h4>Total campers: @campersCount</h4>
-				</p>
+                                <p>
+                                        <h4>@L["Total campers: {0}", campersCount]</h4>
+                                </p>
 
-				<h4>T-shirts:</h4>
-				<ul>
-					@foreach (var tshirt in tshirtDict.OrderBy(t => t.Key))
-					{
-						<li>@tshirt.Key: @tshirt.Value</li>
-					}
-				</ul>
+                                <h4>@L["T-shirts:"]</h4>
+                                <ul>
+                                        @foreach (var tshirt in tshirtDict.OrderBy(t => t.Key))
+                                        {
+                                                <li>@tshirt.Key: @tshirt.Value</li>
+                                        }
+                                </ul>
 
-				<p>
-					<h4>Throwers by country:</h4>
-					<ul>
-						@foreach (var country in countryParticipants.OrderByDescending(p => p.Value))
-						{
-							var flagUrl = $"https://flagcdn.com/32x24/{country}.png";
+                                <p>
+                                        <h4>@L["Throwers by country:"]</h4>
+                                        <ul>
+                                                @foreach (var country in countryParticipants.OrderByDescending(p => p.Value))
+                                                {
+                                                        var flagUrl = $"https://flagcdn.com/32x24/{country}.png";
 							<li>@country.Key: @country.Value</li>
 						}
 					</ul>
 				</p>
 
 				<p>
-					<h4>Total missing payments above tolerance: <span style="color:red; font-weight:bold;">@($"{totalDifference:0.00}")</span></h4>
-				</p>
-			</div>
-		}
+                                        <h4>@L["Total missing payments above tolerance:"] <span style="color:red; font-weight:bold;">@($"{totalDifference:0.00}")</span></h4>
+                                </p>
+                        </div>
+                }
 
-	</Authorized>
-	<NotAuthorized>
-		<p>You're not loggged in.</p>
-	</NotAuthorized>
+        </Authorized>
+        <NotAuthorized>
+                <p>@L["You're not logged in."]</p>
+        </NotAuthorized>
 </AuthorizeView>
 
 @code {
@@ -245,7 +246,7 @@
 
 	private async Task SendEmail(Thrower thrower)
 	{
-		var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send registration email to this thrower?");
+                var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to send registration email to this thrower?"]);
 		if (confirmed)
 		{
 			await ThrowerService.ResendEmailAsync(thrower);
@@ -254,7 +255,7 @@
 
         private async Task SendUnpaidEmail(Thrower thrower)
         {
-            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send registration email to this thrower?");
+            var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to send unpaid email to this thrower?"]);
             if (confirmed)
             {
                 await ThrowerService.SendUnpaidEmail(thrower);
@@ -266,19 +267,19 @@
 		var unpaidThrowers = throwers.Where(t => !t.PaymentDone).ToList();
 		if (unpaidThrowers.Any())
 		{
-			var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send emails to {unpaidThrowers.Count} unpaid throwers?");
+                        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to send emails to {0} unpaid throwers?", unpaidThrowers.Count]);
 			if (confirmed)
 			{
                                 foreach (var thrower in unpaidThrowers)
                                 {
                                         await ThrowerService.SendUnpaidEmail(thrower);
                                 }
-				await JSRuntime.InvokeVoidAsync("alert", "Emails sent to unpaid throwers.");
+                                await JSRuntime.InvokeVoidAsync("alert", L["Emails sent to unpaid throwers."]);
 			}
 		}
 		else
 		{
-			await JSRuntime.InvokeVoidAsync("alert", "No unpaid throwers to send emails to.");
+                        await JSRuntime.InvokeVoidAsync("alert", L["No unpaid throwers to send emails to."]);
 		}
 	}
 
@@ -287,25 +288,25 @@
                 var allThrowers = throwers.ToList();
                 if (allThrowers.Any())
                 {
-                        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to send emails to {allThrowers.Count} throwers?");
+                        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to send emails to {0} throwers?", allThrowers.Count]);
                         if (confirmed)
                         {
                                 foreach (var thrower in allThrowers)
                                 {
                                         ThrowerService.SendGeneralEmail(thrower, localMessage, englishMessage);
                                 }
-                                await JSRuntime.InvokeVoidAsync("alert", "Emails sent to throwers.");
+                                await JSRuntime.InvokeVoidAsync("alert", L["Emails sent to throwers."]);
                         }
                 }
                 else
                 {
-                        await JSRuntime.InvokeVoidAsync("alert", "No throwers to send emails to.");
+                        await JSRuntime.InvokeVoidAsync("alert", L["No throwers to send emails to."]);
                 }
         }
 
 	private async Task DeleteThrower(int id)
 	{
-		var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this thrower?");
+                var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to delete this thrower?"]);
 		if (confirmed)
 		{
 			await ThrowerService.DeleteThrowerAsync(id);
