@@ -2,13 +2,14 @@
 @inject DisciplineService DisciplineService
 @inject ThrowerService ThrowerService
 @inject ResultService ResultService
+@inject IStringLocalizer<SharedResource> L
 @inject CompetitionStateService CompetitionState
 
 <div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Bullseyes for <strong>@thrower.Name @thrower.Surname</strong></h5>
+                <h5 class="modal-title">@L["Edit Bullseyes for"] <strong>@thrower.Name @thrower.Surname</strong></h5>
                 <button type="button" class="btn-close" @onclick="Close"></button>
             </div>
             <div class="modal-body">
@@ -30,8 +31,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
-                <button type="button" class="btn btn-primary" @onclick="SaveChanges">Save changes</button>
+                <button type="button" class="btn btn-secondary" @onclick="Close">@L["Close"]</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveChanges">@L["Save changes"]</button>
             </div>
         </div>
     </div>

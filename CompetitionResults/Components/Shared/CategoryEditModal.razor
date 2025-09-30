@@ -1,5 +1,6 @@
 ﻿@using CompetitionResults.Data
 @inject CategoryService CategoryService
+@inject IStringLocalizer<SharedResource> L
 
 <div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
 	<div class="modal-dialog modal-lg">
@@ -8,14 +9,14 @@
 				<DataAnnotationsValidator />
 				<ValidationSummary />
 				<div class="modal-header">
-					<h5 class="modal-title">Edit Category</h5>
+					<h5 class="modal-title">@L["Edit Category"]</h5>
 					<button type="button" class="btn-close" @onclick="Close"></button>
 				</div>
 				<div class="modal-body">
 
 					<div class="form-grid">
 						<div>
-							<label for="name">Name:</label>
+							<label for="name">@L["Name:"]</label>
 							<InputText id="name" @bind-Value="@_category.Name" />
 						</div>
 
@@ -23,8 +24,8 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
-					<button type="submit" class="btn btn-primary">Save changes</button>
+					<button type="button" class="btn btn-secondary" @onclick="Close">@L["Close"]</button>
+					<button type="submit" class="btn btn-primary">@L["Save changes"]</button>
 				</div>
 			</EditForm>
 		</div>
