@@ -495,4 +495,166 @@
   <data name="Are you sure you want to delete this discipline?" xml:space="preserve">
     <value>Opravdu chcete smazat tuto disciplínu?</value>
   </data>
+  <data name="Total winner" xml:space="preserve">
+    <value>Celkový vítěz</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>Pořadí</value>
+  </data>
+  <data name="Points" xml:space="preserve">
+    <value>Body</value>
+  </data>
+  <data name="Award Points" xml:space="preserve">
+    <value>Bonusové body</value>
+  </data>
+  <data name="N/A" xml:space="preserve">
+    <value>N/A</value>
+  </data>
+  <data name="Failed to load results: {0}" xml:space="preserve">
+    <value>Nepodařilo se načíst výsledky: {0}</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>Země</value>
+  </data>
+  <data name="All countries" xml:space="preserve">
+    <value>Všechny země</value>
+  </data>
+  <data name="Showing only throwers from {0}." xml:space="preserve">
+    <value>Zobrazují se pouze závodníci ze {0}.</value>
+  </data>
+  <data name="No results." xml:space="preserve">
+    <value>Žádné výsledky.</value>
+  </data>
+  <data name="No results for {0}." xml:space="preserve">
+    <value>Žádné výsledky pro {0}.</value>
+  </data>
+  <data name="Thrower" xml:space="preserve">
+    <value>Závodník</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Registrovat</value>
+  </data>
+  <data name="Registration is full!" xml:space="preserve">
+    <value>Registrace je plná!</value>
+  </data>
+  <data name="Registered throwers" xml:space="preserve">
+    <value>Registrovaní závodníci</value>
+  </data>
+  <data name="Payment done" xml:space="preserve">
+    <value>Platba provedena</value>
+  </data>
+  <data name="Start number" xml:space="preserve">
+    <value>Startovní číslo</value>
+  </data>
+  <data name="Scores List" xml:space="preserve">
+    <value>Seznam výsledků</value>
+  </data>
+  <data name="Bullseyes" xml:space="preserve">
+    <value>Zásahy do středu</value>
+  </data>
+  <data name="Results for {0}" xml:space="preserve">
+    <value>Výsledky pro {0}</value>
+  </data>
+  <data name="Discipline:" xml:space="preserve">
+    <value>Disciplína:</value>
+  </data>
+  <data name="Position:" xml:space="preserve">
+    <value>Pozice:</value>
+  </data>
+  <data name="Points:" xml:space="preserve">
+    <value>Body:</value>
+  </data>
+  <data name="Select disciplines to display" xml:space="preserve">
+    <value>Vyberte disciplíny k zobrazení</value>
+  </data>
+  <data name="Export to PDF" xml:space="preserve">
+    <value>Exportovat do PDF</value>
+  </data>
+  <data name="Overall" xml:space="preserve">
+    <value>Celkově</value>
+  </data>
+  <data name="Overall 2" xml:space="preserve">
+    <value>Celkově 2</value>
+  </data>
+  <data name="Medals by nation" xml:space="preserve">
+    <value>Medaile podle zemí</value>
+  </data>
+  <data name="No medals found." xml:space="preserve">
+    <value>Nebyly nalezeny žádné medaile.</value>
+  </data>
+  <data name="Nation" xml:space="preserve">
+    <value>Země</value>
+  </data>
+  <data name="Gold" xml:space="preserve">
+    <value>Zlato</value>
+  </data>
+  <data name="Silver" xml:space="preserve">
+    <value>Stříbro</value>
+  </data>
+  <data name="Bronze" xml:space="preserve">
+    <value>Bronz</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Celkem</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>Klíč</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Hodnota</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Chyba</value>
+  </data>
+  <data name="Error." xml:space="preserve">
+    <value>Chyba.</value>
+  </data>
+  <data name="An error occurred while processing your request." xml:space="preserve">
+    <value>Při zpracování vašeho požadavku došlo k chybě.</value>
+  </data>
+  <data name="Request ID:" xml:space="preserve">
+    <value>ID požadavku:</value>
+  </data>
+  <data name="Development Mode" xml:space="preserve">
+    <value>Vývojářský režim</value>
+  </data>
+  <data name="Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred." xml:space="preserve">
+    <value><![CDATA[Přepnutí do prostředí <strong>Development</strong> zobrazí podrobné informace o vzniklé chybě.]]></value>
+  </data>
+  <data name="<strong>The Development environment shouldn't be enabled for deployed applications.</strong>" xml:space="preserve">
+    <value><![CDATA[<strong>Prostředí Development by nemělo být povoleno v nasazených aplikacích.</strong>]]></value>
+  </data>
+  <data name="It can result in displaying sensitive information from exceptions to end users." xml:space="preserve">
+    <value>Může vést k zobrazení citlivých informací z výjimek koncovým uživatelům.</value>
+  </data>
+  <data name="For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong> and restarting the app." xml:space="preserve">
+    <value><![CDATA[Pro místní ladění povolte prostředí <strong>Development</strong> nastavením proměnné <strong>ASPNETCORE_ENVIRONMENT</strong> na hodnotu <strong>Development</strong> a restartujte aplikaci.]]></value>
+  </data>
+  <data name="Administration" xml:space="preserve">
+    <value>Administrace</value>
+  </data>
+  <data name="Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="User Name" xml:space="preserve">
+    <value>Uživatelské jméno</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>Akce</value>
+  </data>
+  <data name="Edit User" xml:space="preserve">
+    <value>Upravit uživatele</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Heslo</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Uložit</value>
+  </data>
+  <data name="Add User" xml:space="preserve">
+    <value>Přidat uživatele</value>
+  </data>
+  <data name="You're not signed in as a user in {0}." xml:space="preserve">
+    <value>Nejste přihlášeni jako uživatel v roli {0}.</value>
+  </data>
 </root>

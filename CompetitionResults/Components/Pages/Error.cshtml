@@ -1,13 +1,18 @@
-﻿@page
+@page
+@using CompetitionResults
+@using Microsoft.AspNetCore.Components
+@using Microsoft.Extensions.Localization
+@using System.Globalization
 @model CompetitionResults.Pages.ErrorModel
+@inject IStringLocalizer<SharedResource> L
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@CultureInfo.CurrentUICulture.Name">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Error</title>
+    <title>@L["Error"]</title>
     <link href="~/css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
 </head>
@@ -15,25 +20,24 @@
 <body>
     <div class="main">
         <div class="content px-4">
-            <h1 class="text-danger">Error.</h1>
-            <h2 class="text-danger">An error occurred while processing your request.</h2>
+            <h1 class="text-danger">@L["Error."]</h1>
+            <h2 class="text-danger">@L["An error occurred while processing your request."]</h2>
 
             @if (Model.ShowRequestId)
             {
                 <p>
-                    <strong>Request ID:</strong> <code>@Model.RequestId</code>
+                    <strong>@L["Request ID:"]</strong> <code>@Model.RequestId</code>
                 </p>
             }
 
-            <h3>Development Mode</h3>
+            <h3>@L["Development Mode"]</h3>
             <p>
-                Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred.
+                @((MarkupString)L["Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred."].Value)
             </p>
             <p>
-                <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-                It can result in displaying sensitive information from exceptions to end users.
-                For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-                and restarting the app.
+                @((MarkupString)L["<strong>The Development environment shouldn't be enabled for deployed applications.</strong>"].Value)
+                @L["It can result in displaying sensitive information from exceptions to end users."]
+                @((MarkupString)L["For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong> and restarting the app."].Value)
             </p>
         </div>
     </div>

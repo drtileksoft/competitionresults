@@ -5,12 +5,13 @@
 @inject DisciplineService DisciplineService
 @inject CategoryService CategoryService
 @inject CompetitionStateService CompetitionState
+@inject IStringLocalizer<SharedResource> L
 
-<h3>Results by Thrower</h3>
+<h3>@L["Results by thrower"]</h3>
 
 @if (throwers == null || disciplines == null || categories == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@L["Loading..."]</em></p>
 }
 else
 {
@@ -26,7 +27,7 @@ else
     @if (selectedThrowerResults != null)
     {
         var thrower = throwers.First(t => t.Id == selectedThrowerId);
-        <h4>Results for @thrower.Name</h4>
+        <h4>@string.Format(L["Results for {0}"]!, thrower.Name)</h4>
 
         <div class="d-flex flex-wrap">
             @foreach (var group in selectedThrowerResults
@@ -48,16 +49,16 @@ else
                     var category = categories.FirstOrDefault(c => c.Id == result.CategoryId);
 
                     <div class="result-card m-2 p-2 border rounded" style="@result.BackgroundColor">
-                        <div><strong>Discipline:</strong> @disciplineName</div>
+                        <div><strong>@L["Discipline:"]</strong> @disciplineName</div>
                         @if (isDivided && category != null)
                         {
-                            <div><strong>Category:</strong> @category.Name</div>
+                            <div><strong>@L["Category:"]</strong> @category.Name</div>
                         }
                         @if (result.Position > 0)
                         {
-                            <div><strong>Position:</strong> @result.Position</div>
+                            <div><strong>@L["Position:"]</strong> @result.Position</div>
                         }
-                        <div><strong>Points:</strong> @result.Points @if (result.BullseyeCount.HasValue) { <span>(@result.BullseyeCount)</span> }</div>
+                        <div><strong>@L["Points:"]</strong> @result.Points @if (result.BullseyeCount.HasValue) { <span>(@result.BullseyeCount)</span> }</div>
                     </div>
                 }
             }

@@ -5,27 +5,28 @@
 @inject DisciplineService DisciplineService
 @inject CategoryService CategoryService
 @inject CompetitionStateService CompetitionState
+@inject IStringLocalizer<SharedResource> L
 
-<h3>Medals by Nation</h3>
+<h3>@L["Medals by nation"]</h3>
 
 @if (medals == null)
 {
-    <p>Loading...</p>
+    <p>@L["Loading..."]</p>
 }
 else if (!medals.Any())
 {
-    <p>No medals found.</p>
+    <p>@L["No medals found."]</p>
 }
 else
 {
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Nation</th>
-                <th>🥇 Gold</th>
-                <th>🥈 Silver</th>
-                <th>🥉 Bronze</th>
-                <th>Total</th>
+                <th>@L["Nation"]</th>
+                <th>🥇 @L["Gold"]</th>
+                <th>🥈 @L["Silver"]</th>
+                <th>🥉 @L["Bronze"]</th>
+                <th>@L["Total"]</th>
             </tr>
         </thead>
         <tbody>

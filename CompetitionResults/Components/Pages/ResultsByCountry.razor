@@ -1,27 +1,29 @@
 @page "/resultsbycountry"
 @using CompetitionResults.Data
+@using Microsoft.AspNetCore.Components
 @inject ResultService ResultsService
 @inject ThrowerService ThrowerService
 @inject DisciplineService DisciplineService
 @inject CategoryService CategoryService
 @inject CompetitionStateService CompetitionState
+@inject IStringLocalizer<SharedResource> L
 
-<h3>Results by Country</h3>
+<h3>@L["Results by country"]</h3>
 
 @if (isLoading)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@L["Loading..."]</em></p>
 }
 else if (loadError != null)
 {
-    <div class="alert alert-danger">@loadError</div>
+    <div class="alert alert-danger">@string.Format(L["Failed to load results: {0}"], loadError)</div>
 }
 else
 {
     <div class="mb-3">
-        <label for="countrySelect" class="form-label fw-semibold">Country</label>
+        <label for="countrySelect" class="form-label fw-semibold">@L["Country"]</label>
         <select id="countrySelect" class="form-select" @bind="selectedCountry">
-            <option value="">All countries</option>
+            <option value="">@L["All countries"]</option>
             @foreach (var c in countries)
             {
                 <option value="@c">@c</option>
@@ -29,7 +31,7 @@ else
         </select>
         @if (!string.IsNullOrEmpty(selectedCountry))
         {
-            <div class="mt-2 small text-muted">Showing only throwers from <strong>@selectedCountry</strong>.</div>
+            <div class="mt-2 small text-muted">@((MarkupString)string.Format(L["Showing only throwers from {0}."]!, $"<strong>{selectedCountry}</strong>"))</div>
         }
     </div>
 
@@ -42,7 +44,7 @@ else
             <div class="card-body p-0">
                 @if (!resultsByDiscipline.TryGetValue(disc.Id, out var results) || results == null || results.Count == 0)
                 {
-                    <div class="p-3 text-muted"><em>No results.</em></div>
+                    <div class="p-3 text-muted"><em>@L["No results."]</em></div>
                 }
                 else
                 {
@@ -54,7 +56,7 @@ else
 
                     if (filtered.Count == 0)
                     {
-                        <div class="p-3 text-muted"><em>No results for @selectedCountry.</em></div>
+                        <div class="p-3 text-muted"><em>@string.Format(L["No results for {0}."]!, selectedCountry)</em></div>
                     }
                     else
                     {
@@ -62,9 +64,9 @@ else
                             <table class="table table-sm table-striped mb-0 align-middle">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="width:64px;">Rank</th>
-                                        <th>Thrower</th>
-                                        <th class="text-end" style="width:120px;">Points</th>
+                                        <th style="width:64px;">@L["Rank"]</th>
+                                        <th>@L["Thrower"]</th>
+                                        <th class="text-end" style="width:120px;">@L["Points"]</th>
                                     </tr>
                                 </thead>
                                 <tbody>
