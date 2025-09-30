@@ -7,15 +7,16 @@
 @inject CompetitionStateService CompetitionState
 @inject NavigationManager Navigation
 @implements IAsyncDisposable
+@inject IStringLocalizer<SharedResource> L
 
-		@if (disciplines == null || categories == null)
-		{
-			<p><em>Loading...</em></p>
-		}
-		else
-		{
-			<div class="container small-font">
-				<h6 class="mb-2">Select Disciplines to Display</h6>
+                @if (disciplines == null || categories == null)
+                {
+                        <p><em>@L["Loading..."]</em></p>
+                }
+                else
+                {
+                        <div class="container small-font">
+                                <h6 class="mb-2">@L["Select disciplines to display"]</h6>
 
 				<div class="d-flex flex-wrap mb-2">
 					@foreach (var category in categories)
@@ -56,10 +57,10 @@
 					var allColumns = selectedGroupedDisciplines.Cast<object>().Concat(selectedOverallDisciplines.Cast<object>()).ToList();
 
 					<div class="table-responsive">
-						<table class="table table-hover table-bordered m-0 p-0">
-							<thead class="thead-light">
-								<tr>
-									<th style="width: 30px;">Rank</th>
+                                                <table class="table table-hover table-bordered m-0 p-0">
+                                                        <thead class="thead-light">
+                                                                <tr>
+                                                                        <th style="width: 30px;">@L["Rank"]</th>
 
 									@foreach (var key in selectedGroupedDisciplines)
 									{

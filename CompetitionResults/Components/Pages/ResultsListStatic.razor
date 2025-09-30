@@ -8,21 +8,22 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
+@inject IStringLocalizer<SharedResource> L
 
 
-		@if (disciplines == null || categories == null)
-		{
-			<p><em>Loading...</em></p>
-		}
-		else
-		{
+                @if (disciplines == null || categories == null)
+                {
+                        <p><em>@L["Loading..."]</em></p>
+                }
+                else
+                {
 			<div class="container m-0 p-0 small-font row">
 				<div class="col-12">
 					@foreach (var category in categories)
 					{
 						if (MaxResultsCount(category.Id) >= 1)
 						{
-							<button @onclick='() => ExportAsPDF("resultContent" + category.Id)' class="m-2">Export to PDF</button>
+                                                        <button @onclick='() => ExportAsPDF("resultContent" + category.Id)' class="m-2">@L["Export to PDF"]</button>
 
 							<div id="resultContent@(category.Id)">
 								<h7 class="mb-1 p-0">@category.Name</h7>
@@ -30,7 +31,7 @@
 								<table class="table table-hover table-bordered m-0 p-0 mb-1">
 									<thead class="thead-light">
 										<tr>
-											<th style="width: 30px;">Rank</th>
+                                                                                        <th style="width: 30px;">@L["Rank"]</th>
 											@foreach (var discipline in disciplines.Where(d => d.IsDividedToCategories))
 											{
 												<th>@discipline.Name</th>
@@ -77,16 +78,16 @@
 
 			<div class="container m-0 p-0 small-font row">
 				<div class="col-12">
-					<button @onclick='() => ExportAsPDF("resultContent")' class="m-2">Export to PDF</button>
+                                        <button @onclick='() => ExportAsPDF("resultContent")' class="m-2">@L["Export to PDF"]</button>
 
-					<div id="resultContent">
-						<h7 class="mb-1 p-0">Overall</h7>
+                                        <div id="resultContent">
+                                                <h7 class="mb-1 p-0">@L["Overall"]</h7>
 
 						<table class="table table-hover table-bordered m-0 p-0 mb-1">
 							<thead class="thead-light">
 								<tr>
-									<th style="width: 30px;">Rank</th>
-									<th>Total Winner</th>
+                                                                        <th style="width: 30px;">@L["Rank"]</th>
+                                                                        <th>@L["Total winner"]</th>
 									@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories).OrderBy(d => d.HasPositionsInsteadPoints).ThenBy(d => d.Id).Take(6))
 									{
 										<th>@discipline.Name</th>
@@ -138,15 +139,15 @@
 			{
 			<div class="container m-0 p-0 small-font row">
 				<div class="col-12">
-					<button @onclick='() => ExportAsPDF("resultContentTwo")' class="m-2">Export to PDF</button>
+                                        <button @onclick='() => ExportAsPDF("resultContentTwo")' class="m-2">@L["Export to PDF"]</button>
 
-					<div id="resultContentTwo">
-						<h7 class="mb-1 p-0">Overall 2</h7>
+                                        <div id="resultContentTwo">
+                                                <h7 class="mb-1 p-0">@L["Overall 2"]</h7>
 
 						<table class="table table-hover table-bordered m-0 p-0 mb-1">
 							<thead class="thead-light">
 								<tr>
-									<th style="width: 30px;">Rank</th>
+                                                                        <th style="width: 30px;">@L["Rank"]</th>
 									@foreach (var discipline in disciplines.Where(d => !d.IsDividedToCategories).OrderBy(d => d.HasPositionsInsteadPoints).ThenBy(d => d.Id).Skip(6))
 									{
 										<th>@discipline.Name</th>

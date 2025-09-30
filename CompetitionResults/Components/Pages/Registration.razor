@@ -7,14 +7,15 @@
 @inject CompetitionService CompetitionService
 @implements IDisposable
 @inject IJSRuntime JSRuntime
+@inject IStringLocalizer<SharedResource> L
 
 @if (!IsFull(CompetitionState.SelectedCompetitionId))
 {
-    <button @onclick="AddNew">Register</button>
+    <button @onclick="AddNew">@L["Register"]</button>
 }
 else
 {
-    <label >Registration is full!</label>
+    <label>@L["Registration is full!"]</label>
 }
 
 <ThrowerRegistrationModal @ref="throwerRegistrationModal" OnClose="HandleModalClose" Thrower="selectedThrower" OnFormSubmit="HandleFormSubmit" />
@@ -28,7 +29,7 @@ else
 
 @if (throwers == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@L["Loading..."]</em></p>
 }
 else
 {
@@ -41,17 +42,17 @@ else
 
     <h3>@competitionDesc</h3>
 
-    <h3>Registered throwers</h3>
+    <h3>@L["Registered throwers"]</h3>
     <table class="table">
         <thead>
             <tr>
                 <th>#</th>
-                <th>Name</th>
-                <th>Surname</th>
-                <th>Nationality</th>
-                <th>Flag</th>
-                <th>Club Name</th>
-                <th>Payment done</th>
+                <th>@L["Name"]</th>
+                <th>@L["Surname"]</th>
+                <th>@L["Nationality"]</th>
+                <th>@L["Flag"]</th>
+                <th>@L["Club Name"]</th>
+                <th>@L["Payment done"]</th>
             </tr>
         </thead>
         <tbody>
@@ -72,7 +73,7 @@ else
                              style="height:20px; width:30px;" />
                     </td>
                     <td>@thrower.ClubName</td>
-                    <td style="background-color: @(!thrower.PaymentDone ? "red" : "white");">@(!thrower.PaymentDone ? "No" : "Yes")</td>
+                    <td style="background-color: @(!thrower.PaymentDone ? "red" : "white");">@(!thrower.PaymentDone ? L["No"] : L["Yes"])</td>
                 </tr>
             }
         </tbody>
@@ -80,7 +81,7 @@ else
 
     <div style="margin-top: 20px;">
         <p>
-            <h4>Total countries: @countryCount</h4>
+            <h4>@string.Format(L["Total countries: {0}"]!, countryCount)</h4>
             @foreach (var country in countryFlags)
             {
                 var flagUrl = $"https://flagcdn.com/32x24/{country}.png";
@@ -88,7 +89,7 @@ else
             }
         </p>
 
-        <h4>Categories:</h4>
+        <h4>@L["Categories:"]</h4>
         <ul>
             @foreach (var category in categoriesDict)
             {
@@ -97,10 +98,10 @@ else
         </ul>
 
         <p>
-            <h4>Total campers: @campersCount</h4>
+            <h4>@string.Format(L["Total campers: {0}"]!, campersCount)</h4>
         </p>
 
-        <h4>T-shirts:</h4>
+        <h4>@L["T-shirts:"]</h4>
         <ul>
             @foreach (var tshirt in tshirtDict)
             {

@@ -9,20 +9,21 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject CompetitionService CompetitionService
 @inject CompetitionStateService CompetitionState
-<h3>Administration</h3>
+@inject IStringLocalizer<SharedResource> L
+<h3>@L["Administration"]</h3>
 <AuthorizeView Roles="Admin, Manager, User">
 	<Authorized>
 		@if (@context.User.IsInRole(ADMINISTRATION_ROLE) || @context.User.IsInRole(MANAGER_ROLE) || @context.User.IsInRole(USER_ROLE))
 		{
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Id</th>
-						<th>User Name</th>
-						<th>Email</th>
-						<th>Action</th>
-					</tr>
-				</thead>
+                        <table class="table">
+                                <thead>
+                                        <tr>
+                                                <th>@L["Id"]</th>
+                                                <th>@L["User Name"]</th>
+                                                <th>@L["Email"]</th>
+                                                <th>@L["Action"]</th>
+                                        </tr>
+                                </thead>
 				<tbody>
 					@foreach (var user in ColUsers)
 					{
@@ -32,10 +33,10 @@
 							<td>@user.Email</td>
 							<td>
 								<!-- Edit the current forecast -->
-								<button class="btn btn-primary"
-										@onclick="(() => EditUser(user))">
-									Edit
-								</button>
+                                                                <button class="btn btn-primary"
+                                                                                @onclick="(() => EditUser(user))">
+                                                                        @L["Edit"]
+                                                                </button>
 							</td>
 						</tr>
 					}
@@ -49,7 +50,7 @@
 					<div class="modal-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
-								<h3 class="modal-title">Edit User</h3>
+                                                                <h3 class="modal-title">@L["Edit User"]</h3>
 								<!-- Button to close the popup -->
 								<button type="button" class="close"
 										@onclick="ClosePopup">
@@ -70,16 +71,16 @@
 								}
 								else
 								{
-									<input class="form-control" type="text"
-										   placeholder="UserName"
-										   @bind="objUser.UserName" />
-								}
-								<input class="form-control" type="text"
-									   placeholder="Email"
-									   @bind="objUser.Email" />
-								<input class="form-control" type="password"
-									   placeholder="Password"
-									   @bind="objUser.PasswordHash" />
+                                                                        <input class="form-control" type="text"
+                                                                                   placeholder='@L["User Name"]'
+                                                                                   @bind="objUser.UserName" />
+                                                                }
+                                                                <input class="form-control" type="text"
+                                                                           placeholder='@L["Email"]'
+                                                                           @bind="objUser.Email" />
+                                                                <input class="form-control" type="password"
+                                                                           placeholder='@L["Password"]'
+                                                                           @bind="objUser.PasswordHash" />
 								<select class="form-control"
 										@bind="@CurrentUserRole">
 									@foreach (var option in Options)
@@ -91,18 +92,18 @@
 								</select>
 								<br /><br />
 								<!-- Button to save the user -->
-								<button class="btn btn-primary"
-										@onclick="SaveUser">
-									Save
-								</button>
+                                                                <button class="btn btn-primary"
+                                                                                @onclick="SaveUser">
+                                                                        @L["Save"]
+                                                                </button>
 								<!-- Only show delete button if not a new record -->
 								@if (objUser.Id != "")
 								{
 									<!-- Button to delete the forecast -->
-									<button class="btn btn-danger"
-											@onclick="DeleteUser">
-										Delete
-									</button>
+                                                                        <button class="btn btn-danger"
+                                                                                        @onclick="DeleteUser">
+                                                                                @L["Delete"]
+                                                                        </button>
 								}
 								<br />
 								<span style="color:red">@strError</span>
@@ -113,17 +114,17 @@
 			}
 			@if (@context.User.IsInRole(ADMINISTRATION_ROLE) || @context.User.IsInRole(MANAGER_ROLE))
 			{
-				<button class="btn btn-success" @onclick="AddNewUser">Add User</button>
+                                <button class="btn btn-success" @onclick="AddNewUser">@L["Add User"]</button>
 			}
 		}
 		else
 		{
-			<p>You're not signed in as a user in @ADMINISTRATION_ROLE.</p>
-		}
-	</Authorized>
-	<NotAuthorized>
-		<p>You're not loggged in.</p>
-	</NotAuthorized>
+                        <p>@string.Format(L["You're not signed in as a user in {0}."]!, ADMINISTRATION_ROLE)</p>
+                }
+        </Authorized>
+        <NotAuthorized>
+                <p>@L["You're not logged in."]</p>
+        </NotAuthorized>
 </AuthorizeView>
 @code {
 	// Property used to add or edit the currently selected user

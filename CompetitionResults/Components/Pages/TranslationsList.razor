@@ -6,8 +6,9 @@
 @inject CompetitionStateService CompetitionState
 @inject IJSRuntime JSRuntime
 @implements IDisposable
+@inject IStringLocalizer<SharedResource> L
 
-<h3>Translations</h3>
+<h3>@L["Translations"]</h3>
 
 <AuthorizeView Roles="Admin, Manager">
     <Authorized>
@@ -15,16 +16,16 @@
 
         @if (translations == null)
         {
-            <p><em>Loading...</em></p>
+            <p><em>@L["Loading..."]</em></p>
         }
         else
         {
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Key</th>
-                        <th>Value</th>
-                        <th>Actions</th>
+                        <th>@L["Key"]</th>
+                        <th>@L["Value"]</th>
+                        <th>@L["Actions"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,7 +35,7 @@
                             <td>@tr.Key</td>
                             <td>@tr.Value</td>
                             <td>
-                                <button @onclick="() => EditTranslation(tr)">Edit</button>
+                                <button @onclick="() => EditTranslation(tr)">@L["Edit"]</button>
                             </td>
                         </tr>
                     }
@@ -43,7 +44,7 @@
         }
     </Authorized>
     <NotAuthorized>
-        <p>You're not loggged in.</p>
+        <p>@L["You're not logged in."]</p>
     </NotAuthorized>
 </AuthorizeView>
 

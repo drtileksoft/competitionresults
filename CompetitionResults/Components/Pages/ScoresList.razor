@@ -8,12 +8,13 @@
 @inject ResultService ResultService
 @inject CompetitionStateService CompetitionState
 @implements IDisposable
+@inject IStringLocalizer<SharedResource> L
 
-<h3>Scores List</h3>
+<h3>@L["Scores List"]</h3>
 <div>
-    <input class="form-control d-inline-block me-2" style="width: 120px;" placeholder="#"
-           @bind="filterId" @bind:event="oninput" />
-    <input class="form-control d-inline-block" style="width: 200px;" placeholder="Name"
+    <input class="form-control d-inline-block me-2" style="width: 120px;" placeholder='@L["Start number"]'
+            @bind="filterId" @bind:event="oninput" />
+    <input class="form-control d-inline-block" style="width: 200px;" placeholder='@L["Name"]'
            @bind="filterName" @bind:event="oninput" />
 </div>
 <AuthorizeView Roles="Admin, Manager, User">
@@ -25,7 +26,7 @@
 
 @if (throwers == null || disciplines == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@L["Loading..."]</em></p>
 }
 else
 {
@@ -33,9 +34,9 @@ else
         <thead>
             <tr>
                 <th>#</th>
-                <th>Name</th>
-                        <th>Edit</th>
-                        <th>Bullseyes</th>
+                <th>@L["Name"]</th>
+                        <th>@L["Edit"]</th>
+                        <th>@L["Bullseyes"]</th>
                 @foreach (var discipline in disciplines)
                 {
                     <th>@discipline.Name</th>
@@ -54,10 +55,10 @@ else
                                 }
                     </td>
                             <td>
-                                <button @onclick="() => EditScores(thrower)">Edit</button>
+                                <button @onclick="() => EditScores(thrower)">@L["Edit"]</button>
                             </td>
                             <td>
-                                <button class="btn btn-outline-danger btn-sm ms-1" @onclick="() => EditBullseyes(thrower)">Bullseyes</button>
+                                <button class="btn btn-outline-danger btn-sm ms-1" @onclick="() => EditBullseyes(thrower)">@L["Bullseyes"]</button>
                             </td>
                     @foreach (var discipline in disciplines)
                     {
@@ -74,7 +75,7 @@ else
 
     </Authorized>
     <NotAuthorized>
-        <p>You're not loggged in.</p>
+        <p>@L["You're not logged in."]</p>
     </NotAuthorized>
 </AuthorizeView>
 

@@ -495,4 +495,166 @@
   <data name="Are you sure you want to delete this discipline?" xml:space="preserve">
     <value>Вы уверены, что хотите удалить эту дисциплину?</value>
   </data>
+  <data name="Total winner" xml:space="preserve">
+    <value>Общий победитель</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>Место</value>
+  </data>
+  <data name="Points" xml:space="preserve">
+    <value>Очки</value>
+  </data>
+  <data name="Award Points" xml:space="preserve">
+    <value>Бонусные очки</value>
+  </data>
+  <data name="N/A" xml:space="preserve">
+    <value>Н/Д</value>
+  </data>
+  <data name="Failed to load results: {0}" xml:space="preserve">
+    <value>Не удалось загрузить результаты: {0}</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>Страна</value>
+  </data>
+  <data name="All countries" xml:space="preserve">
+    <value>Все страны</value>
+  </data>
+  <data name="Showing only throwers from {0}." xml:space="preserve">
+    <value>Показаны только участники из {0}.</value>
+  </data>
+  <data name="No results." xml:space="preserve">
+    <value>Нет результатов.</value>
+  </data>
+  <data name="No results for {0}." xml:space="preserve">
+    <value>Нет результатов для {0}.</value>
+  </data>
+  <data name="Thrower" xml:space="preserve">
+    <value>Участник</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Зарегистрироваться</value>
+  </data>
+  <data name="Registration is full!" xml:space="preserve">
+    <value>Регистрация заполнена!</value>
+  </data>
+  <data name="Registered throwers" xml:space="preserve">
+    <value>Зарегистрированные участники</value>
+  </data>
+  <data name="Payment done" xml:space="preserve">
+    <value>Оплата выполнена</value>
+  </data>
+  <data name="Start number" xml:space="preserve">
+    <value>Стартовый номер</value>
+  </data>
+  <data name="Scores List" xml:space="preserve">
+    <value>Список очков</value>
+  </data>
+  <data name="Bullseyes" xml:space="preserve">
+    <value>Буллзай</value>
+  </data>
+  <data name="Results for {0}" xml:space="preserve">
+    <value>Результаты для {0}</value>
+  </data>
+  <data name="Discipline:" xml:space="preserve">
+    <value>Дисциплина:</value>
+  </data>
+  <data name="Position:" xml:space="preserve">
+    <value>Позиция:</value>
+  </data>
+  <data name="Points:" xml:space="preserve">
+    <value>Очки:</value>
+  </data>
+  <data name="Select disciplines to display" xml:space="preserve">
+    <value>Выберите дисциплины для отображения</value>
+  </data>
+  <data name="Export to PDF" xml:space="preserve">
+    <value>Экспорт в PDF</value>
+  </data>
+  <data name="Overall" xml:space="preserve">
+    <value>Общий итог</value>
+  </data>
+  <data name="Overall 2" xml:space="preserve">
+    <value>Общий итог 2</value>
+  </data>
+  <data name="Medals by nation" xml:space="preserve">
+    <value>Медали по странам</value>
+  </data>
+  <data name="No medals found." xml:space="preserve">
+    <value>Медалей не найдено.</value>
+  </data>
+  <data name="Nation" xml:space="preserve">
+    <value>Страна</value>
+  </data>
+  <data name="Gold" xml:space="preserve">
+    <value>Золото</value>
+  </data>
+  <data name="Silver" xml:space="preserve">
+    <value>Серебро</value>
+  </data>
+  <data name="Bronze" xml:space="preserve">
+    <value>Бронза</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Итого</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>Ключ</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Значение</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="Error." xml:space="preserve">
+    <value>Ошибка.</value>
+  </data>
+  <data name="An error occurred while processing your request." xml:space="preserve">
+    <value>При обработке вашего запроса произошла ошибка.</value>
+  </data>
+  <data name="Request ID:" xml:space="preserve">
+    <value>Идентификатор запроса:</value>
+  </data>
+  <data name="Development Mode" xml:space="preserve">
+    <value>Режим разработки</value>
+  </data>
+  <data name="Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred." xml:space="preserve">
+    <value><![CDATA[Переход в среду <strong>Development</strong> показывает подробную информацию о возникшей ошибке.]]></value>
+  </data>
+  <data name="<strong>The Development environment shouldn't be enabled for deployed applications.</strong>" xml:space="preserve">
+    <value><![CDATA[<strong>Среду Development не следует включать для развернутых приложений.</strong>]]></value>
+  </data>
+  <data name="It can result in displaying sensitive information from exceptions to end users." xml:space="preserve">
+    <value>Это может привести к отображению конфиденциальной информации из исключений конечным пользователям.</value>
+  </data>
+  <data name="For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong> and restarting the app." xml:space="preserve">
+    <value><![CDATA[Для локальной отладки включите среду <strong>Development</strong>, установив переменную <strong>ASPNETCORE_ENVIRONMENT</strong> в значение <strong>Development</strong> и перезапустив приложение.]]></value>
+  </data>
+  <data name="Administration" xml:space="preserve">
+    <value>Администрирование</value>
+  </data>
+  <data name="Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="User Name" xml:space="preserve">
+    <value>Имя пользователя</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>Действие</value>
+  </data>
+  <data name="Edit User" xml:space="preserve">
+    <value>Редактировать пользователя</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Пароль</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Сохранить</value>
+  </data>
+  <data name="Add User" xml:space="preserve">
+    <value>Добавить пользователя</value>
+  </data>
+  <data name="You're not signed in as a user in {0}." xml:space="preserve">
+    <value>Вы не вошли как пользователь в роли {0}.</value>
+  </data>
 </root>
