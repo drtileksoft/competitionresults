@@ -201,4 +201,211 @@
   <data name="Are you sure you want to delete this competition?" xml:space="preserve">
     <value>Opravdu chcete smazat tuto soutěž?</value>
   </data>
+  <data name="Add New Category" xml:space="preserve">
+    <value>Přidat novou kategorii</value>
+  </data>
+  <data name="Are you sure you want to delete this category?" xml:space="preserve">
+    <value>Opravdu chcete smazat tuto kategorii?</value>
+  </data>
+  <data name="Categories List" xml:space="preserve">
+    <value>Seznam kategorií</value>
+  </data>
+  <data name="Disciplines List" xml:space="preserve">
+    <value>Seznam disciplín</value>
+  </data>
+  <data name="Add New Discipline" xml:space="preserve">
+    <value>Přidat novou disciplínu</value>
+  </data>
+  <data name="Is Divided To Categories" xml:space="preserve">
+    <value>Je rozdělená do kategorií</value>
+  </data>
+  <data name="Has Positions Instead of Points" xml:space="preserve">
+    <value>Má pořadí místo bodů</value>
+  </data>
+  <data name="Has Decimal Points" xml:space="preserve">
+    <value>Má desetinné body</value>
+  </data>
+  <data name="Competition Manager Assignments" xml:space="preserve">
+    <value>Přiřazení manažerů soutěží</value>
+  </data>
+  <data name="Select manager:" xml:space="preserve">
+    <value>Vyberte manažera:</value>
+  </data>
+  <data name="-- Select Manager --" xml:space="preserve">
+    <value>-- Vyberte manažera --</value>
+  </data>
+  <data name="Competition" xml:space="preserve">
+    <value>Soutěž</value>
+  </data>
+  <data name="Assigned" xml:space="preserve">
+    <value>Přiřazeno</value>
+  </data>
+  <data name="Throwers List" xml:space="preserve">
+    <value>Seznam vrhačů</value>
+  </data>
+  <data name="Add New Thrower" xml:space="preserve">
+    <value>Přidat nového vrhače</value>
+  </data>
+  <data name="Send Emails to Unpaid Throwers" xml:space="preserve">
+    <value>Odeslat e-maily nezaplaceným vrhačům</value>
+  </data>
+  <data name="Send Emails" xml:space="preserve">
+    <value>Odeslat e-maily</value>
+  </data>
+  <data name="Surname" xml:space="preserve">
+    <value>Příjmení</value>
+  </data>
+  <data name="Nickname" xml:space="preserve">
+    <value>Přezdívka</value>
+  </data>
+  <data name="Nationality" xml:space="preserve">
+    <value>Národnost</value>
+  </data>
+  <data name="Flag" xml:space="preserve">
+    <value>Vlajka</value>
+  </data>
+  <data name="Club Name" xml:space="preserve">
+    <value>Název klubu</value>
+  </data>
+  <data name="Camping on site" xml:space="preserve">
+    <value>Kempování na místě</value>
+  </data>
+  <data name="Want T-Shirt (size)" xml:space="preserve">
+    <value>Chce tričko (velikost)</value>
+  </data>
+  <data name="Is paid (amount)" xml:space="preserve">
+    <value>Zaplaceno (částka)</value>
+  </data>
+  <data name="To Be Paid" xml:space="preserve">
+    <value>Doplatek</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>Poznámka</value>
+  </data>
+  <data name="Send registration email" xml:space="preserve">
+    <value>Odeslat registrační e-mail</value>
+  </data>
+  <data name="Send unpaid email" xml:space="preserve">
+    <value>Odeslat e-mail o nezaplacení</value>
+  </data>
+  <data name="Total throwers: {0}" xml:space="preserve">
+    <value>Celkem vrhačů: {0}</value>
+  </data>
+  <data name="Total payments: {0}" xml:space="preserve">
+    <value>Celkem plateb: {0}</value>
+  </data>
+  <data name="Total countries: {0}" xml:space="preserve">
+    <value>Celkem zemí: {0}</value>
+  </data>
+  <data name="Categories:" xml:space="preserve">
+    <value>Kategorie:</value>
+  </data>
+  <data name="Total campers: {0}" xml:space="preserve">
+    <value>Celkem kempujících: {0}</value>
+  </data>
+  <data name="T-shirts:" xml:space="preserve">
+    <value>Trička:</value>
+  </data>
+  <data name="Throwers by country:" xml:space="preserve">
+    <value>Vrhači podle zemí:</value>
+  </data>
+  <data name="Total missing payments above tolerance:" xml:space="preserve">
+    <value>Celkový chybějící doplatek nad toleranci:</value>
+  </data>
+  <data name="Are you sure you want to send registration email to this thrower?" xml:space="preserve">
+    <value>Opravdu chcete odeslat registrační e-mail tomuto vrhači?</value>
+  </data>
+  <data name="Are you sure you want to send unpaid email to this thrower?" xml:space="preserve">
+    <value>Opravdu chcete odeslat e-mail o nezaplacení tomuto vrhači?</value>
+  </data>
+  <data name="Are you sure you want to send emails to {0} unpaid throwers?" xml:space="preserve">
+    <value>Opravdu chcete odeslat e-maily {0} nezaplaceným vrhačům?</value>
+  </data>
+  <data name="Emails sent to unpaid throwers." xml:space="preserve">
+    <value>E-maily byly odeslány nezaplaceným vrhačům.</value>
+  </data>
+  <data name="No unpaid throwers to send emails to." xml:space="preserve">
+    <value>Žádní nezaplacení vrhači pro odeslání e-mailů.</value>
+  </data>
+  <data name="Are you sure you want to send emails to {0} throwers?" xml:space="preserve">
+    <value>Opravdu chcete odeslat e-maily {0} vrhačům?</value>
+  </data>
+  <data name="Emails sent to throwers." xml:space="preserve">
+    <value>E-maily byly odeslány vrhačům.</value>
+  </data>
+  <data name="No throwers to send emails to." xml:space="preserve">
+    <value>Žádní vrhači pro odeslání e-mailů.</value>
+  </data>
+  <data name="Are you sure you want to delete this thrower?" xml:space="preserve">
+    <value>Opravdu chcete smazat tohoto vrhače?</value>
+  </data>
+  <data name="Send Email" xml:space="preserve">
+    <value>Odeslat e-mail</value>
+  </data>
+  <data name="Local message:" xml:space="preserve">
+    <value>Zpráva v místním jazyce:</value>
+  </data>
+  <data name="English message:" xml:space="preserve">
+    <value>Zpráva v angličtině:</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Zrušit</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Odeslat</value>
+  </data>
+  <data name="Edit Thrower" xml:space="preserve">
+    <value>Upravit vrhače</value>
+  </data>
+  <data name="Name:" xml:space="preserve">
+    <value>Jméno:</value>
+  </data>
+  <data name="Surname:" xml:space="preserve">
+    <value>Příjmení:</value>
+  </data>
+  <data name="Nickname:" xml:space="preserve">
+    <value>Přezdívka:</value>
+  </data>
+  <data name="Nationality:" xml:space="preserve">
+    <value>Národnost:</value>
+  </data>
+  <data name="Club Name:" xml:space="preserve">
+    <value>Název klubu:</value>
+  </data>
+  <data name="Email:" xml:space="preserve">
+    <value>E-mail:</value>
+  </data>
+  <data name="Note:" xml:space="preserve">
+    <value>Poznámka:</value>
+  </data>
+  <data name="Category:" xml:space="preserve">
+    <value>Kategorie:</value>
+  </data>
+  <data name="Camping on site:" xml:space="preserve">
+    <value>Kempování na místě:</value>
+  </data>
+  <data name="Interested in T-Shirt of competition for additional 10€:" xml:space="preserve">
+    <value>Má zájem o tričko ze soutěže za příplatek 10 €:</value>
+  </data>
+  <data name="T-Shirt design" xml:space="preserve">
+    <value>Náhled trička</value>
+  </data>
+  <data name="Select T-Shirt Size:" xml:space="preserve">
+    <value>Vyberte velikost trička:</value>
+  </data>
+  <data name="Is Paid:" xml:space="preserve">
+    <value>Zaplaceno:</value>
+  </data>
+  <data name="Payment:" xml:space="preserve">
+    <value>Platba:</value>
+  </data>
+  <data name="Do not send registration email:" xml:space="preserve">
+    <value>Nezasílat registrační e-mail:</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Zavřít</value>
+  </data>
+  <data name="Save changes" xml:space="preserve">
+    <value>Uložit změny</value>
+  </data>
 </root>

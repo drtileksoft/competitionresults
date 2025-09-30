@@ -201,4 +201,211 @@
   <data name="Are you sure you want to delete this competition?" xml:space="preserve">
     <value>Sei sicuro di voler eliminare questa competizione?</value>
   </data>
+  <data name="Add New Category" xml:space="preserve">
+    <value>Aggiungi nuova categoria</value>
+  </data>
+  <data name="Are you sure you want to delete this category?" xml:space="preserve">
+    <value>Sei sicuro di voler eliminare questa categoria?</value>
+  </data>
+  <data name="Categories List" xml:space="preserve">
+    <value>Elenco categorie</value>
+  </data>
+  <data name="Disciplines List" xml:space="preserve">
+    <value>Elenco discipline</value>
+  </data>
+  <data name="Add New Discipline" xml:space="preserve">
+    <value>Aggiungi nuova disciplina</value>
+  </data>
+  <data name="Is Divided To Categories" xml:space="preserve">
+    <value>È suddivisa in categorie</value>
+  </data>
+  <data name="Has Positions Instead of Points" xml:space="preserve">
+    <value>Ha posizioni invece di punti</value>
+  </data>
+  <data name="Has Decimal Points" xml:space="preserve">
+    <value>Ha punti decimali</value>
+  </data>
+  <data name="Competition Manager Assignments" xml:space="preserve">
+    <value>Assegnazioni dei responsabili gara</value>
+  </data>
+  <data name="Select manager:" xml:space="preserve">
+    <value>Seleziona responsabile:</value>
+  </data>
+  <data name="-- Select Manager --" xml:space="preserve">
+    <value>-- Seleziona responsabile --</value>
+  </data>
+  <data name="Competition" xml:space="preserve">
+    <value>Gara</value>
+  </data>
+  <data name="Assigned" xml:space="preserve">
+    <value>Assegnato</value>
+  </data>
+  <data name="Throwers List" xml:space="preserve">
+    <value>Elenco lanciatori</value>
+  </data>
+  <data name="Add New Thrower" xml:space="preserve">
+    <value>Aggiungi nuovo lanciatore</value>
+  </data>
+  <data name="Send Emails to Unpaid Throwers" xml:space="preserve">
+    <value>Invia e-mail ai lanciatori non paganti</value>
+  </data>
+  <data name="Send Emails" xml:space="preserve">
+    <value>Invia e-mail</value>
+  </data>
+  <data name="Surname" xml:space="preserve">
+    <value>Cognome</value>
+  </data>
+  <data name="Nickname" xml:space="preserve">
+    <value>Soprannome</value>
+  </data>
+  <data name="Nationality" xml:space="preserve">
+    <value>Nazionalità</value>
+  </data>
+  <data name="Flag" xml:space="preserve">
+    <value>Bandiera</value>
+  </data>
+  <data name="Club Name" xml:space="preserve">
+    <value>Nome del club</value>
+  </data>
+  <data name="Camping on site" xml:space="preserve">
+    <value>Campeggio sul posto</value>
+  </data>
+  <data name="Want T-Shirt (size)" xml:space="preserve">
+    <value>Desidera la maglietta (taglia)</value>
+  </data>
+  <data name="Is paid (amount)" xml:space="preserve">
+    <value>Pagato (importo)</value>
+  </data>
+  <data name="To Be Paid" xml:space="preserve">
+    <value>Da pagare</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>Nota</value>
+  </data>
+  <data name="Send registration email" xml:space="preserve">
+    <value>Invia e-mail di registrazione</value>
+  </data>
+  <data name="Send unpaid email" xml:space="preserve">
+    <value>Invia e-mail di sollecito</value>
+  </data>
+  <data name="Total throwers: {0}" xml:space="preserve">
+    <value>Totale lanciatori: {0}</value>
+  </data>
+  <data name="Total payments: {0}" xml:space="preserve">
+    <value>Totale pagamenti: {0}</value>
+  </data>
+  <data name="Total countries: {0}" xml:space="preserve">
+    <value>Totale paesi: {0}</value>
+  </data>
+  <data name="Categories:" xml:space="preserve">
+    <value>Categorie:</value>
+  </data>
+  <data name="Total campers: {0}" xml:space="preserve">
+    <value>Totale campeggiatori: {0}</value>
+  </data>
+  <data name="T-shirts:" xml:space="preserve">
+    <value>Magliette:</value>
+  </data>
+  <data name="Throwers by country:" xml:space="preserve">
+    <value>Lanciatori per paese:</value>
+  </data>
+  <data name="Total missing payments above tolerance:" xml:space="preserve">
+    <value>Pagamenti mancanti oltre la tolleranza totali:</value>
+  </data>
+  <data name="Are you sure you want to send registration email to this thrower?" xml:space="preserve">
+    <value>Sei sicuro di voler inviare l'e-mail di registrazione a questo lanciatore?</value>
+  </data>
+  <data name="Are you sure you want to send unpaid email to this thrower?" xml:space="preserve">
+    <value>Sei sicuro di voler inviare l'e-mail di sollecito a questo lanciatore?</value>
+  </data>
+  <data name="Are you sure you want to send emails to {0} unpaid throwers?" xml:space="preserve">
+    <value>Sei sicuro di voler inviare e-mail a {0} lanciatori non paganti?</value>
+  </data>
+  <data name="Emails sent to unpaid throwers." xml:space="preserve">
+    <value>E-mail inviate ai lanciatori non paganti.</value>
+  </data>
+  <data name="No unpaid throwers to send emails to." xml:space="preserve">
+    <value>Nessun lanciatore non pagante a cui inviare e-mail.</value>
+  </data>
+  <data name="Are you sure you want to send emails to {0} throwers?" xml:space="preserve">
+    <value>Sei sicuro di voler inviare e-mail a {0} lanciatori?</value>
+  </data>
+  <data name="Emails sent to throwers." xml:space="preserve">
+    <value>E-mail inviate ai lanciatori.</value>
+  </data>
+  <data name="No throwers to send emails to." xml:space="preserve">
+    <value>Nessun lanciatore a cui inviare e-mail.</value>
+  </data>
+  <data name="Are you sure you want to delete this thrower?" xml:space="preserve">
+    <value>Sei sicuro di voler eliminare questo lanciatore?</value>
+  </data>
+  <data name="Send Email" xml:space="preserve">
+    <value>Invia e-mail</value>
+  </data>
+  <data name="Local message:" xml:space="preserve">
+    <value>Messaggio locale:</value>
+  </data>
+  <data name="English message:" xml:space="preserve">
+    <value>Messaggio in inglese:</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annulla</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Invia</value>
+  </data>
+  <data name="Edit Thrower" xml:space="preserve">
+    <value>Modifica lanciatore</value>
+  </data>
+  <data name="Name:" xml:space="preserve">
+    <value>Nome:</value>
+  </data>
+  <data name="Surname:" xml:space="preserve">
+    <value>Cognome:</value>
+  </data>
+  <data name="Nickname:" xml:space="preserve">
+    <value>Soprannome:</value>
+  </data>
+  <data name="Nationality:" xml:space="preserve">
+    <value>Nazionalità:</value>
+  </data>
+  <data name="Club Name:" xml:space="preserve">
+    <value>Nome del club:</value>
+  </data>
+  <data name="Email:" xml:space="preserve">
+    <value>E-mail:</value>
+  </data>
+  <data name="Note:" xml:space="preserve">
+    <value>Nota:</value>
+  </data>
+  <data name="Category:" xml:space="preserve">
+    <value>Categoria:</value>
+  </data>
+  <data name="Camping on site:" xml:space="preserve">
+    <value>Campeggio sul posto:</value>
+  </data>
+  <data name="Interested in T-Shirt of competition for additional 10€:" xml:space="preserve">
+    <value>Interessato alla maglietta della competizione con un supplemento di 10€:</value>
+  </data>
+  <data name="T-Shirt design" xml:space="preserve">
+    <value>Design della maglietta</value>
+  </data>
+  <data name="Select T-Shirt Size:" xml:space="preserve">
+    <value>Seleziona la taglia della maglietta:</value>
+  </data>
+  <data name="Is Paid:" xml:space="preserve">
+    <value>Pagato:</value>
+  </data>
+  <data name="Payment:" xml:space="preserve">
+    <value>Pagamento:</value>
+  </data>
+  <data name="Do not send registration email:" xml:space="preserve">
+    <value>Non inviare l'e-mail di registrazione:</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Chiudi</value>
+  </data>
+  <data name="Save changes" xml:space="preserve">
+    <value>Salva modifiche</value>
+  </data>
 </root>

@@ -1,24 +1,26 @@
 @using Microsoft.AspNetCore.Components
+@inject IStringLocalizer<SharedResource> L
+
 <div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Send Email</h5>
+                <h5 class="modal-title">@L["Send Email"]</h5>
                 <button type="button" class="btn-close" @onclick="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label>Local message:</label>
+                    <label>@L["Local message:"]</label>
                     <InputTextArea class="form-control" @bind-Value="content.LocalMessage" />
                 </div>
                 <div class="mb-3">
-                    <label>English message:</label>
+                    <label>@L["English message:"]</label>
                     <InputTextArea class="form-control" @bind-Value="content.EnglishMessage" />
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="Close">Cancel</button>
-                <button type="button" class="btn btn-primary" @onclick="Send">Send</button>
+                <button type="button" class="btn btn-secondary" @onclick="Close">@L["Cancel"]</button>
+                <button type="button" class="btn btn-primary" @onclick="Send">@L["Send"]</button>
             </div>
         </div>
     </div>

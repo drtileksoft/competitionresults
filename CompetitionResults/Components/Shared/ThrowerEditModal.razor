@@ -4,6 +4,7 @@
 @inject CompetitionService CompetitionService
 @inject CategoryService CategoryService
 @inject CompetitionStateService CompetitionState
+@inject IStringLocalizer<SharedResource> L
 
 <div class="modal fade @(IsOpen ? "show" : "")" style="display: @(IsOpen ? "block" : "none");">
 	<div class="modal-dialog modal-lg">
@@ -12,29 +13,29 @@
 				<DataAnnotationsValidator />
 				<ValidationSummary />
 				<div class="modal-header">
-					<h5 class="modal-title">Edit Thrower</h5>
+                                        <h5 class="modal-title">@L["Edit Thrower"]</h5>
 					<button type="button" class="btn-close" @onclick="Close"></button>
 				</div>
 				<div class="modal-body">
 
 					<div class="form-grid">
 						<div>
-							<label for="name">Name:</label>
+                                                        <label for="name">@L["Name:"]</label>
 							<InputText id="name" @bind-Value="@_thrower.Name" />
 						</div>
 
 						<div>
-							<label for="surname">Surname:</label>
+                                                        <label for="surname">@L["Surname:"]</label>
 							<InputText id="surname" @bind-Value="@_thrower.Surname" />
 						</div>
 
 						<div>
-							<label for="nickname">Nickname:</label>
+                                                        <label for="nickname">@L["Nickname:"]</label>
 							<InputText id="nickname" @bind-Value="@_thrower.Nickname" />
 						</div>
 
 						<div>
-							<label for="nationality">Nationality:</label>
+                                                        <label for="nationality">@L["Nationality:"]</label>
 							<select id="nationality" @bind="_thrower.Nationality">
 								@foreach (var country in countries)
 								{
@@ -44,22 +45,22 @@
 						</div>
 
 						<div>
-							<label for="clubName">Club Name:</label>
+                                                        <label for="clubName">@L["Club Name:"]</label>
 							<InputText id="clubName" @bind-Value="@_thrower.ClubName" />
 						</div>
 
 						<div>
-							<label for="email">Email:</label>
+                                                        <label for="email">@L["Email:"]</label>
 							<InputText id="email" @bind-Value="@_thrower.Email" type="email" />
 						</div>
 
 						<div>
-							<label for="note">Note:</label>
+                                                        <label for="note">@L["Note:"]</label>
 							<InputTextArea id="note" @bind-Value="@_thrower.Note" />
 						</div>
 
 						<div>
-							<label for="categoryId">Category:</label>
+                                                        <label for="categoryId">@L["Category:"]</label>
 							<select id="categoryId" @bind="_thrower.CategoryId">
 								@foreach (var category in categories)
 								{
@@ -71,7 +72,7 @@
 						@if (_competition.CampingOnSiteAvailable)
 						{
 							<div>
-								<label for="isCampingOnSite">Camping on site:</label>
+                                                                <label for="isCampingOnSite">@L["Camping on site:"]</label>
 								<InputCheckbox id="isCampingOnSite" @bind-Value="_thrower.IsCampingOnSite" />
 							</div>
 						}
@@ -79,7 +80,7 @@
 						@if (_competition.TShirtAvailable)
 						{
 							<div>
-								<label for="wantTShirt">Interested in T-Shirt of competition for additional 10€:</label>
+                                                                <label for="wantTShirt">@L["Interested in T-Shirt of competition for additional 10€:"]</label>
 								<InputCheckbox id="wantTShirt" @bind-Value="_thrower.WantTShirt" />
 							</div>
 
@@ -87,8 +88,8 @@
 							{
 								<div>
 									<a href="@_competition.TShirtLink" target="_blank">
-										<img src="@_competition.TShirtLink" alt="T-Shirt design" style="width:30px;" />
-										<span>T-Shirt design</span>
+                                                                                <img src="@_competition.TShirtLink" alt="@L["T-Shirt design"]" style="width:30px;" />
+                                                                                <span>@L["T-Shirt design"]</span>
 									</a>
 								</div>
 							}
@@ -96,7 +97,7 @@
 							@if (_thrower.WantTShirt)
 							{
 								<div>
-									<label for="tShirtSize">Select T-Shirt Size:</label>
+                                                                        <label for="tShirtSize">@L["Select T-Shirt Size:"]</label>
 									<InputSelect id="tShirtSize" @bind-Value="_thrower.TShirtSize">
 										<option value="XS">XS</option>
 										<option value="S">S</option>
@@ -113,25 +114,25 @@
 						}
 
 						<div>
-							<label for="isPaid">Is Paid:</label>
+                                                        <label for="isPaid">@L["Is Paid:"]</label>
 							<InputCheckbox id="isPaid" @bind-Value="_thrower.PaymentDone" />
 						</div>
 
 						<div>
-							<label for="payment">Payment:</label>
+                                                        <label for="payment">@L["Payment:"]</label>
 							<input type="number" id="payment" @bind="_thrower.Payment" />
 						</div>
 
 						<div>
-							<label for="donotsend">Do not send registration email:</label>
+                                                        <label for="donotsend">@L["Do not send registration email:"]</label>
 							<InputCheckbox id="donotsend" @bind-Value="_thrower.DoNotSendRegistrationEmail" />
 						</div>
 
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
-					<button type="submit" class="btn btn-primary">Save changes</button>
+                                        <button type="button" class="btn btn-secondary" @onclick="Close">@L["Close"]</button>
+                                        <button type="submit" class="btn btn-primary">@L["Save changes"]</button>
 				</div>
 			</EditForm>
 		</div>

@@ -5,26 +5,27 @@
 @inject CompetitionStateService CompetitionState
 @implements IDisposable
 @inject IJSRuntime JSRuntime
+@inject IStringLocalizer<SharedResource> L
 
-<h3>Categories List</h3>
+<h3>@L["Categories List"]</h3>
 
 <AuthorizeView Roles="Admin, Manager">
-	<Authorized>
-<button @onclick="AddNew">Add New Category</button>
+        <Authorized>
+<button @onclick="AddNew">@L["Add New Category"]</button>
 
 <CategoryEditModal @ref="categoryEditModal" OnClose="HandleModalClose" Category="currentCategory" OnFormSubmit="HandleFormSubmit" />
 
 @if (categories == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@L["Loading..."]</em></p>
 }
 else
 {
     <table class="table">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Actions</th>
+                <th>@L["Name"]</th>
+                <th>@L["Actions"]</th>
             </tr>
         </thead>
         <tbody>
@@ -33,8 +34,8 @@ else
                 <tr>
                     <td>@category.Name</td>
                     <td>
-                        <button @onclick="() => EditCategory(category)">Edit</button>
-                        <button @onclick="() => DeleteCategory(category.Id)">Delete</button>
+                        <button @onclick="() => EditCategory(category)">@L["Edit"]</button>
+                        <button @onclick="() => DeleteCategory(category.Id)">@L["Delete"]</button>
                     </td>
                 </tr>
             }
@@ -43,7 +44,7 @@ else
 }
     </Authorized>
     <NotAuthorized>
-        <p>You're not loggged in.</p>
+        <p>@L["You're not logged in."]</p>
     </NotAuthorized>
 </AuthorizeView>
 
@@ -85,7 +86,7 @@ else
 
     private async Task DeleteCategory(int categoryId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this category?");
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to delete this category?"]);
         if (confirmed)
         {
             await CategoryService.DeleteCategoryAsync(categoryId);
