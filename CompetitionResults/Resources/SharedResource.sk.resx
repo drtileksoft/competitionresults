@@ -375,6 +375,9 @@
   <data name="Email:" xml:space="preserve">
     <value>E-mail:</value>
   </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
   <data name="Note:" xml:space="preserve">
     <value>Poznámka:</value>
   </data>
@@ -407,5 +410,89 @@
   </data>
   <data name="Save changes" xml:space="preserve">
     <value>Uložiť zmeny</value>
+  </data>
+  <data name="Registration Of Thrower" xml:space="preserve">
+    <value>Registrácia vrhača</value>
+  </data>
+  <data name="Description:" xml:space="preserve">
+    <value>Popis:</value>
+  </data>
+  <data name="Camping on site available:" xml:space="preserve">
+    <value>K dispozícii kempovanie na mieste:</value>
+  </data>
+  <data name="T-Shirt available:" xml:space="preserve">
+    <value>Tričko k dispozícii:</value>
+  </data>
+  <data name="T-Shirt price EUR:" xml:space="preserve">
+    <value>Cena trička v EUR:</value>
+  </data>
+  <data name="T-Shirt price LOCAL:" xml:space="preserve">
+    <value>Cena trička v miestnej mene:</value>
+  </data>
+  <data name="T-Shirt image url (link to picture):" xml:space="preserve">
+    <value>URL obrázka trička (odkaz na obrázok):</value>
+  </data>
+  <data name="Email template footer english:" xml:space="preserve">
+    <value>Pätička e-mailovej šablóny v angličtine:</value>
+  </data>
+  <data name="Email template footer local:" xml:space="preserve">
+    <value>Pätička e-mailovej šablóny v miestnom jazyku:</value>
+  </data>
+  <data name="Maximum number of competitors:" xml:space="preserve">
+    <value>Maximálny počet súťažiacich:</value>
+  </data>
+  <data name="Competition price EUR:" xml:space="preserve">
+    <value>Cena súťaže v EUR:</value>
+  </data>
+  <data name="Competition price LOCAL:" xml:space="preserve">
+    <value>Cena súťaže v miestnej mene:</value>
+  </data>
+  <data name="Local language (country code):" xml:space="preserve">
+    <value>Miestny jazyk (kód krajiny):</value>
+  </data>
+  <data name="Edit Competition" xml:space="preserve">
+    <value>Upraviť súťaž</value>
+  </data>
+  <data name="Edit Category" xml:space="preserve">
+    <value>Upraviť kategóriu</value>
+  </data>
+  <data name="Edit Discipline" xml:space="preserve">
+    <value>Upraviť disciplínu</value>
+  </data>
+  <data name="Edit Translation" xml:space="preserve">
+    <value>Upraviť preklad</value>
+  </data>
+  <data name="Key:" xml:space="preserve">
+    <value>Kľúč:</value>
+  </data>
+  <data name="Value:" xml:space="preserve">
+    <value>Hodnota:</value>
+  </data>
+  <data name="Language:" xml:space="preserve">
+    <value>Jazyk:</value>
+  </data>
+  <data name="Is Divided To Categories:" xml:space="preserve">
+    <value>Je rozdelená do kategórií:</value>
+  </data>
+  <data name="Has Positions Instead of Points:" xml:space="preserve">
+    <value>Má poradia namiesto bodov:</value>
+  </data>
+  <data name="Has Decimal Points:" xml:space="preserve">
+    <value>Obsahuje desatinné miesta:</value>
+  </data>
+  <data name="Edit Bullseyes for" xml:space="preserve">
+    <value>Upraviť bullseye pre</value>
+  </data>
+  <data name="Edit Scores for" xml:space="preserve">
+    <value>Upraviť body pre</value>
+  </data>
+  <data name="Clear database" xml:space="preserve">
+    <value>Vymazať databázu</value>
+  </data>
+  <data name="Fill random scores" xml:space="preserve">
+    <value>Vyplniť náhodné výsledky</value>
+  </data>
+  <data name="Are you sure you want to delete this discipline?" xml:space="preserve">
+    <value>Naozaj chcete odstrániť túto disciplínu?</value>
   </data>
 </root>

@@ -375,6 +375,9 @@
   <data name="Email:" xml:space="preserve">
     <value>E-mail :</value>
   </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
   <data name="Note:" xml:space="preserve">
     <value>Note :</value>
   </data>
@@ -407,5 +410,89 @@
   </data>
   <data name="Save changes" xml:space="preserve">
     <value>Enregistrer les modifications</value>
+  </data>
+  <data name="Registration Of Thrower" xml:space="preserve">
+    <value>Inscription du lanceur</value>
+  </data>
+  <data name="Description:" xml:space="preserve">
+    <value>Description :</value>
+  </data>
+  <data name="Camping on site available:" xml:space="preserve">
+    <value>Camping sur place disponible :</value>
+  </data>
+  <data name="T-Shirt available:" xml:space="preserve">
+    <value>T-shirt disponible :</value>
+  </data>
+  <data name="T-Shirt price EUR:" xml:space="preserve">
+    <value>Prix du t-shirt en EUR :</value>
+  </data>
+  <data name="T-Shirt price LOCAL:" xml:space="preserve">
+    <value>Prix du t-shirt en devise locale :</value>
+  </data>
+  <data name="T-Shirt image url (link to picture):" xml:space="preserve">
+    <value>URL de l'image du t-shirt (lien vers l'image) :</value>
+  </data>
+  <data name="Email template footer english:" xml:space="preserve">
+    <value>Pied de page du modèle d'e-mail en anglais :</value>
+  </data>
+  <data name="Email template footer local:" xml:space="preserve">
+    <value>Pied de page du modèle d'e-mail en langue locale :</value>
+  </data>
+  <data name="Maximum number of competitors:" xml:space="preserve">
+    <value>Nombre maximal de concurrents :</value>
+  </data>
+  <data name="Competition price EUR:" xml:space="preserve">
+    <value>Prix de la compétition en EUR :</value>
+  </data>
+  <data name="Competition price LOCAL:" xml:space="preserve">
+    <value>Prix de la compétition en devise locale :</value>
+  </data>
+  <data name="Local language (country code):" xml:space="preserve">
+    <value>Langue locale (code pays) :</value>
+  </data>
+  <data name="Edit Competition" xml:space="preserve">
+    <value>Modifier la compétition</value>
+  </data>
+  <data name="Edit Category" xml:space="preserve">
+    <value>Modifier la catégorie</value>
+  </data>
+  <data name="Edit Discipline" xml:space="preserve">
+    <value>Modifier la discipline</value>
+  </data>
+  <data name="Edit Translation" xml:space="preserve">
+    <value>Modifier la traduction</value>
+  </data>
+  <data name="Key:" xml:space="preserve">
+    <value>Clé :</value>
+  </data>
+  <data name="Value:" xml:space="preserve">
+    <value>Valeur :</value>
+  </data>
+  <data name="Language:" xml:space="preserve">
+    <value>Langue :</value>
+  </data>
+  <data name="Is Divided To Categories:" xml:space="preserve">
+    <value>Est divisée en catégories :</value>
+  </data>
+  <data name="Has Positions Instead of Points:" xml:space="preserve">
+    <value>Utilise des positions au lieu des points :</value>
+  </data>
+  <data name="Has Decimal Points:" xml:space="preserve">
+    <value>Contient des décimales :</value>
+  </data>
+  <data name="Edit Bullseyes for" xml:space="preserve">
+    <value>Modifier les bullseyes pour</value>
+  </data>
+  <data name="Edit Scores for" xml:space="preserve">
+    <value>Modifier les scores pour</value>
+  </data>
+  <data name="Clear database" xml:space="preserve">
+    <value>Effacer la base de données</value>
+  </data>
+  <data name="Fill random scores" xml:space="preserve">
+    <value>Remplir des scores aléatoires</value>
+  </data>
+  <data name="Are you sure you want to delete this discipline?" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cette discipline ?</value>
   </data>
 </root>
