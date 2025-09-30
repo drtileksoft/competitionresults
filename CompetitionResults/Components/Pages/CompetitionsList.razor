@@ -99,7 +99,7 @@
 
     private async Task DeleteCompetition(int competitionId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to delete this competition?"]);
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to delete this competition?"].Value);
         if (confirmed)
         {
             await CompetitionService.DeleteCompetitionAsync(competitionId);

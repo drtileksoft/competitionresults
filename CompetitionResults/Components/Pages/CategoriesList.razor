@@ -86,7 +86,7 @@ else
 
     private async Task DeleteCategory(int categoryId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to delete this category?"]);
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to delete this category?"].Value);
         if (confirmed)
         {
             await CategoryService.DeleteCategoryAsync(categoryId);
