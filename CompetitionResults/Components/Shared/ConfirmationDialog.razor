@@ -1,26 +1,25 @@
 @inject IStringLocalizer<SharedResource> L
 
-<div class="modal fade @(IsOpen ? "show" : string.Empty)" style="display: @(IsOpen ? "block" : "none");" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="@(IsOpen ? "false" : "true")">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@Title</h5>
-                <button type="button" class="btn-close" @onclick="Cancel"></button>
-            </div>
-            <div class="modal-body">
-                <p>@Message</p>
-            </div>
-            <div class="modal-footer">
-                @if (ShowCancelButton)
-                {
-                    <button type="button" class="btn btn-secondary" @onclick="Cancel">@CancelText</button>
-                }
-                <button type="button" class="btn btn-primary" @onclick="Confirm">@ConfirmText</button>
-            </div>
+@if (IsOpen)
+{
+    <div class="cr-modal-backdrop" @onclick="Cancel"></div>
+    <div class="cr-modal" role="dialog" aria-modal="true" aria-labelledby="confirmation-dialog-title" @onclick:stopPropagation="true">
+        <div class="cr-modal-header">
+            <h5 id="confirmation-dialog-title" class="cr-modal-title">@Title</h5>
+            <button type="button" class="btn-close" @onclick="Cancel" aria-label="@L["Cancel"]"></button>
+        </div>
+        <div class="cr-modal-body">
+            <p>@Message</p>
+        </div>
+        <div class="cr-modal-footer">
+            @if (ShowCancelButton)
+            {
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">@CancelText</button>
+            }
+            <button type="button" class="btn btn-primary" @onclick="Confirm">@ConfirmText</button>
         </div>
     </div>
-</div>
-<div class="modal-backdrop fade @(IsOpen ? "show" : string.Empty)" style="display: @(IsOpen ? "block" : "none");" @onclick="Cancel"></div>
+}
 
 @code {
     private TaskCompletionSource<bool>? _completionSource;
