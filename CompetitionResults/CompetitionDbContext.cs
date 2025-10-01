@@ -69,7 +69,25 @@
                 .WithMany(m => m.CompetitionManagers)
                 .HasForeignKey(cm => cm.ManagerId);
 
-            // Optional: Further configurations can be added here
+            // Adding indexes for optimization
+            modelBuilder.Entity<CompetitionManager>()
+                .HasIndex(cm => cm.ManagerId);
+
+            modelBuilder.Entity<CompetitionManager>()
+                .HasIndex(cm => new { cm.ManagerId, cm.CompetitionId });
+
+            modelBuilder.Entity<Results>()
+                .HasIndex(r => new { r.CompetitionId, r.DisciplineId });
+
+            modelBuilder.Entity<Results>()
+                .HasIndex(r => new { r.CompetitionId, r.ThrowerId });
+
+            modelBuilder.Entity<Translation>()
+                .HasIndex(t => t.LocalLanguage);
+
+            modelBuilder.Entity<Translation>()
+                .HasIndex(t => new { t.Key, t.LocalLanguage })
+                .IsUnique();
 
             // Seeding the data
             modelBuilder.Entity<Competition>().HasData(

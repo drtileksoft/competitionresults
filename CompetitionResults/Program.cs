@@ -100,8 +100,8 @@ namespace CompetitionResults
                       new[] { "application/octet-stream" });
             });
 
-            builder.Logging.ClearProviders();
-            builder.Logging.AddConsole();
+            //builder.Logging.ClearProviders();
+            //builder.Logging.AddConsole();
 
             var app = builder.Build();
 
