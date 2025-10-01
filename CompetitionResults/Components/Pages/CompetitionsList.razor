@@ -4,7 +4,6 @@
 @using System.Security.Claims
 @inject CompetitionService CompetitionService
 @inject UserIdStateService UserIdStateService
-@inject IJSRuntime JSRuntime
 @inject IStringLocalizer<SharedResource> L
 
 <h3>@L["Competitions List"]</h3>
@@ -13,6 +12,7 @@
         <button @onclick="AddNew">@L["Add New Competition"]</button>
 
         <CompetitionEditModal @ref="competitionEditModal" OnClose="HandleModalClose" Category="currentCompetition" OnFormSubmit="HandleFormSubmit" />
+        <ConfirmationDialog @ref="confirmationDialog" />
 
         @if (competitions == null)
         {
@@ -99,7 +99,17 @@
 
     private async Task DeleteCompetition(int competitionId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to delete this competition?"].Value);
+        if (confirmationDialog is null)
+        {
+            return;
+        }
+
+        var confirmed = await confirmationDialog.ShowAsync(
+            L["Confirmation"].Value,
+            L["Are you sure you want to delete this competition?"].Value,
+            L["Yes"].Value,
+            L["Cancel"].Value);
+
         if (confirmed)
         {
             await CompetitionService.DeleteCompetitionAsync(competitionId);
@@ -118,4 +128,6 @@
         LoadData();
         return Task.CompletedTask;
     }
+
+    private ConfirmationDialog? confirmationDialog;
 }

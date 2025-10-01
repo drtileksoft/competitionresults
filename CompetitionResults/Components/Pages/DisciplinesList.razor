@@ -4,7 +4,6 @@
 @inject DisciplineService DisciplineService
 @inject CompetitionStateService CompetitionState
 @implements IDisposable
-@inject IJSRuntime JSRuntime
 @inject IStringLocalizer<SharedResource> L
 
 <h3>@L["Disciplines List"]</h3>
@@ -14,6 +13,7 @@
 <button @onclick="AddNew">@L["Add New Discipline"]</button>
 
 <DisciplineEditModal @ref="disciplineEditModal" OnClose="HandleModalClose" Discipline="currentDiscipline" OnFormSubmit="HandleFormSubmit" />
+<ConfirmationDialog @ref="confirmationDialog" />
 
 @if (disciplines == null)
 {
@@ -93,21 +93,35 @@ else
 
     private async Task DeleteDiscipline(int disciplineId)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to delete this discipline?"].Value);
+        if (confirmationDialog is null)
+        {
+            return;
+        }
+
+        var confirmed = await confirmationDialog.ShowAsync(
+            L["Confirmation"].Value,
+            L["Are you sure you want to delete this discipline?"].Value,
+            L["Yes"].Value,
+            L["Cancel"].Value);
+
         if (confirmed)
         {
             await DisciplineService.DeleteDisciplineAsync(disciplineId);
             LoadData();
-        }        
+        }
     }
 
-    private async Task HandleFormSubmit()
+    private Task HandleFormSubmit()
     {
         LoadData();
+        return Task.CompletedTask;
     }
 
-    private async Task HandleModalClose()
+    private Task HandleModalClose()
     {
         LoadData();
+        return Task.CompletedTask;
     }
+
+    private ConfirmationDialog? confirmationDialog;
 }
