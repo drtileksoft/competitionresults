@@ -1,6 +1,8 @@
 ﻿@page "/throwers"
 @using CompetitionResults.Data
 @using CompetitionResults.Components.Shared
+@using System.Linq
+@using Microsoft.JSInterop
 @inject ThrowerService ThrowerService
 @inject CompetitionStateService CompetitionState
 @inject CategoryService CategoryService
@@ -30,29 +32,29 @@
                         <table class="table">
                                 <thead>
                                         <tr>
-                                                <th>#</th>
-                                                <th>@L["Name"]</th>
-                                                <th>@L["Surname"]</th>
-                                                <th>@L["Nickname"]</th>
-                                                <th>@L["Nationality"]</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.StartNumber)"># @GetSortIndicator(SortColumn.StartNumber)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.Name)">@L["Name"] @GetSortIndicator(SortColumn.Name)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.Surname)">@L["Surname"] @GetSortIndicator(SortColumn.Surname)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.Nickname)">@L["Nickname"] @GetSortIndicator(SortColumn.Nickname)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.Nationality)">@L["Nationality"] @GetSortIndicator(SortColumn.Nationality)</th>
                                                 <th>@L["Flag"]</th>
-                                                <th>@L["Club Name"]</th>
-                                                <th>@L["Email"]</th>
-                                                <th>@L["Camping on site"]</th>
-                                                <th>@L["Want T-Shirt (size)"]</th>
-                                                <th>@L["Is paid (amount)"]</th>
-                                                <th>@L["To Be Paid"]</th>
-                                                <th>@L["Note"]</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.ClubName)">@L["Club Name"] @GetSortIndicator(SortColumn.ClubName)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.Email)">@L["Email"] @GetSortIndicator(SortColumn.Email)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.CampingOnSite)">@L["Camping on site"] @GetSortIndicator(SortColumn.CampingOnSite)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.TShirt)">@L["Want T-Shirt (size)"] @GetSortIndicator(SortColumn.TShirt)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.Payment)">@L["Is paid (amount)"] @GetSortIndicator(SortColumn.Payment)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.ToBePaid)">@L["To Be Paid"] @GetSortIndicator(SortColumn.ToBePaid)</th>
+                                                <th role="button" @onclick="async () => await SortByColumnAsync(SortColumn.Note)">@L["Note"] @GetSortIndicator(SortColumn.Note)</th>
                                                 <th>@L["Actions"]</th>
                                         </tr>
                                 </thead>
-				<tbody>
-					@foreach (var thrower in throwers.OrderBy(t => t.StartingNumber))
-					{
-						var lowerCaseCode = thrower.Nationality.ToLowerInvariant();
-						var flagUrl = $"https://flagcdn.com/32x24/{lowerCaseCode}.png";
-						decimal targetPayment = CalculateTargetPayment(thrower);
-						decimal difference = thrower.Payment.HasValue ? targetPayment - Convert.ToDecimal(thrower.Payment.Value) : 0;
+                                <tbody>
+                                        @foreach (var thrower in SortedThrowers)
+                                        {
+                                                var lowerCaseCode = thrower.Nationality.ToLowerInvariant();
+                                                var flagUrl = $"https://flagcdn.com/32x24/{lowerCaseCode}.png";
+                                                decimal displayedDifference = GetDisplayedDifference(thrower);
+                                                bool shouldHighlight = ShouldHighlightDifference(thrower, displayedDifference);
 						<tr>
 							<td>@thrower.StartingNumber.ToString("D3")</td>
 							<td>@thrower.Name</td>
@@ -70,15 +72,9 @@
                                                         <td>@(thrower.IsCampingOnSite ? L["Yes"] : L["No"])</td>
                                                         <td>@(thrower.WantTShirt ? L["Yes"] : L["No"]) (@thrower.TShirtSize)</td>
                                                         <td style="background-color: @(!thrower.PaymentDone ? "red" : "white");">@(thrower.PaymentDone ? L["Yes"] : L["No"]) (@thrower.Payment) </td>
-							<td>
-								@{
-									var displayedDifference = difference < 0 ? 0 : difference;
-									var shouldHighlight = Math.Abs(difference) > GetTolerance(thrower.Payment) && displayedDifference > 0;
-								}
-
-								<span style="@(shouldHighlight ? "color:red;" : "")">@($"{displayedDifference}")</span>
-
-							</td>
+                                                        <td>
+                                                                <span style="@(shouldHighlight ? "color:red;" : "")">@($"{displayedDifference}")</span>
+                                                        </td>
 
 							<td>
 								@if (!string.IsNullOrEmpty(@thrower.Note))
@@ -161,10 +157,17 @@
 @code {
         private ThrowerEditModal throwerEditModal;
         private GeneralEmailModal generalEmailModal;
-	private List<Thrower> throwers;
-	private Thrower selectedThrower = new Thrower();
+        private List<Thrower> throwers;
+        private Thrower selectedThrower = new Thrower();
 
-	private Dictionary<string, int> categoriesDict;
+        private const string SortPreferenceCookieName = "throwers-list-sort";
+        private SortColumn CurrentSortColumn { get; set; } = SortColumn.StartNumber;
+        private bool SortAscending { get; set; } = true;
+        private bool sortPreferenceLoaded;
+
+        private IEnumerable<Thrower> SortedThrowers => ApplySort(throwers ?? Enumerable.Empty<Thrower>());
+
+        private Dictionary<string, int> categoriesDict;
 	private int countryCount;
 	private int throwersCount => throwers.Count;
 	private int paymentsCount => throwers.Count(t => t.PaymentDone);
@@ -175,11 +178,21 @@
 	private decimal totalDifference;
 
 
-	protected override async Task OnInitializedAsync()
-	{
-		CompetitionState.OnCompetitionChanged += LoadData;
-		LoadData();
-	}
+        protected override async Task OnInitializedAsync()
+        {
+                CompetitionState.OnCompetitionChanged += LoadData;
+                LoadData();
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+                if (firstRender)
+                {
+                        await LoadSortPreferenceAsync();
+                        sortPreferenceLoaded = true;
+                        StateHasChanged();
+                }
+        }
 
 	private async void LoadData()
 	{
@@ -210,15 +223,7 @@
 		countryParticipants = throwers.GroupBy(t => t.Nationality)
 			.ToDictionary(g => g.Key, g => g.Count());
 
-		totalDifference = throwers
-			.Select(t => 
-			{
-				decimal target = CalculateTargetPayment(t);
-				decimal paid = t.Payment.HasValue ? Convert.ToDecimal(t.Payment.Value) : 0;
-				decimal diff = target - paid;
-				return Math.Abs(diff) > GetTolerance(t.Payment) ? Math.Max(0, diff) : 0;
-			})
-			.Sum();
+                totalDifference = throwers.Sum(t => GetOutstandingAmount(t));
 
 		StateHasChanged();
 	}
@@ -348,10 +353,166 @@
 	}
 
 
-	private async Task HandleFormSubmit()
-	{
-		LoadData();
-	}
+        private IEnumerable<Thrower> ApplySort(IEnumerable<Thrower> source)
+        {
+                return CurrentSortColumn switch
+                {
+                        SortColumn.Name => SortAscending
+                                ? source.OrderBy(t => t.Name, StringComparer.OrdinalIgnoreCase).ThenBy(t => t.Surname, StringComparer.OrdinalIgnoreCase)
+                                : source.OrderByDescending(t => t.Name, StringComparer.OrdinalIgnoreCase).ThenByDescending(t => t.Surname, StringComparer.OrdinalIgnoreCase),
+                        SortColumn.Surname => SortAscending
+                                ? source.OrderBy(t => t.Surname, StringComparer.OrdinalIgnoreCase).ThenBy(t => t.Name, StringComparer.OrdinalIgnoreCase)
+                                : source.OrderByDescending(t => t.Surname, StringComparer.OrdinalIgnoreCase).ThenByDescending(t => t.Name, StringComparer.OrdinalIgnoreCase),
+                        SortColumn.Nickname => SortAscending
+                                ? source.OrderBy(t => t.Nickname ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                                        .ThenBy(t => t.Surname, StringComparer.OrdinalIgnoreCase)
+                                : source.OrderByDescending(t => t.Nickname ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                                        .ThenByDescending(t => t.Surname, StringComparer.OrdinalIgnoreCase),
+                        SortColumn.Nationality => SortAscending
+                                ? source.OrderBy(t => t.Nationality, StringComparer.OrdinalIgnoreCase)
+                                        .ThenBy(t => t.Surname, StringComparer.OrdinalIgnoreCase)
+                                : source.OrderByDescending(t => t.Nationality, StringComparer.OrdinalIgnoreCase)
+                                        .ThenByDescending(t => t.Surname, StringComparer.OrdinalIgnoreCase),
+                        SortColumn.ClubName => SortAscending
+                                ? source.OrderBy(t => t.ClubName ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                                        .ThenBy(t => t.Surname, StringComparer.OrdinalIgnoreCase)
+                                : source.OrderByDescending(t => t.ClubName ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                                        .ThenByDescending(t => t.Surname, StringComparer.OrdinalIgnoreCase),
+                        SortColumn.Email => SortAscending
+                                ? source.OrderBy(t => t.Email ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                                        .ThenBy(t => t.Surname, StringComparer.OrdinalIgnoreCase)
+                                : source.OrderByDescending(t => t.Email ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                                        .ThenByDescending(t => t.Surname, StringComparer.OrdinalIgnoreCase),
+                        SortColumn.CampingOnSite => SortAscending
+                                ? source.OrderBy(t => t.IsCampingOnSite).ThenBy(t => t.StartingNumber)
+                                : source.OrderByDescending(t => t.IsCampingOnSite).ThenByDescending(t => t.StartingNumber),
+                        SortColumn.TShirt => SortAscending
+                                ? source.OrderBy(t => t.WantTShirt).ThenBy(t => t.TShirtSize ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                                : source.OrderByDescending(t => t.WantTShirt).ThenByDescending(t => t.TShirtSize ?? string.Empty, StringComparer.OrdinalIgnoreCase),
+                        SortColumn.Payment => SortAscending
+                                ? source.OrderBy(t => t.PaymentDone).ThenBy(t => t.Payment ?? 0)
+                                : source.OrderByDescending(t => t.PaymentDone).ThenByDescending(t => t.Payment ?? 0),
+                        SortColumn.ToBePaid => SortAscending
+                                ? source.OrderBy(GetDisplayedDifference).ThenBy(t => t.StartingNumber)
+                                : source.OrderByDescending(GetDisplayedDifference).ThenByDescending(t => t.StartingNumber),
+                        SortColumn.Note => SortAscending
+                                ? source.OrderBy(t => t.Note ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                                        .ThenBy(t => t.Surname, StringComparer.OrdinalIgnoreCase)
+                                : source.OrderByDescending(t => t.Note ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                                        .ThenByDescending(t => t.Surname, StringComparer.OrdinalIgnoreCase),
+                        _ => SortAscending
+                                ? source.OrderBy(t => t.StartingNumber)
+                                : source.OrderByDescending(t => t.StartingNumber)
+                };
+        }
+
+        private async Task SortByColumnAsync(SortColumn column)
+        {
+                if (CurrentSortColumn == column)
+                {
+                        SortAscending = !SortAscending;
+                }
+                else
+                {
+                        CurrentSortColumn = column;
+                        SortAscending = true;
+                }
+
+                await SaveSortPreferenceAsync();
+                StateHasChanged();
+        }
+
+        private string GetSortIndicator(SortColumn column)
+        {
+                if (CurrentSortColumn == column)
+                {
+                        return SortAscending ? "▲" : "▼";
+                }
+
+                return string.Empty;
+        }
+
+        private async Task LoadSortPreferenceAsync()
+        {
+                try
+                {
+                        var storedValue = await JSRuntime.InvokeAsync<string>("throwersList.getSortPreference", SortPreferenceCookieName);
+                        if (!string.IsNullOrEmpty(storedValue))
+                        {
+                                var parts = storedValue.Split('|');
+                                if (parts.Length >= 1 && Enum.TryParse(parts[0], out SortColumn column))
+                                {
+                                        CurrentSortColumn = column;
+                                        if (parts.Length >= 2)
+                                        {
+                                                SortAscending = !string.Equals(parts[1], "desc", StringComparison.OrdinalIgnoreCase);
+                                        }
+                                }
+                        }
+                }
+                catch (JSException)
+                {
+                        // Ignore errors when accessing cookies via JS interop
+                }
+        }
+
+        private async Task SaveSortPreferenceAsync()
+        {
+                if (!sortPreferenceLoaded)
+                {
+                        return;
+                }
+
+                try
+                {
+                        var preference = $"{CurrentSortColumn}|{(SortAscending ? "asc" : "desc")}";
+                        await JSRuntime.InvokeVoidAsync("throwersList.setSortPreference", SortPreferenceCookieName, preference, 365);
+                }
+                catch (JSException)
+                {
+                        // Ignore errors when storing cookies via JS interop
+                }
+        }
+
+        private decimal GetDisplayedDifference(Thrower thrower)
+        {
+                decimal target = CalculateTargetPayment(thrower);
+                decimal paid = thrower.Payment.HasValue ? Convert.ToDecimal(thrower.Payment.Value) : 0;
+                decimal difference = target - paid;
+                return difference < 0 ? 0 : difference;
+        }
+
+        private bool ShouldHighlightDifference(Thrower thrower, decimal displayedDifference)
+        {
+                return displayedDifference > GetTolerance(thrower.Payment);
+        }
+
+        private decimal GetOutstandingAmount(Thrower thrower)
+        {
+                var difference = GetDisplayedDifference(thrower);
+                return ShouldHighlightDifference(thrower, difference) ? difference : 0;
+        }
+
+        private enum SortColumn
+        {
+                StartNumber,
+                Name,
+                Surname,
+                Nickname,
+                Nationality,
+                ClubName,
+                Email,
+                CampingOnSite,
+                TShirt,
+                Payment,
+                ToBePaid,
+                Note
+        }
+
+        private async Task HandleFormSubmit()
+        {
+                LoadData();
+        }
 
         private async Task HandleModalClose()
         {

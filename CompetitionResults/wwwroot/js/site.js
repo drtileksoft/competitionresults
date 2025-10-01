@@ -99,4 +99,14 @@ window.scoresList.setSortPreference = function (cookieName, value, days) {
     document.cookie = cookieName + "=" + encodeURIComponent(value ?? "") + expires + "; path=/";
 };
 
+window.throwersList = window.throwersList || {};
+
+window.throwersList.getSortPreference = function (cookieName) {
+    return window.scoresList.getSortPreference(cookieName);
+};
+
+window.throwersList.setSortPreference = function (cookieName, value, days) {
+    window.scoresList.setSortPreference(cookieName, value, days);
+};
+
 
