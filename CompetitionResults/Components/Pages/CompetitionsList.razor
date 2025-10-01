@@ -31,6 +31,7 @@
                         <th>@L["Description"]</th>
                         <th>@L["Camping"]</th>
                         <th>@L["T-Shirt"]</th>
+                        <th>@L["Missing result penalty"]</th>
                         <th>@L["T-Shirt Link"]</th>
                         <th>@L["Actions"]</th>
                     </tr>
@@ -43,6 +44,7 @@
                             <td>@category.Description</td>
                             <td>@(category.CampingOnSiteAvailable ? L["Yes"] : L["No"])</td>
                             <td>@(category.TShirtAvailable ? L["Yes"] : L["No"])</td>
+                            <td>@(category.EnableMissingResultPenalty ? L["Yes"] : L["No"])</td>
                             <td>@category.TShirtLink</td>
                             <td>
                                 <button @onclick="() => EditCompetition(category)">@L["Edit"]</button>
@@ -84,7 +86,8 @@
             CompetitionManagers = new List<CompetitionManager>
             {
                 new CompetitionManager { ManagerId = await UserIdStateService.GetUserIdAsync() }
-            }
+            },
+            EnableMissingResultPenalty = true
         };
         competitionEditModal?.Open();
         StateHasChanged();

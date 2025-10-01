@@ -177,6 +177,9 @@
   <data name="T-Shirt" xml:space="preserve">
     <value>Tričko</value>
   </data>
+  <data name="Missing result penalty" xml:space="preserve">
+    <value>Penalizace za chybějící výsledek</value>
+  </data>
   <data name="T-Shirt Link" xml:space="preserve">
     <value>Odkaz na tričko</value>
   </data>
@@ -431,6 +434,9 @@
   </data>
   <data name="T-Shirt available:" xml:space="preserve">
     <value>Tričko k dispozici:</value>
+  </data>
+  <data name="Apply -10 penalty for missing result:" xml:space="preserve">
+    <value>Aplikovat penalizaci -10 bodů za chybějící výsledek:</value>
   </data>
   <data name="T-Shirt price EUR:" xml:space="preserve">
     <value>Cena trička v EUR:</value>

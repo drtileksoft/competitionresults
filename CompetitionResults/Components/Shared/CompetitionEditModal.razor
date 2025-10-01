@@ -30,15 +30,20 @@
 							<InputCheckbox id="campingavailable" @bind-Value="@_competition.CampingOnSiteAvailable" />
 						</div>
 
-						<div>
-							<label for="tshirtavailable">@L["T-Shirt available:"]</label>
-							<InputCheckbox id="tshirtavailable" @bind-Value="@_competition.TShirtAvailable" />
-						</div>
+                                                <div>
+                                                        <label for="tshirtavailable">@L["T-Shirt available:"]</label>
+                                                        <InputCheckbox id="tshirtavailable" @bind-Value="@_competition.TShirtAvailable" />
+                                                </div>
 
-						<div>
-							<label for="maxThrowers">@L["T-Shirt price EUR:"]</label>
-							<InputNumber id="priceEUR" @bind-Value="@_competition.TShirtPriceEUR" />
-						</div>
+                                                <div>
+                                                        <label for="missingPenalty">@L["Apply -10 penalty for missing result:"]</label>
+                                                        <InputCheckbox id="missingPenalty" @bind-Value="@_competition.EnableMissingResultPenalty" />
+                                                </div>
+
+                                                <div>
+                                                        <label for="maxThrowers">@L["T-Shirt price EUR:"]</label>
+                                                        <InputNumber id="priceEUR" @bind-Value="@_competition.TShirtPriceEUR" />
+                                                </div>
 
 						<div>
 							<label for="maxThrowers">@L["T-Shirt price LOCAL:"]</label>

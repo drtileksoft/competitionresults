@@ -91,7 +91,7 @@
 
             // Seeding the data
             modelBuilder.Entity<Competition>().HasData(
-                new Competition { Id = 1, Name = "Your competition name", LocalLanguage="CZ", CompetitionPriceEUR = 90, CompetitionPriceLocal = 2200 }
+                new Competition { Id = 1, Name = "Your competition name", LocalLanguage="CZ", CompetitionPriceEUR = 90, CompetitionPriceLocal = 2200, EnableMissingResultPenalty = true }
             );
 
             modelBuilder.Entity<Category>().HasData(
