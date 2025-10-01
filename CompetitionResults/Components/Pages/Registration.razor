@@ -139,13 +139,12 @@ else
         {
             CompetitionState.SelectedCompetitionId = CompetitionId.Value;
         }
-        else if (CompetitionState.SelectedCompetitionId == 0)
+        
+        // If no competition is selected, select the first available one
+        var defaultCompetitionId = await GetFirstAvailableCompetitionIdAsync();
+        if (defaultCompetitionId != 0)
         {
-            var defaultCompetitionId = await GetFirstAvailableCompetitionIdAsync();
-            if (defaultCompetitionId != 0)
-            {
-                CompetitionState.SelectedCompetitionId = defaultCompetitionId;
-            }
+            CompetitionState.SelectedCompetitionId = defaultCompetitionId;
         }
 
         LoadData();

@@ -100,26 +100,7 @@ namespace CompetitionResults
                       new[] { "application/octet-stream" });
             });
 
-            //builder.Logging.ClearProviders();
-            //builder.Logging.AddConsole();
-
             var app = builder.Build();
-
-
-
-            //var factory = app.Services.GetRequiredService<IStringLocalizerFactory>();
-            //var localizer = factory.Create(typeof(SharedResource));
-
-            //Console.WriteLine("=== Localization debug ===");
-            //Console.WriteLine("CurrentUICulture: " + CultureInfo.CurrentUICulture.Name);
-
-            //foreach (var key in new[] { "Edit", "Camping", "Log in", "Managers" })
-            //{
-            //    Console.WriteLine($"{key} => {localizer[key]}");
-            //}
-
-
-
 
             // Initialize roles
             await InitializeRoles(app.Services.CreateScope().ServiceProvider);
