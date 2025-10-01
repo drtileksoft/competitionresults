@@ -139,10 +139,13 @@ else
         {
             CompetitionState.SelectedCompetitionId = CompetitionId.Value;
         }
-        else if (competitions != null && competitions.Count > 0 && CompetitionState.SelectedCompetitionId == 0)
+        else if (CompetitionState.SelectedCompetitionId == 0)
         {
-            // Automatically select the first competition if no valid CompetitionId is provided
-            CompetitionState.SelectedCompetitionId = competitions[0].Id;
+            var defaultCompetitionId = await GetFirstAvailableCompetitionIdAsync();
+            if (defaultCompetitionId != 0)
+            {
+                CompetitionState.SelectedCompetitionId = defaultCompetitionId;
+            }
         }
 
         LoadData();
@@ -151,10 +154,13 @@ else
     private async void LoadData()
     {
         competitions = await CompetitionService.GetAllCompetitionsAsync();
-        if (competitions != null && competitions.Count > 0 && CompetitionState.SelectedCompetitionId == 0)
+        if (CompetitionState.SelectedCompetitionId == 0)
         {
-            // Automatically select the first competition
-            CompetitionState.SelectedCompetitionId = competitions[0].Id;
+            var defaultCompetitionId = await GetFirstAvailableCompetitionIdAsync();
+            if (defaultCompetitionId != 0)
+            {
+                CompetitionState.SelectedCompetitionId = defaultCompetitionId;
+            }
         }
 
         var categories = await CategoryService.GetAllCategoriesAsync(CompetitionState.SelectedCompetitionId);
@@ -182,6 +188,30 @@ else
         .ToDictionary(g => g.Key, g => g.Count());
 
         StateHasChanged();
+    }
+
+    private async Task<int> GetFirstAvailableCompetitionIdAsync()
+    {
+        if (competitions == null || competitions.Count == 0)
+        {
+            return 0;
+        }
+
+        foreach (var competition in competitions)
+        {
+            if (!competition.MaxCompetitorCount.HasValue)
+            {
+                continue;
+            }
+
+            var throwerCount = await ThrowerService.GetThrowerCountAsync(competition.Id);
+            if (competition.MaxCompetitorCount.Value > throwerCount)
+            {
+                return competition.Id;
+            }
+        }
+
+        return competitions[0].Id;
     }
 
     private bool IsSelected(int competitionId)

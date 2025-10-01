@@ -35,6 +35,13 @@ namespace CompetitionResults.Data
                 .ToListAsync();
         }
 
+        public async Task<int> GetThrowerCountAsync(int competitionId)
+        {
+            return await _context.Throwers
+                .Where(t => t.CompetitionId == competitionId)
+                .CountAsync();
+        }
+
         public async Task<Thrower> GetThrowerByIdAsync(int id)
         {
             return await _context.Throwers.FindAsync(id);
