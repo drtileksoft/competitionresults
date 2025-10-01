@@ -348,6 +348,15 @@
   <data name="English message:" xml:space="preserve">
     <value>Zpráva v angličtině:</value>
   </data>
+  <data name="Confirmation" xml:space="preserve">
+    <value>Potvrzení</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Informace</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
   <data name="Cancel" xml:space="preserve">
     <value>Zrušit</value>
   </data>
