@@ -15,7 +15,7 @@ namespace CompetitionResults.Data
 			_notificationHub = notificationHub;
 		}
 
-        public void CalculateAwardPoints(List<ResultDto> results, int maxAwardPoints)
+        public void CalculateAwardPoints(List<ResultDto> results, int maxAwardPoints, bool applyMissingResultPenalty)
         {
             double? previousPoints = null;
             int? previousBullseyes = null;
@@ -27,7 +27,7 @@ namespace CompetitionResults.Data
 
                 if (!current.Points.HasValue)
                 {
-                    current.PointsAward = -10;
+                    current.PointsAward = applyMissingResultPenalty ? -10 : 0;
                     continue;
                 }
 
@@ -199,9 +199,14 @@ namespace CompetitionResults.Data
                 ? results.OrderBy(r => r.Points ?? double.MaxValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList()
                 : results.OrderByDescending(r => r.Points ?? double.MinValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList();
 
+            var applyMissingResultPenalty = await _context.Competitions
+                .Where(c => c.Id == competitionId)
+                .Select(c => c.EnableMissingResultPenalty)
+                .SingleAsync();
+
             if (results.Any())
             {
-                CalculateAwardPoints(results, results.Count);
+                CalculateAwardPoints(results, results.Count, applyMissingResultPenalty);
                 AssignPositions(results, discipline.IsDividedToCategories, isReverseOrdered);
                 MarkTiesForMedals(results, discipline.IsDividedToCategories);
             }

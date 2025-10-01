@@ -21,6 +21,8 @@
         public int? TShirtPriceEUR { get; set; }
         public int? TShirtPriceLocal { get; set; }
 
+        public bool EnableMissingResultPenalty { get; set; }
+
         public int? MaxCompetitorCount { get; set; }
 
         public int? CompetitionPriceEUR { get; set; }

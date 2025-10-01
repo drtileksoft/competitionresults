@@ -177,6 +177,9 @@
   <data name="T-Shirt" xml:space="preserve">
     <value>Maglietta</value>
   </data>
+  <data name="Missing result penalty" xml:space="preserve">
+    <value>Penalità per risultato mancante</value>
+  </data>
   <data name="T-Shirt Link" xml:space="preserve">
     <value>Link alla maglietta</value>
   </data>
@@ -431,6 +434,9 @@
   </data>
   <data name="T-Shirt available:" xml:space="preserve">
     <value>T-shirt disponibile:</value>
+  </data>
+  <data name="Apply -10 penalty for missing result:" xml:space="preserve">
+    <value>Applicare penalità di -10 per risultato mancante:</value>
   </data>
   <data name="T-Shirt price EUR:" xml:space="preserve">
     <value>Prezzo della maglietta in EUR:</value>
