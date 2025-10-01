@@ -1,8 +1,10 @@
 @using CompetitionResults.Data
+@using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.JSInterop
 @using System.Globalization
 @using System.Security.Claims
+@inject NavigationManager NavigationManager
 @inject CompetitionStateService CompetitionState
 @inject CompetitionService CompetitionService
 @inject UserIdStateService UserIdStateService
@@ -89,6 +91,7 @@
             persistedCompetitionId = competitionId;
             errorMessage = string.Empty;
             await PersistSelectionAsync(competitionId);
+            NavigationManager.NavigateTo("/", forceLoad: true);
         }
         else
         {
