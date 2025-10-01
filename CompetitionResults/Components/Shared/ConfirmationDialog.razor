@@ -1,0 +1,68 @@
+@inject IStringLocalizer<SharedResource> L
+
+<div class="modal fade @(IsOpen ? "show" : string.Empty)" style="display: @(IsOpen ? "block" : "none");" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="@(IsOpen ? "false" : "true")">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Title</h5>
+                <button type="button" class="btn-close" @onclick="Cancel"></button>
+            </div>
+            <div class="modal-body">
+                <p>@Message</p>
+            </div>
+            <div class="modal-footer">
+                @if (ShowCancelButton)
+                {
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">@CancelText</button>
+                }
+                <button type="button" class="btn btn-primary" @onclick="Confirm">@ConfirmText</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade @(IsOpen ? "show" : string.Empty)" style="display: @(IsOpen ? "block" : "none");" @onclick="Cancel"></div>
+
+@code {
+    private TaskCompletionSource<bool>? _completionSource;
+
+    private bool IsOpen { get; set; }
+    private string Title { get; set; } = string.Empty;
+    private string Message { get; set; } = string.Empty;
+    private string ConfirmText { get; set; } = string.Empty;
+    private string CancelText { get; set; } = string.Empty;
+    private bool ShowCancelButton { get; set; }
+
+    public Task<bool> ShowAsync(string title, string message, string? confirmText = null, string? cancelText = null)
+    {
+        Title = title;
+        Message = message;
+        ConfirmText = string.IsNullOrWhiteSpace(confirmText) ? L["OK"].Value : confirmText;
+        CancelText = string.IsNullOrWhiteSpace(cancelText) ? L["Cancel"].Value : cancelText;
+        ShowCancelButton = !string.IsNullOrWhiteSpace(cancelText);
+
+        _completionSource = new TaskCompletionSource<bool>();
+        IsOpen = true;
+        _ = InvokeAsync(StateHasChanged);
+
+        return _completionSource.Task;
+    }
+
+    private Task Confirm()
+    {
+        return CloseAsync(true);
+    }
+
+    private Task Cancel()
+    {
+        return CloseAsync(false);
+    }
+
+    private Task CloseAsync(bool result)
+    {
+        IsOpen = false;
+        _ = InvokeAsync(StateHasChanged);
+        _completionSource?.TrySetResult(result);
+        _completionSource = null;
+        return Task.CompletedTask;
+    }
+}

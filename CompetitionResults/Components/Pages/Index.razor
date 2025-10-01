@@ -1,6 +1,7 @@
 @page "/"
 @using System.Security.Claims
 @using CompetitionResults.Data
+@using CompetitionResults.Components.Shared
 @inject CompetitionService CompetitionService
 @inject CompetitionStateService CompetitionState
 @inject ResultService ResultsServiceInstance
@@ -12,6 +13,8 @@
 <h1>@L["Competition Scores"]</h1>
 
 <p>@L["App to make competition scoring easy and fast."]</p>
+
+<ConfirmationDialog @ref="confirmationDialog" />
 
 <AuthorizeView Roles="Admin">
     <Authorized>
@@ -60,7 +63,17 @@
 
     private async void ClearScores()
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to clear all results?"].Value);
+        if (confirmationDialog is null)
+        {
+            return;
+        }
+
+        var confirmed = await confirmationDialog.ShowAsync(
+            L["Confirmation"].Value,
+            L["Are you sure you want to clear all results?"].Value,
+            L["Yes"].Value,
+            L["Cancel"].Value);
+
         if (confirmed)
         {
             await ResultsServiceInstance.DeleteResultsAsync(CompetitionState.SelectedCompetitionId);
@@ -69,7 +82,17 @@
 
     private async void FillRandomScores()
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Generate random scores for all disciplines and throwers?"].Value);
+        if (confirmationDialog is null)
+        {
+            return;
+        }
+
+        var confirmed = await confirmationDialog.ShowAsync(
+            L["Confirmation"].Value,
+            L["Generate random scores for all disciplines and throwers?"].Value,
+            L["Yes"].Value,
+            L["Cancel"].Value);
+
         if (confirmed)
         {
             await ResultsServiceInstance.FillRandomScoresAsync(CompetitionState.SelectedCompetitionId);
@@ -78,7 +101,17 @@
 
     private async void ClearDatabase()
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", L["Are you sure you want to clear database?"].Value);
+        if (confirmationDialog is null)
+        {
+            return;
+        }
+
+        var confirmed = await confirmationDialog.ShowAsync(
+            L["Confirmation"].Value,
+            L["Are you sure you want to clear database?"].Value,
+            L["Yes"].Value,
+            L["Cancel"].Value);
+
         if (confirmed)
         {
             await CompetitionService.ClearDBAsync();
@@ -135,4 +168,6 @@
             await CompetitionService.RestoreCompetitionAsync(jsonData);
         }
     }
+
+    private ConfirmationDialog? confirmationDialog;
 }
