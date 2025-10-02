@@ -1,4 +1,6 @@
-﻿using CompetitionResults.Notifications;
+﻿using System.Collections.Generic;
+using System.Linq;
+using CompetitionResults.Notifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace CompetitionResults.Data
@@ -53,9 +55,10 @@ namespace CompetitionResults.Data
 
             foreach (var group in groups)
             {
-                var sorted = isReverseOrdered
-                    ? group.OrderBy(r => r.Points ?? double.MaxValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList()
-                    : group.OrderByDescending(r => r.Points ?? double.MinValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList();
+                if (group == null)
+                    continue;
+
+                var sorted = OrderResults(group, isReverseOrdered);
 
                 int actualRank = 0;
                 int logicalRank = 0;
@@ -146,6 +149,95 @@ namespace CompetitionResults.Data
 
 
 
+        private static List<ResultDto> OrderResults(IEnumerable<ResultDto> results, bool isReverseOrdered)
+        {
+            if (results == null)
+                return new List<ResultDto>();
+
+            return isReverseOrdered
+                ? results
+                    .OrderBy(r => r.Points ?? double.MaxValue)
+                    .ThenByDescending(r => r.BullseyeCount ?? -1)
+                    .ToList()
+                : results
+                    .OrderByDescending(r => r.Points ?? double.MinValue)
+                    .ThenByDescending(r => r.BullseyeCount ?? -1)
+                    .ToList();
+        }
+
+        private List<ResultDto> RankResults(List<ResultDto> results, bool isDividedToCategories, bool isReverseOrdered, bool applyMissingResultPenalty)
+        {
+            var ordered = OrderResults(results, isReverseOrdered);
+
+            if (ordered.Any())
+            {
+                CalculateAwardPoints(ordered, ordered.Count, applyMissingResultPenalty);
+                AssignPositions(ordered, isDividedToCategories, isReverseOrdered);
+                MarkTiesForMedals(ordered, isDividedToCategories);
+            }
+
+            return ordered;
+        }
+
+        private static List<ResultDto> BuildDisciplineResults(int disciplineId, IEnumerable<ThrowerInfo> throwers, IReadOnlyDictionary<(int DisciplineId, int ThrowerId), ResultProjection> existingResults)
+        {
+            var disciplineResults = new List<ResultDto>();
+
+            foreach (var thrower in throwers)
+            {
+                existingResults.TryGetValue((disciplineId, thrower.Id), out var result);
+
+                disciplineResults.Add(new ResultDto
+                {
+                    ThrowerId = thrower.Id,
+                    DisciplineId = disciplineId,
+                    ThrowerName = thrower.DisplayName,
+                    CategoryId = thrower.CategoryId,
+                    Points = result?.Points,
+                    BullseyeCount = result?.BullseyeCount
+                });
+            }
+
+            return disciplineResults;
+        }
+
+        private static string BuildThrowerDisplayName(string name, string surname, string? nickname)
+        {
+            if (!string.IsNullOrWhiteSpace(nickname))
+                return $"{nickname} ({name} {surname})";
+
+            return $"{name} {surname}".Trim();
+        }
+
+        private sealed class ThrowerInfo
+        {
+            public int Id { get; set; }
+
+            public int? CategoryId { get; set; }
+
+            public string DisplayName { get; set; } = string.Empty;
+        }
+
+        private sealed class ResultProjection
+        {
+            public int DisciplineId { get; set; }
+
+            public int ThrowerId { get; set; }
+
+            public double? Points { get; set; }
+
+            public int? BullseyeCount { get; set; }
+        }
+
+        private sealed class DisciplineConfig
+        {
+            public int Id { get; set; }
+
+            public bool HasPositionsInsteadPoints { get; set; }
+
+            public bool IsDividedToCategories { get; set; }
+        }
+
         public async Task<List<ResultDto>> GetRankedResultsAsync(int disciplineId, int competitionId)
         {
             var discipline = await _context.Disciplines
@@ -153,65 +245,39 @@ namespace CompetitionResults.Data
 
             var isReverseOrdered = discipline.HasPositionsInsteadPoints;
 
-            var results = await _context.Results
-                .Include(r => r.Thrower)
-                .Where(r => r.DisciplineId == disciplineId && r.CompetitionId == competitionId)
-                .Select(r => new ResultDto
-                {
-                    ThrowerId = r.ThrowerId,
-                    DisciplineId = r.DisciplineId,
-                    ThrowerName = !string.IsNullOrEmpty(r.Thrower.Nickname)
-                        ? r.Thrower.Nickname + " (" + r.Thrower.Name + " " + r.Thrower.Surname + ")"
-                        : r.Thrower.Name + " " + r.Thrower.Surname,
-                    CategoryId = r.Thrower.CategoryId,
-                    Points = r.Points,
-                    BullseyeCount = r.BullseyeCount
-                }).ToListAsync();
-
-            // 🆕 Ensure all throwers have an entry even if they don't have results yet
-            var allThrowers = await _context.Throwers
+            var throwers = await _context.Throwers
                 .Where(t => t.CompetitionId == competitionId)
-                .Select(t => new { t.Id, t.Name, t.Surname, t.Nickname, t.CategoryId })
+                .Select(t => new ThrowerInfo
+                {
+                    Id = t.Id,
+                    CategoryId = t.CategoryId,
+                    DisplayName = BuildThrowerDisplayName(t.Name, t.Surname, t.Nickname)
+                })
                 .ToListAsync();
 
-            foreach (var thrower in allThrowers)
-            {
-                if (results.Any(r => r.ThrowerId == thrower.Id))
-                    continue;
-
-                var name = !string.IsNullOrEmpty(thrower.Nickname)
-                    ? $"{thrower.Nickname} ({thrower.Name} {thrower.Surname})"
-                    : $"{thrower.Name} {thrower.Surname}";
-
-                results.Add(new ResultDto
+            var existingResults = await _context.Results
+                .Where(r => r.DisciplineId == disciplineId && r.CompetitionId == competitionId)
+                .Select(r => new ResultProjection
                 {
-                    ThrowerId = thrower.Id,
-                    DisciplineId = disciplineId,
-                    ThrowerName = name,
-                    CategoryId = thrower.CategoryId,
-                    Points = null,
-                    BullseyeCount = null
-                });
-            }
-
-            // 🔁 Řazení zde – jen jednou, použije se i na awards i na medaile
-            results = isReverseOrdered
-                ? results.OrderBy(r => r.Points ?? double.MaxValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList()
-                : results.OrderByDescending(r => r.Points ?? double.MinValue).ThenByDescending(r => r.BullseyeCount ?? -1).ToList();
+                    DisciplineId = r.DisciplineId,
+                    ThrowerId = r.ThrowerId,
+                    Points = r.Points,
+                    BullseyeCount = r.BullseyeCount
+                })
+                .ToDictionaryAsync(r => (r.DisciplineId, r.ThrowerId));
 
             var applyMissingResultPenalty = await _context.Competitions
                 .Where(c => c.Id == competitionId)
                 .Select(c => c.EnableMissingResultPenalty)
                 .SingleAsync();
 
-            if (results.Any())
-            {
-                CalculateAwardPoints(results, results.Count, applyMissingResultPenalty);
-                AssignPositions(results, discipline.IsDividedToCategories, isReverseOrdered);
-                MarkTiesForMedals(results, discipline.IsDividedToCategories);
-            }
+            var ranked = RankResults(
+                BuildDisciplineResults(discipline.Id, throwers, existingResults),
+                discipline.IsDividedToCategories,
+                isReverseOrdered,
+                applyMissingResultPenalty);
 
-            return results;
+            return ranked;
         }
 
 
@@ -246,19 +312,59 @@ namespace CompetitionResults.Data
 
         public async Task<List<ResultDto>> GetResultsTotalAsync(int competitionId)
         {
-            // 1️⃣ Fetch all disciplines for the given competition
-            var disciplines = await _context.Disciplines
-                .Where(c => c.CompetitionId == competitionId)
+            var disciplineConfigs = await _context.Disciplines
+                .Where(d => d.CompetitionId == competitionId)
+                .Select(d => new DisciplineConfig
+                {
+                    Id = d.Id,
+                    HasPositionsInsteadPoints = d.HasPositionsInsteadPoints,
+                    IsDividedToCategories = d.IsDividedToCategories
+                })
                 .ToListAsync();
 
-            // 2️⃣ Aggregate award points for each thrower
+            if (!disciplineConfigs.Any())
+                return new List<ResultDto>();
+
+            var throwers = await _context.Throwers
+                .Where(t => t.CompetitionId == competitionId)
+                .Select(t => new ThrowerInfo
+                {
+                    Id = t.Id,
+                    CategoryId = t.CategoryId,
+                    DisplayName = BuildThrowerDisplayName(t.Name, t.Surname, t.Nickname)
+                })
+                .ToListAsync();
+
+            if (!throwers.Any())
+                return new List<ResultDto>();
+
+            var resultLookup = await _context.Results
+                .Where(r => r.CompetitionId == competitionId)
+                .Select(r => new ResultProjection
+                {
+                    DisciplineId = r.DisciplineId,
+                    ThrowerId = r.ThrowerId,
+                    Points = r.Points,
+                    BullseyeCount = r.BullseyeCount
+                })
+                .ToDictionaryAsync(r => (r.DisciplineId, r.ThrowerId));
+
+            var applyMissingResultPenalty = await _context.Competitions
+                .Where(c => c.Id == competitionId)
+                .Select(c => c.EnableMissingResultPenalty)
+                .SingleAsync();
+
             var totals = new Dictionary<int, ResultDto>();
 
-            foreach (var discipline in disciplines)
+            foreach (var discipline in disciplineConfigs)
             {
-                var results = await GetResultsByDisciplineAsync(discipline.Id, competitionId);
+                var ranked = RankResults(
+                    BuildDisciplineResults(discipline.Id, throwers, resultLookup),
+                    discipline.IsDividedToCategories,
+                    discipline.HasPositionsInsteadPoints,
+                    applyMissingResultPenalty);
 
-                foreach (var result in results.Where(r => r.PointsAward.HasValue))
+                foreach (var result in ranked.Where(r => r.PointsAward.HasValue))
                 {
                     if (!totals.TryGetValue(result.ThrowerId, out var entry))
                     {
@@ -275,15 +381,17 @@ namespace CompetitionResults.Data
                 }
             }
 
-            // 3️⃣ Order by total points and assign ranks
-            var resultList = totals.Values.OrderByDescending(r => r.Points).ToList();
+            var orderedTotals = totals.Values
+                .OrderByDescending(r => r.Points)
+                .ThenBy(r => r.ThrowerName)
+                .ToList();
 
-            for (int i = 0; i < resultList.Count; i++)
+            for (int i = 0; i < orderedTotals.Count; i++)
             {
-                resultList[i].Position = i + 1;
+                orderedTotals[i].Position = i + 1;
             }
 
-            return resultList;
+            return orderedTotals;
         }
 
 		public async Task DeleteResultsAsync(int competitionId)
@@ -431,7 +539,11 @@ namespace CompetitionResults.Data
             // Mapování throwerId → Nationality
             var throwerNationMap = await _context.Throwers
                 .Where(t => t.CompetitionId == competitionId)
-                .ToDictionaryAsync(t => t.Id, t => t.Nationality.ToUpper());
+                .ToDictionaryAsync(
+                    t => t.Id,
+                    t => string.IsNullOrWhiteSpace(t.Nationality)
+                        ? null
+                        : t.Nationality.ToUpperInvariant());
 
             var nationMedals = new Dictionary<string, NationMedalsDto>();
 
@@ -443,7 +555,8 @@ namespace CompetitionResults.Data
 
                 foreach (var result in top3)
                 {
-                    if (!throwerNationMap.TryGetValue(result.ThrowerId, out var nationality))
+                    if (!throwerNationMap.TryGetValue(result.ThrowerId, out var nationality) ||
+                        string.IsNullOrWhiteSpace(nationality))
                         continue;
 
                     if (!nationMedals.TryGetValue(nationality, out var entry))
@@ -471,7 +584,8 @@ namespace CompetitionResults.Data
 
             foreach (var result in top3Total)
             {
-                if (!throwerNationMap.TryGetValue(result.ThrowerId, out var nationality))
+                if (!throwerNationMap.TryGetValue(result.ThrowerId, out var nationality) ||
+                    string.IsNullOrWhiteSpace(nationality))
                     continue;
 
                 if (!nationMedals.TryGetValue(nationality, out var entry))
