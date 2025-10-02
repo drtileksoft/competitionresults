@@ -192,7 +192,7 @@ namespace CompetitionResults.Data
                     ThrowerId = thrower.Id,
                     DisciplineId = disciplineId,
                     ThrowerName = thrower.DisplayName,
-                    CategoryId = thrower.CategoryId,
+                    CategoryId = thrower.CategoryId.Value,
                     Points = result?.Points,
                     BullseyeCount = result?.BullseyeCount
                 });

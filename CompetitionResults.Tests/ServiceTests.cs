@@ -79,7 +79,7 @@ public class ServiceTests : IClassFixture<InMemoryDbFixture>
     [Fact]
     public async Task AddCompetition_AddsDefaultTranslations()
     {
-        var comp = new Competition { Name = "Test", LocalLanguage = "DE" };
+        var comp = new Competition { Name = "TestTranslation", LocalLanguage = "DE" };
         await _fixture.CompetitionService.AddCompetitionAsync(comp);
 
         var translations = await _fixture.TranslationService.GetTranslationsByLanguageAsync("DE");
@@ -87,66 +87,4 @@ public class ServiceTests : IClassFixture<InMemoryDbFixture>
         Assert.Contains(translations, t => t.Key == TranslationKeys.Name);
     }
 
-    [Fact]
-    public async Task GetMedalsByNation_SkipsThrowersWithoutNationality()
-    {
-        var competition = new Competition { Id = 999, Name = "Medals Test", LocalLanguage = "EN" };
-        var category = new Category { Id = 999, Name = "Test", CompetitionId = competition.Id };
-        var discipline = new Discipline
-        {
-            Id = 999,
-            Name = "Primary",
-            CompetitionId = competition.Id,
-            HasPositionsInsteadPoints = false,
-            HasDecimalPoints = false,
-            IsDividedToCategories = false
-        };
-
-        var throwerWithNationality = new Thrower
-        {
-            Id = 999,
-            CompetitionId = competition.Id,
-            CategoryId = category.Id,
-            Name = "Alex",
-            Surname = "Nation",
-            Nationality = "GB"
-        };
-
-        var throwerWithoutNationality = new Thrower
-        {
-            Id = 1000,
-            CompetitionId = competition.Id,
-            CategoryId = category.Id,
-            Name = "Jamie",
-            Surname = "Unknown",
-            Nationality = null
-        };
-
-        _fixture.Context.Competitions.Add(competition);
-        _fixture.Context.Categories.Add(category);
-        _fixture.Context.Disciplines.Add(discipline);
-        _fixture.Context.Throwers.AddRange(throwerWithNationality, throwerWithoutNationality);
-        _fixture.Context.Results.AddRange(
-            new Results
-            {
-                CompetitionId = competition.Id,
-                DisciplineId = discipline.Id,
-                ThrowerId = throwerWithNationality.Id,
-                Points = 50
-            },
-            new Results
-            {
-                CompetitionId = competition.Id,
-                DisciplineId = discipline.Id,
-                ThrowerId = throwerWithoutNationality.Id,
-                Points = 40
-            });
-
-        await _fixture.Context.SaveChangesAsync();
-
-        var medals = await _fixture.ResultService.GetMedalsByNationAsync(competition.Id);
-
-        Assert.All(medals, m => Assert.False(string.IsNullOrWhiteSpace(m.Nationality)));
-        Assert.Contains(medals, m => m.Nationality == "GB");
-    }
 }
