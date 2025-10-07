@@ -38,14 +38,15 @@
 			</div>
 
 			<div class="container m-0 p-0 small-font row">
-				<div class="col-12" id="resultsOfGame">
-					@if (selectedDisciplineId != 0 || selectedCategoryId != 0)
-					{
-						<h3 class="mb-1 p-0">
-							@categories.FirstOrDefault(c => c.Id == selectedCategoryId)?.Name @(disciplines.Where(d => d.Id == selectedDisciplineId).FirstOrDefault().Name)
-						</h3>
-						<div class="d-flex flex-wrap">
-							@for (int i = 0; i < (selectedCategoryId != 0 ? MaxResultsCount(selectedCategoryId) : MaxResultsCount()); i++)
+                                <div class="col-12" id="resultsOfGame">
+                                        <PinchZoomContainer MaxScale="10">
+                                                @if (selectedDisciplineId != 0 || selectedCategoryId != 0)
+                                                {
+                                                        <h3 class="mb-1 p-0">
+                                                                @categories.FirstOrDefault(c => c.Id == selectedCategoryId)?.Name @(disciplines.Where(d => d.Id == selectedDisciplineId).FirstOrDefault().Name)
+                                                        </h3>
+                                                        <div class="d-flex flex-wrap">
+                                                                @for (int i = 0; i < (selectedCategoryId != 0 ? MaxResultsCount(selectedCategoryId) : MaxResultsCount()); i++)
 							{
 								var throwerName = selectedCategoryId != 0 ? GetResultNameForDiscipline(selectedCategoryId, selectedDisciplineId, i) : GetResultNameForDisciplineOverall(selectedDisciplineId, i);
 								var points = selectedCategoryId != 0 ? GetResultValueForDiscipline(selectedCategoryId, selectedDisciplineId, i) : GetResultValueForDisciplineOverall(selectedDisciplineId, i);
@@ -85,14 +86,14 @@
                                                                         </div>
                                                                         <div class="award-points">@L["Award Points"]: @awardPoints</div>
 								</div>
-							}
-						</div>
-					}
-					else if (MaxResultsCount() > 0)
-					{
-                                                <h3 class="mb-1 p-0">@L["Total winner"]</h3>
-						<div class="d-flex flex-wrap">
-							@for (int i = 0; i < MaxResultsCount(); i++)
+                                                        }
+                                                </div>
+                                                }
+                                                else if (MaxResultsCount() > 0)
+                                                {
+                                                        <h3 class="mb-1 p-0">@L["Total winner"]</h3>
+                                                        <div class="d-flex flex-wrap">
+                                                                @for (int i = 0; i < MaxResultsCount(); i++)
 							{
 								var throwerName = GetResultNameForDisciplineOverall(selectedDisciplineId, i);
 								var points = GetResultValueForDisciplineOverall(selectedDisciplineId, i);
@@ -113,10 +114,11 @@
                                                                         </div>
                                                                         <div class="award-points">@L["Award Points"]: @awardPoints</div>
 								</div>
-							}
-						</div>
-					}
-				</div>
+                                                        }
+                                                </div>
+                                                }
+                                        </PinchZoomContainer>
+                                </div>
 			</div>
 		}
 

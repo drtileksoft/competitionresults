@@ -1,0 +1,19 @@
+.pinch-zoom-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.pinch-zoom-container__content {
+    transform-origin: 0 0;
+    user-select: none;
+}
+
+.pinch-zoom-container--zoomed .pinch-zoom-container__content {
+    cursor: grab;
+}
+
+.pinch-zoom-container--zoomed .pinch-zoom-container__content:active {
+    cursor: grabbing;
+}

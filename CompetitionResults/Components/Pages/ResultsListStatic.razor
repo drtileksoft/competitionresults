@@ -25,10 +25,11 @@
 						{
                                                         <button @onclick='() => ExportAsPDF("resultContent" + category.Id)' class="m-2">@L["Export to PDF"]</button>
 
-							<div id="resultContent@(category.Id)">
-								<h7 class="mb-1 p-0">@category.Name</h7>
+                                                        <PinchZoomContainer MaxScale="10" Class="mb-3">
+                                                                <div id="resultContent@(category.Id)">
+                                                                        <h7 class="mb-1 p-0">@category.Name</h7>
 
-								<table class="table table-hover table-bordered m-0 p-0 mb-1">
+                                                                        <table class="table table-hover table-bordered m-0 p-0 mb-1">
 									<thead class="thead-light">
 										<tr>
                                                                                         <th style="width: 30px;">@L["Rank"]</th>
@@ -69,8 +70,9 @@
 											</tr>
 										}
 									</tbody>
-								</table>
-							</div>
+                                                                        </table>
+                                                                </div>
+                                                        </PinchZoomContainer>
 						}
 					}
 				</div>
@@ -80,10 +82,11 @@
 				<div class="col-12">
                                         <button @onclick='() => ExportAsPDF("resultContent")' class="m-2">@L["Export to PDF"]</button>
 
-                                        <div id="resultContent">
-                                                <h7 class="mb-1 p-0">@L["Overall"]</h7>
+                                        <PinchZoomContainer MaxScale="10" Class="mb-3">
+                                                <div id="resultContent">
+                                                        <h7 class="mb-1 p-0">@L["Overall"]</h7>
 
-						<table class="table table-hover table-bordered m-0 p-0 mb-1">
+                                                        <table class="table table-hover table-bordered m-0 p-0 mb-1">
 							<thead class="thead-light">
 								<tr>
                                                                         <th style="width: 30px;">@L["Rank"]</th>
@@ -130,8 +133,9 @@
 									</tr>
 								}
 							</tbody>
-						</table>
-					</div>
+                                                        </table>
+                                                </div>
+                                        </PinchZoomContainer>
 				</div>
 			</div>
 
@@ -141,10 +145,11 @@
 				<div class="col-12">
                                         <button @onclick='() => ExportAsPDF("resultContentTwo")' class="m-2">@L["Export to PDF"]</button>
 
-                                        <div id="resultContentTwo">
-                                                <h7 class="mb-1 p-0">@L["Overall 2"]</h7>
+                                        <PinchZoomContainer MaxScale="10" Class="mb-3">
+                                                <div id="resultContentTwo">
+                                                        <h7 class="mb-1 p-0">@L["Overall 2"]</h7>
 
-						<table class="table table-hover table-bordered m-0 p-0 mb-1">
+                                                        <table class="table table-hover table-bordered m-0 p-0 mb-1">
 							<thead class="thead-light">
 								<tr>
                                                                         <th style="width: 30px;">@L["Rank"]</th>
@@ -184,8 +189,9 @@
 									</tr>
 								}
 							</tbody>
-						</table>
-					</div>
+                                                        </table>
+                                                </div>
+                                        </PinchZoomContainer>
 				</div>
 			</div>
 			}
