@@ -1,0 +1,68 @@
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+
+<div @ref="_root" class="@ContainerClass" @attributes="AdditionalAttributes">
+    <div class="@ContentClassName" data-pinch-zoom-content>
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    private ElementReference _root;
+    private bool _isInitialized;
+
+    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? ContentClass { get; set; }
+    [Parameter] public double MinScale { get; set; } = 1d;
+    [Parameter] public double MaxScale { get; set; } = 8d;
+    [Parameter] public double InitialScale { get; set; } = 1d;
+    [Parameter] public bool EnableWheelZoom { get; set; } = true;
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string ContainerClass => string.IsNullOrWhiteSpace(Class)
+        ? "pinch-zoom-container"
+        : $"pinch-zoom-container {Class}";
+
+    private string ContentClassName => string.IsNullOrWhiteSpace(ContentClass)
+        ? "pinch-zoom-container__content"
+        : $"pinch-zoom-container__content {ContentClass}";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var minScale = Math.Max(0.1, MinScale);
+            var maxScale = Math.Max(minScale, MaxScale);
+            var initialScale = Math.Clamp(InitialScale, minScale, maxScale);
+
+            var options = new
+            {
+                minScale,
+                maxScale,
+                initialScale,
+                enableWheel = EnableWheelZoom
+            };
+
+            await JSRuntime.InvokeVoidAsync("pinchZoomContainer.init", _root, options);
+            _isInitialized = true;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_isInitialized)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("pinchZoomContainer.dispose", _root);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Blazor Server disconnect - safe to ignore
+            }
+        }
+    }
+}
